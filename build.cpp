@@ -14,8 +14,8 @@ int main(int argc, char **argv) {
   };
 
   auto m = unit::create<per_feat<mod>>("quack");
-  setup(m->for_feature(android_ndk));
-  setup(m->for_feature(posix));
+  setup(m->for_feature(android_ndk)).add_impl("vulkan");
+  setup(m->for_feature(posix)).add_impl("vulkan");
   setup(m->for_feature(webassembly)).add_impl("wasm");
 
   auto poc = unit::create<app>("poc");
