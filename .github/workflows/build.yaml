@@ -1,0 +1,31 @@
+name: build module
+on: 
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: 🧰 Setup
+        uses: m4c0/ecow/.github/actions/setup@main
+        with:
+          os: ${{ matrix.os }}
+      - name: 🧀 Prepare Deps
+        uses: m4c0/quack/.github/actions/deps@main
+      - name: 🖖 Install glslang
+        uses: m4c0/vee/.github/actions/glslang@main
+        with:
+          os: ${{ matrix.os }}
+      - name: 🔨 Build
+        uses: m4c0/ecow/.github/actions/compile@main
+        with:
+          os: ${{ matrix.os }}
+          project: quack
+
