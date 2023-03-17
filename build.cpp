@@ -6,16 +6,21 @@
 int main(int argc, char **argv) {
   using namespace ecow;
 
-  constexpr const auto setup = [](auto &mf) -> auto & {
+  const auto setup = [](auto &mf) -> auto & {
     mf.add_wsdep("casein", casein());
     mf.add_wsdep("hai", hai());
     mf.add_part("objects");
     return mf;
   };
+  const auto setup_vulkan = [&](auto &mf) {
+    setup(mf);
+    mf.add_wsdep("vee", vee());
+    mf.add_impl("vulkan");
+  };
 
   auto m = unit::create<per_feat<mod>>("quack");
-  setup(m->for_feature(android_ndk)).add_impl("vulkan");
-  setup(m->for_feature(posix)).add_impl("vulkan");
+  setup_vulkan(m->for_feature(android_ndk));
+  setup_vulkan(m->for_feature(posix));
   setup(m->for_feature(webassembly)).add_impl("wasm");
 
   auto poc = unit::create<app>("poc");
