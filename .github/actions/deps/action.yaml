@@ -4,6 +4,7 @@ runs:
   steps:
     - uses: m4c0/casein/.github/actions/deps@main
     - uses: m4c0/hai/.github/actions/deps@main
+    - uses: m4c0/traits/.github/actions/deps@main
     - uses: m4c0/vee/.github/actions/deps@main
     - uses: actions/checkout@v3
       with:

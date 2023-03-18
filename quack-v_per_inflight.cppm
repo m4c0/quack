@@ -1,5 +1,6 @@
 export module quack:v_per_inflight;
 import :v_per_extent;
+import traits;
 import vee;
 
 namespace quack {
@@ -32,6 +33,25 @@ public:
         .wait_semaphore = *img_available_sema,
         .signal_semaphore = *rnd_finished_sema,
     });
+  }
+};
+
+class inflight_pair {
+  vee::command_pool cp;
+
+  per_inflight front{&cp};
+  per_inflight back{&cp};
+
+public:
+  explicit inflight_pair(const per_device *dev)
+      : cp{vee::create_command_pool(dev->queue_family())} {}
+
+  [[nodiscard]] auto &flip() {
+    auto tmp = traits::move(front);
+    front = traits::move(back);
+    back = traits::move(tmp);
+
+    return back;
   }
 };
 } // namespace quack
