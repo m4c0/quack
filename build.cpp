@@ -17,6 +17,7 @@ int main(int argc, char **argv) {
     mf.add_wsdep("vee", vee());
     mf.add_part("v_per_device");
     mf.add_part("v_per_extent");
+    mf.add_part("v_per_inflight");
     mf.add_impl("vulkan");
   };
 
