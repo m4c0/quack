@@ -1,10 +1,13 @@
 module quack;
+import :v_per_device;
 import hai;
 import casein;
 import vee;
 
 namespace quack {
 class pimpl {
+  hai::uptr<per_device> m_dev{};
+
 public:
   explicit pimpl(unsigned max_quad) {}
 };

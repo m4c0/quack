@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
   const auto setup_vulkan = [&](auto &mf) {
     setup(mf);
     mf.add_wsdep("vee", vee());
+    mf.add_part("v_per_device");
     mf.add_impl("vulkan");
   };
 
