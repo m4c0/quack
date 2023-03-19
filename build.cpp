@@ -21,6 +21,7 @@ int main(int argc, char **argv) {
     mf.add_part("v_per_extent");
     mf.add_part("v_per_frame");
     mf.add_part("v_per_inflight");
+    mf.add_part("v_bbuffer");
     mf.add_impl("vulkan");
   };
 
