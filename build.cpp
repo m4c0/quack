@@ -25,11 +25,23 @@ int main(int argc, char **argv) {
     mf.add_part("v_pipeline");
     mf.add_impl("vulkan");
   };
+  const auto setup_wasm = [&](auto &mf) {
+    setup(mf);
+    mf.add_impl("wasm");
+    mf.template add_feat<inline_js>("quack_fill_colour", R"((r, g, b) => {
+  var rr = Math.pow(r, 1.0 / 2.2) * 256.0;
+  var gg = Math.pow(g, 1.0 / 2.2) * 256.0;
+  var bb = Math.pow(b, 1.0 / 2.2) * 256.0;
+  ctx.fillStyle = `rgb(${rr}, ${gg}, ${bb})`;
+})");
+    mf.template add_feat<inline_js>("quack_fill_rect",
+                                    "ctx.fillRect.bind(ctx)");
+  };
 
   auto m = unit::create<per_feat<mod>>("quack");
   setup_vulkan(m->for_feature(android_ndk));
   setup_vulkan(m->for_feature(posix));
-  setup(m->for_feature(webassembly)).add_impl("wasm");
+  setup_wasm(m->for_feature(webassembly));
 
   auto poc = unit::create<app>("poc");
   poc->add_wsdep("casein", casein());
