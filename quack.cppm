@@ -13,7 +13,8 @@ public:
   ~renderer();
 
   void setup(casein::native_handle_t);
-  void update(const filler &);
+  void fill_pos(const filler<pos> &);
+  void fill_colour(const filler<colour> &);
   void repaint();
   void quit();
 };

@@ -1,13 +1,17 @@
 export module quack:objects;
 
 export namespace quack {
-struct quad {
+struct pos {
+  float x;
+  float y;
+};
+struct colour {
   float r;
   float g;
   float b;
   float a; // Currently unused
 };
-struct filler {
-  virtual void operator()(quad *) const noexcept = 0;
+template <typename Tp> struct filler {
+  virtual void operator()(Tp *) const noexcept = 0;
 };
 } // namespace quack

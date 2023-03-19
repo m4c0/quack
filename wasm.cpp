@@ -8,19 +8,25 @@ extern "C" void quack_fill_rect(unsigned x, unsigned y, unsigned w, unsigned h);
 
 namespace quack {
 class pimpl {
-  hai::holder<quad[]> m_map;
+  hai::holder<colour[]> m_colour;
+  hai::holder<pos[]> m_pos;
 
 public:
-  pimpl(unsigned qs) : m_map{hai::holder<quad[]>::make(qs)} {}
+  pimpl(unsigned qs)
+      : m_colour{hai::holder<colour[]>::make(qs)}, m_pos{
+                                                       hai::holder<pos[]>::make(
+                                                           qs)} {}
 
-  [[nodiscard]] constexpr auto ptr() noexcept { return *m_map; }
+  [[nodiscard]] constexpr auto colours() noexcept { return *m_colour; }
+  [[nodiscard]] constexpr auto positions() noexcept { return *m_pos; }
 };
 
 renderer::renderer(unsigned max_quad)
     : m_pimpl{hai::uptr<pimpl>::make(max_quad)} {}
 renderer::~renderer() = default;
 
-void renderer::update(const filler &g) { g(m_pimpl->ptr()); }
+void renderer::fill_colour(const filler<colour> &g) { g(m_pimpl->colours()); }
+void renderer::fill_pos(const filler<pos> &g) { g(m_pimpl->positions()); }
 void renderer::repaint() {
   /*
   for (auto i = 0; i < ecs::grid_cells; i++) {

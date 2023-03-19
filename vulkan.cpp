@@ -33,13 +33,20 @@ public:
       (*m_frms)[i] = hai::uptr<per_frame>::make(&*m_dev, &*m_ext, img);
     }
   }
+
+  [[nodiscard]] auto &ppl() noexcept { return *m_ppl; }
 };
 
 renderer::renderer(unsigned max_quad)
     : m_pimpl{hai::uptr<pimpl>::make(max_quad)} {}
 renderer::~renderer() = default;
 
-void renderer::update(const filler &g) {}
+void renderer::fill_colour(const filler<colour> &g) {
+  m_pimpl->ppl().map_instances_colour(g);
+}
+void renderer::fill_pos(const filler<pos> &g) {
+  m_pimpl->ppl().map_instances_pos(g);
+}
 void renderer::repaint() {}
 
 void renderer::setup(casein::native_handle_t nptr) {

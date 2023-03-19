@@ -1,8 +1,9 @@
 import casein;
 import quack;
 
-struct filler : public quack::filler {
-  void operator()(quack::quad *qs) const noexcept override {}
+struct filler : quack::filler<quack::colour>, quack::filler<quack::pos> {
+  void operator()(quack::colour *qs) const noexcept override {}
+  void operator()(quack::pos *qs) const noexcept override {}
 };
 
 extern "C" void casein_handle(const casein::event &e) {
@@ -11,9 +12,10 @@ extern "C" void casein_handle(const casein::event &e) {
   switch (e.type()) {
   case casein::CREATE_WINDOW:
     q.setup(e.as<casein::events::create_window>().native_window_handle());
+    q.fill_pos(filler{});
     break;
   case casein::REPAINT:
-    q.update(filler{});
+    q.fill_colour(filler{});
     q.repaint();
     break;
   case casein::QUIT:

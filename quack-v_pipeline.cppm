@@ -6,13 +6,9 @@ import :v_per_extent;
 import vee;
 
 namespace quack {
-struct xy {
-  float x;
-  float y;
-};
 struct pcs {
-  xy grid_pos;
-  xy grid_size;
+  pos grid_pos;
+  pos grid_size;
 };
 class pipeline {
   const per_device *dev;
@@ -33,9 +29,9 @@ class pipeline {
           vee::pipeline_frag_stage(*frag, "main"),
       },
       {
-          vee::vertex_input_bind(sizeof(xy)),
-          vee::vertex_input_bind_per_instance(sizeof(xy)),
-          vee::vertex_input_bind_per_instance(sizeof(quad)),
+          vee::vertex_input_bind(sizeof(pos)),
+          vee::vertex_input_bind_per_instance(sizeof(pos)),
+          vee::vertex_input_bind_per_instance(sizeof(colour)),
       },
       {
           vee::vertex_attribute_vec2(0, 0),
@@ -45,9 +41,9 @@ class pipeline {
 
   static constexpr const auto v_count = 6;
 
-  bound_buffer<xy> vertices{dev, v_count};
-  bound_buffer<xy> instance_pos;
-  bound_buffer<quad> instance_colour;
+  bound_buffer<pos> vertices{dev, v_count};
+  bound_buffer<pos> instance_pos;
+  bound_buffer<colour> instance_colour;
 
   void map_vertices() {
     vertices.map([](auto vs) {
