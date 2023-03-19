@@ -35,5 +35,9 @@ int main(int argc, char **argv) {
   poc->add_wsdep("casein", casein());
   poc->add_ref(m);
   poc->add_unit("poc");
+  poc->add_unit<spirv>("main.vert");
+  poc->add_unit<spirv>("main.frag");
+  poc->add_resource("main.vert.spv");
+  poc->add_resource("main.frag.spv");
   return run_main(poc, argc, argv);
 }
