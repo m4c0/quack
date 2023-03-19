@@ -21,8 +21,8 @@ public:
   [[nodiscard]] constexpr auto positions() noexcept { return *m_pos; }
 };
 
-renderer::renderer(unsigned max_quad)
-    : m_pimpl{hai::uptr<pimpl>::make(max_quad)} {}
+renderer::renderer(const params &p)
+    : m_pimpl{hai::uptr<pimpl>::make(p.max_quads)} {}
 renderer::~renderer() = default;
 
 void renderer::fill_colour(const filler<colour> &g) { g(m_pimpl->colours()); }

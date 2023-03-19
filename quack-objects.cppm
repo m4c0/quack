@@ -1,6 +1,12 @@
 export module quack:objects;
 
 export namespace quack {
+struct params {
+  unsigned grid_w;
+  unsigned grid_h;
+  unsigned max_quads;
+};
+
 struct pos {
   float x;
   float y;

@@ -37,8 +37,8 @@ public:
   [[nodiscard]] auto &ppl() noexcept { return *m_ppl; }
 };
 
-renderer::renderer(unsigned max_quad)
-    : m_pimpl{hai::uptr<pimpl>::make(max_quad)} {}
+renderer::renderer(const params &p)
+    : m_pimpl{hai::uptr<pimpl>::make(p.max_quads)} {}
 renderer::~renderer() = default;
 
 void renderer::fill_colour(const filler<colour> &g) {

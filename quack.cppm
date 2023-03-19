@@ -9,7 +9,7 @@ class renderer {
   hai::uptr<pimpl> m_pimpl;
 
 public:
-  renderer(unsigned max_quads);
+  renderer(const params &p);
   ~renderer();
 
   void setup(casein::native_handle_t);
