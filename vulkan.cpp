@@ -15,16 +15,19 @@ class pimpl {
   hai::uptr<inflight_pair> m_infs{};
   hai::holder<hai::uptr<per_frame>[]> m_frms{};
   hai::uptr<pipeline> m_ppl{};
-  unsigned m_max_quads;
+  params m_p;
 
 public:
-  explicit pimpl(unsigned max_quad) : m_max_quads{max_quad} {}
+  explicit pimpl(const params &p) : m_p{p} {}
 
   void setup(casein::native_handle_t nptr) {
     m_dev = hai::uptr<per_device>::make(nptr);
+    setup();
+  }
+  void setup() {
     m_ext = hai::uptr<per_extent>::make(&*m_dev);
     m_infs = hai::uptr<inflight_pair>::make(&*m_dev);
-    m_ppl = hai::uptr<pipeline>::make(&*m_dev, &*m_ext, m_max_quads);
+    m_ppl = hai::uptr<pipeline>::make(&*m_dev, &*m_ext, m_p);
 
     auto imgs = vee::get_swapchain_images(m_ext->swapchain());
     m_frms = decltype(m_frms)::make(imgs.size());
@@ -34,11 +37,33 @@ public:
     }
   }
 
+  void paint(unsigned i_count) {
+    try {
+      auto &inf = m_infs->flip();
+
+      auto idx = inf.wait_and_takeoff(&*m_ext);
+
+      m_ppl->build_commands(inf.command_buffer(), i_count);
+
+      inf.submit(&*m_dev, (*m_frms)[idx]->one_time_submit([&inf](auto cb) {
+        vee::cmd_execute_command(cb, inf.command_buffer());
+      }));
+      vee::queue_present({
+          .queue = m_dev->queue(),
+          .swapchain = m_ext->swapchain(),
+          .wait_semaphore = inf.render_finished_sema(),
+          .image_index = idx,
+      });
+    } catch (vee::out_of_date_error) {
+      vee::device_wait_idle();
+      setup();
+    }
+  }
+
   [[nodiscard]] auto &ppl() noexcept { return *m_ppl; }
 };
 
-renderer::renderer(const params &p)
-    : m_pimpl{hai::uptr<pimpl>::make(p.max_quads)} {}
+renderer::renderer(const params &p) : m_pimpl{hai::uptr<pimpl>::make(p)} {}
 renderer::~renderer() = default;
 
 void renderer::fill_colour(const filler<colour> &g) {
@@ -47,7 +72,7 @@ void renderer::fill_colour(const filler<colour> &g) {
 void renderer::fill_pos(const filler<pos> &g) {
   m_pimpl->ppl().map_instances_pos(g);
 }
-void renderer::repaint(unsigned i_count) {}
+void renderer::repaint(unsigned i_count) { m_pimpl->paint(i_count); }
 
 void renderer::setup(casein::native_handle_t nptr) {
   vee::initialise();

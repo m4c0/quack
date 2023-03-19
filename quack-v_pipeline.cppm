@@ -9,6 +9,11 @@ namespace quack {
 struct pcs {
   pos grid_pos;
   pos grid_size;
+
+  pcs(const params &p)
+      : grid_pos{p.grid_w / 2.0f, p.grid_h / 2.0f}, grid_size{p.grid_w * 1.0f,
+                                                              p.grid_h * 1.0f} {
+  }
 };
 class pipeline {
   const per_device *dev;
@@ -44,6 +49,7 @@ class pipeline {
   bound_buffer<pos> vertices{dev, v_count};
   bound_buffer<pos> instance_pos;
   bound_buffer<colour> instance_colour;
+  pcs pc;
 
   void map_vertices() {
     vertices.map([](auto vs) {
@@ -58,8 +64,9 @@ class pipeline {
   }
 
 public:
-  explicit pipeline(const per_device *d, const per_extent *e, unsigned max)
-      : dev{d}, ext{e}, instance_pos{dev, max}, instance_colour{dev, max} {
+  explicit pipeline(const per_device *d, const per_extent *e, const params &p)
+      : dev{d}, ext{e}, instance_pos{dev, p.max_quads},
+        instance_colour{dev, p.max_quads}, pc{p} {
     map_vertices();
   }
 
@@ -68,7 +75,6 @@ public:
 
   void build_commands(vee::command_buffer cb, unsigned i_count) const {
     const auto extent = ext->extent_2d();
-    constexpr const pcs pc{};
 
     vee::begin_cmd_buf_render_pass_continue(cb, ext->render_pass());
     vee::cmd_set_scissor(cb, extent);
