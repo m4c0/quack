@@ -24,9 +24,9 @@ class pipeline {
   });
 
   vee::shader_module vert =
-      vee::create_shader_module_from_resource("main.vert.spv");
+      vee::create_shader_module_from_resource("quack.vert.spv");
   vee::shader_module frag =
-      vee::create_shader_module_from_resource("main.frag.spv");
+      vee::create_shader_module_from_resource("quack.frag.spv");
   vee::gr_pipeline gp = vee::create_graphics_pipeline(
       *pl, ext->render_pass(),
       {

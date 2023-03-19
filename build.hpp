@@ -11,10 +11,10 @@ auto quack() {
     mf.add_wsdep("hai", hai());
     mf.add_part("objects");
 
-    mf.add_unit<spirv>("main.vert");
-    mf.add_unit<spirv>("main.frag");
-    mf.add_resource("main.vert.spv");
-    mf.add_resource("main.frag.spv");
+    mf.add_unit<spirv>("quack.vert");
+    mf.add_unit<spirv>("quack.frag");
+    mf.add_resource("quack.vert.spv");
+    mf.add_resource("quack.frag.spv");
     return mf;
   };
   const auto setup_vulkan = [&](auto &mf) {
