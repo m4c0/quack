@@ -3,6 +3,7 @@ import :v_per_device;
 import :v_per_extent;
 import :v_per_frame;
 import :v_per_inflight;
+import :v_pipeline;
 import hai;
 import casein;
 import vee;
@@ -13,16 +14,17 @@ class pimpl {
   hai::uptr<per_extent> m_ext{};
   hai::uptr<inflight_pair> m_infs{};
   hai::holder<hai::uptr<per_frame>[]> m_frms{};
-  // hai::uptr<pipeline> m_ppl{};
+  hai::uptr<pipeline> m_ppl{};
+  unsigned m_max_quads;
 
 public:
-  explicit pimpl(unsigned max_quad) {}
+  explicit pimpl(unsigned max_quad) : m_max_quads{max_quad} {}
 
   void setup(casein::native_handle_t nptr) {
     m_dev = hai::uptr<per_device>::make(nptr);
     m_ext = hai::uptr<per_extent>::make(&*m_dev);
     m_infs = hai::uptr<inflight_pair>::make(&*m_dev);
-    // m_ppl = hai::uptr<pipeline>::make(&*m_dev, &*m_ext);
+    m_ppl = hai::uptr<pipeline>::make(&*m_dev, &*m_ext, m_max_quads);
 
     auto imgs = vee::get_swapchain_images(m_ext->swapchain());
     m_frms = decltype(m_frms)::make(imgs.size());
