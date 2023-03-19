@@ -7,10 +7,15 @@
 int main(int argc, char **argv) {
   using namespace ecow;
 
-  const auto setup = [](auto &mf) -> auto & {
+  const auto setup = [](mod & mf) -> auto & {
     mf.add_wsdep("casein", casein());
     mf.add_wsdep("hai", hai());
     mf.add_part("objects");
+
+    mf.add_unit<spirv>("main.vert");
+    mf.add_unit<spirv>("main.frag");
+    mf.add_resource("main.vert.spv");
+    mf.add_resource("main.frag.spv");
     return mf;
   };
   const auto setup_vulkan = [&](auto &mf) {
@@ -47,9 +52,5 @@ int main(int argc, char **argv) {
   poc->add_wsdep("casein", casein());
   poc->add_ref(m);
   poc->add_unit("poc");
-  poc->add_unit<spirv>("main.vert");
-  poc->add_unit<spirv>("main.frag");
-  poc->add_resource("main.vert.spv");
-  poc->add_resource("main.frag.spv");
   return run_main(poc, argc, argv);
 }
