@@ -27,7 +27,7 @@ renderer::~renderer() = default;
 
 void renderer::fill_colour(const filler<colour> &g) { g(m_pimpl->colours()); }
 void renderer::fill_pos(const filler<pos> &g) { g(m_pimpl->positions()); }
-void renderer::repaint() {
+void renderer::repaint(unsigned i_count) {
   /*
   for (auto i = 0; i < ecs::grid_cells; i++) {
     const auto &b = m_map[i];

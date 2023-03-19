@@ -47,7 +47,7 @@ void renderer::fill_colour(const filler<colour> &g) {
 void renderer::fill_pos(const filler<pos> &g) {
   m_pimpl->ppl().map_instances_pos(g);
 }
-void renderer::repaint() {}
+void renderer::repaint(unsigned i_count) {}
 
 void renderer::setup(casein::native_handle_t nptr) {
   vee::initialise();

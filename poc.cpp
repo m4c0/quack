@@ -2,8 +2,14 @@ import casein;
 import quack;
 
 struct filler : quack::filler<quack::colour>, quack::filler<quack::pos> {
-  void operator()(quack::colour *qs) const noexcept override {}
-  void operator()(quack::pos *qs) const noexcept override {}
+  void operator()(quack::colour *qs) const noexcept override {
+    qs[0] = {1, 1, 1, 1};
+    qs[1] = {1, 0, 1, 1};
+  }
+  void operator()(quack::pos *qs) const noexcept override {
+    qs[0] = {-1, -1};
+    qs[1] = {1, 1};
+  }
 };
 
 extern "C" void casein_handle(const casein::event &e) {
@@ -16,7 +22,7 @@ extern "C" void casein_handle(const casein::event &e) {
     break;
   case casein::REPAINT:
     q.fill_colour(filler{});
-    q.repaint();
+    q.repaint(2);
     break;
   case casein::QUIT:
     q.quit();
