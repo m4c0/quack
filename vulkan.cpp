@@ -69,7 +69,7 @@ renderer::~renderer() = default;
 void renderer::_fill_colour(const filler<colour> &g) {
   m_pimpl->ppl().map_instances_colour(g);
 }
-void renderer::fill_pos(const filler<pos> &g) {
+void renderer::_fill_pos(const filler<pos> &g) {
   m_pimpl->ppl().map_instances_pos(g);
 }
 void renderer::repaint(unsigned i_count) { m_pimpl->paint(i_count); }

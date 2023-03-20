@@ -1,17 +1,17 @@
 export module quack:objects;
 
-export namespace quack {
-struct params {
+namespace quack {
+export struct params {
   unsigned grid_w;
   unsigned grid_h;
   unsigned max_quads;
 };
 
-struct pos {
+export struct pos {
   float x;
   float y;
 };
-struct colour {
+export struct colour {
   float r;
   float g;
   float b;
