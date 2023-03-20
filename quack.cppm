@@ -76,6 +76,10 @@ public:
       }
     });
   }
+  void reset_grid() {
+    for (auto &d : m_data)
+      d = {};
+  }
   void repaint() { m_r.repaint(cells); }
   void quit() { m_r.quit(); }
 
