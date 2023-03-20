@@ -41,7 +41,7 @@ class pipeline {
       {
           vee::vertex_attribute_vec2(0, 0),
           vee::vertex_attribute_vec2(1, 0),
-          vee::vertex_attribute_vec2(2, 0),
+          vee::vertex_attribute_vec4(2, 0),
       });
 
   static constexpr const auto v_count = 6;
