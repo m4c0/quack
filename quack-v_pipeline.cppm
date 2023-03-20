@@ -11,8 +11,8 @@ struct pcs {
   pos grid_size;
 
   pcs(const params &p)
-      : grid_pos{p.grid_w / 2.0f, p.grid_h / 2.0f}, grid_size{p.grid_w * 1.0f,
-                                                              p.grid_h * 1.0f} {
+      : grid_pos{p.grid_w / 2.0f, p.grid_h / 2.0f}, grid_size{p.grid_w / 2.0f,
+                                                              p.grid_h / 2.0f} {
   }
 };
 class pipeline {
