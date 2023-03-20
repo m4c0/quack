@@ -61,21 +61,20 @@ public:
     m_r.setup(nptr);
     m_r.fill_pos([](pos *is) {
       unsigned i = 0;
-      for (auto y = 0; y < width; y++) {
-        for (auto x = 0; x < height; x++, i++) {
+      for (auto y = 0; y < H; y++) {
+        for (auto x = 0; x < W; x++, i++) {
           is[i].x = x;
           is[i].y = y;
         }
       }
     });
   }
-  void repaint(auto &&fn) {
+  void fill_colour(auto &&fn) {
     m_r.fill_colour([&](auto *c) {
       for (auto i = 0; i < cells; i++) {
         c[i] = fn(at(i));
       }
     });
-    m_r.repaint(cells);
   }
   void repaint() { m_r.repaint(cells); }
   void quit() { m_r.quit(); }
