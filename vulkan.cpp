@@ -66,7 +66,7 @@ public:
 renderer::renderer(const params &p) : m_pimpl{hai::uptr<pimpl>::make(p)} {}
 renderer::~renderer() = default;
 
-void renderer::fill_colour(const filler<colour> &g) {
+void renderer::_fill_colour(const filler<colour> &g) {
   m_pimpl->ppl().map_instances_colour(g);
 }
 void renderer::fill_pos(const filler<pos> &g) {
