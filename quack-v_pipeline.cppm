@@ -70,8 +70,10 @@ public:
     map_vertices();
   }
 
-  void map_instances_pos(auto &&fn) { instance_pos.map(fn); }
-  void map_instances_colour(auto &&fn) { instance_colour.map(fn); }
+  void map_instances_pos(const filler<pos> &fn) { instance_pos.map(fn); }
+  void map_instances_colour(const filler<colour> &fn) {
+    instance_colour.map(fn);
+  }
 
   void build_commands(vee::command_buffer cb, unsigned i_count) const {
     const auto extent = ext->extent_2d();
