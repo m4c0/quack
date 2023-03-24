@@ -4,6 +4,7 @@ import :v_per_extent;
 import :v_per_frame;
 import :v_per_inflight;
 import :v_pipeline;
+import :v_stage;
 import hai;
 import casein;
 import vee;
@@ -14,6 +15,7 @@ class pimpl {
   hai::uptr<per_extent> m_ext{};
   hai::uptr<inflight_pair> m_infs{};
   hai::holder<hai::uptr<per_frame>[]> m_frms{};
+  hai::uptr<stage_image> m_stg{};
   hai::uptr<pipeline> m_ppl{};
   params m_p;
 
@@ -27,7 +29,10 @@ public:
   void setup() {
     m_ext = hai::uptr<per_extent>::make(&*m_dev);
     m_infs = hai::uptr<inflight_pair>::make(&*m_dev);
+    m_stg = hai::uptr<stage_image>::make(&*m_dev);
     m_ppl = hai::uptr<pipeline>::make(&*m_dev, &*m_ext, m_p);
+
+    m_ppl->set_atlas(m_stg->image_view());
 
     auto imgs = vee::get_swapchain_images(m_ext->swapchain());
     m_frms = decltype(m_frms)::make(imgs.size());

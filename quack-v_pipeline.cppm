@@ -19,9 +19,13 @@ class pipeline {
   const per_device *dev;
   const per_extent *ext;
 
-  vee::pipeline_layout pl = vee::create_pipeline_layout({
-      vee::vertex_push_constant_range<pcs>(),
-  });
+  vee::descriptor_set_layout dsl =
+      vee::create_descriptor_set_layout({vee::dsl_fragment_sampler()});
+
+  vee::pipeline_layout pl = vee::create_pipeline_layout(
+      {*dsl}, {
+                  vee::vertex_push_constant_range<pcs>(),
+              });
 
   vee::shader_module vert =
       vee::create_shader_module_from_resource("quack.vert.spv");
@@ -45,6 +49,11 @@ class pipeline {
           vee::vertex_attribute_vec4(2, 0),
           vee::vertex_attribute_vec4(3, 0),
       });
+
+  vee::descriptor_pool desc_pool =
+      vee::create_descriptor_pool(1, {vee::combined_image_sampler()});
+  vee::descriptor_set desc_set = vee::allocate_descriptor_set(*desc_pool, *dsl);
+  vee::sampler smp = vee::create_sampler(vee::nearest_sampler);
 
   static constexpr const auto v_count = 6;
 
@@ -74,6 +83,10 @@ public:
     map_vertices();
   }
 
+  void set_atlas(const vee::image_view &iv) {
+    vee::update_descriptor_set(desc_set, 0, *iv, *smp);
+  }
+
   void map_instances_pos(const filler<pos> &fn) { instance_pos.map(fn); }
   void map_instances_colour(const filler<colour> &fn) {
     instance_colour.map(fn);
@@ -91,6 +104,7 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 1, *instance_pos);
     vee::cmd_bind_vertex_buffers(cb, 2, *instance_colour);
     vee::cmd_bind_vertex_buffers(cb, 3, *instance_uv);
+    vee::cmd_bind_descriptor_set(cb, *pl, 0, desc_set);
     vee::cmd_push_vertex_constants(cb, *pl, &pc);
     vee::cmd_draw(cb, v_count, i_count);
     vee::end_cmd_buf(cb);
