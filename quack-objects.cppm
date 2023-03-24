@@ -17,7 +17,7 @@ export struct colour {
   float b;
   float a; // Currently unused
 };
-template <typename Tp> struct filler {
+export template <typename Tp> struct filler {
   virtual void operator()(Tp *) const noexcept = 0;
 };
 } // namespace quack
