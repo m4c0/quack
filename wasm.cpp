@@ -10,17 +10,20 @@ namespace quack {
 class pimpl {
   hai::holder<colour[]> m_colour;
   hai::holder<pos[]> m_pos;
+  hai::holder<uv[]> m_uvs;
   unsigned m_grid_w;
   unsigned m_grid_h;
 
 public:
   pimpl(const params &p)
       : m_colour{hai::holder<colour[]>::make(p.max_quads)},
-        m_pos{hai::holder<pos[]>::make(p.max_quads)}, m_grid_w{p.grid_w},
+        m_pos{hai::holder<pos[]>::make(p.max_quads)},
+        m_uvs{hai::holder<uv[]>::make(p.max_quads)}, m_grid_w{p.grid_w},
         m_grid_h{p.grid_h} {}
 
   [[nodiscard]] constexpr auto colours() noexcept { return *m_colour; }
   [[nodiscard]] constexpr auto positions() noexcept { return *m_pos; }
+  [[nodiscard]] constexpr auto uvs() noexcept { return *m_uvs; }
 
   [[nodiscard]] constexpr auto grid_w() const noexcept { return m_grid_w; }
   [[nodiscard]] constexpr auto grid_h() const noexcept { return m_grid_h; }
@@ -31,6 +34,7 @@ renderer::~renderer() = default;
 
 void renderer::_fill_colour(const filler<colour> &g) { g(m_pimpl->colours()); }
 void renderer::_fill_pos(const filler<pos> &g) { g(m_pimpl->positions()); }
+void renderer::_fill_uv(const filler<uv> &g) { g(m_pimpl->uvs()); }
 void renderer::repaint(unsigned i_count) {
   for (auto i = 0; i < i_count; i++) {
     const auto &b = m_pimpl->colours()[i];

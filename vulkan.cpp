@@ -72,6 +72,9 @@ void renderer::_fill_colour(const filler<colour> &g) {
 void renderer::_fill_pos(const filler<pos> &g) {
   m_pimpl->ppl().map_instances_pos(g);
 }
+void renderer::_fill_uv(const filler<uv> &g) {
+  m_pimpl->ppl().map_instances_uv(g);
+}
 void renderer::repaint(unsigned i_count) { m_pimpl->paint(i_count); }
 
 void renderer::setup(casein::native_handle_t nptr) {

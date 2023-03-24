@@ -49,6 +49,7 @@ class pipeline {
   bound_buffer<pos> vertices{dev, v_count};
   bound_buffer<pos> instance_pos;
   bound_buffer<colour> instance_colour;
+  bound_buffer<uv> instance_uv;
   pcs pc;
 
   void map_vertices() {
@@ -66,7 +67,8 @@ class pipeline {
 public:
   explicit pipeline(const per_device *d, const per_extent *e, const params &p)
       : dev{d}, ext{e}, instance_pos{dev, p.max_quads},
-        instance_colour{dev, p.max_quads}, pc{p} {
+        instance_colour{dev, p.max_quads},
+        instance_uv{dev, p.max_quads}, pc{p} {
     map_vertices();
   }
 
@@ -74,6 +76,7 @@ public:
   void map_instances_colour(const filler<colour> &fn) {
     instance_colour.map(fn);
   }
+  void map_instances_uv(const filler<uv> &fn) { instance_uv.map(fn); }
 
   void build_commands(vee::command_buffer cb, unsigned i_count) const {
     const auto extent = ext->extent_2d();

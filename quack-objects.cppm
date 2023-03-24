@@ -11,6 +11,16 @@ export struct pos {
   float x;
   float y;
 };
+export struct uv {
+  struct {
+    float u;
+    float v;
+  } start;
+  struct {
+    float u;
+    float v;
+  } end;
+};
 export struct colour {
   float r;
   float g;
