@@ -37,11 +37,13 @@ class pipeline {
           vee::vertex_input_bind(sizeof(pos)),
           vee::vertex_input_bind_per_instance(sizeof(pos)),
           vee::vertex_input_bind_per_instance(sizeof(colour)),
+          vee::vertex_input_bind_per_instance(sizeof(uv)),
       },
       {
           vee::vertex_attribute_vec2(0, 0),
           vee::vertex_attribute_vec2(1, 0),
           vee::vertex_attribute_vec4(2, 0),
+          vee::vertex_attribute_vec4(3, 0),
       });
 
   static constexpr const auto v_count = 6;
@@ -88,6 +90,7 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 0, *vertices);
     vee::cmd_bind_vertex_buffers(cb, 1, *instance_pos);
     vee::cmd_bind_vertex_buffers(cb, 2, *instance_colour);
+    vee::cmd_bind_vertex_buffers(cb, 3, *instance_uv);
     vee::cmd_push_vertex_constants(cb, *pl, &pc);
     vee::cmd_draw(cb, v_count, i_count);
     vee::end_cmd_buf(cb);
