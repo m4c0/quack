@@ -34,6 +34,12 @@ public:
 
     m_ppl->set_atlas(m_stg->image_view());
 
+    m_stg->load_image([](auto ptr) {
+      for (auto i = 0; i < 16 * 16 * 4; i++) {
+        ptr[i] = 128;
+      }
+    });
+
     auto imgs = vee::get_swapchain_images(m_ext->swapchain());
     m_frms = decltype(m_frms)::make(imgs.size());
     for (auto i = 0; i < imgs.size(); i++) {
@@ -50,9 +56,15 @@ public:
 
       m_ppl->build_commands(inf.command_buffer(), i_count);
 
-      inf.submit(&*m_dev, (*m_frms)[idx]->one_time_submit([&inf](auto cb) {
+      const auto exec_secondary = [&inf](auto cb) {
         vee::cmd_execute_command(cb, inf.command_buffer());
-      }));
+      };
+      const auto prepare_stage = [stg = &*m_stg](auto cb) {
+        stg->build_commands(cb);
+      };
+
+      inf.submit(&*m_dev, (*m_frms)[idx]->one_time_submit(prepare_stage,
+                                                          exec_secondary));
       vee::queue_present({
           .queue = m_dev->queue(),
           .swapchain = m_ext->swapchain(),

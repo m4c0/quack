@@ -15,8 +15,10 @@ public:
       : ext{ext}, iv{vee::create_rgba_image_view(img, dev->physical_device(),
                                                  dev->surface())} {}
 
-  [[nodiscard]] auto one_time_submit(auto fn) {
+  [[nodiscard]] auto one_time_submit(auto pfn, auto fn) {
     vee::begin_cmd_buf_one_time_submit(cb);
+    pfn(cb);
+
     vee::cmd_begin_render_pass({
         .command_buffer = cb,
         .render_pass = ext->render_pass(),
