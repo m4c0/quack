@@ -27,6 +27,12 @@ export struct colour {
   float b;
   float a; // Currently unused
 };
+export struct u8_rgba {
+  unsigned char r;
+  unsigned char g;
+  unsigned char b;
+  unsigned char a;
+};
 export template <typename Tp> struct filler {
   virtual void operator()(Tp *) const noexcept = 0;
 };

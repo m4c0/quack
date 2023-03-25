@@ -6,6 +6,11 @@ extern "C" void casein_handle(const casein::event &e) {
   switch (e.type()) {
   case casein::CREATE_WINDOW:
     q.setup(e.as<casein::events::create_window>().native_window_handle());
+    q.load_atlas(16, 16, [](auto *img) {
+      for (auto i = 0; i < 16 * 16; i++) {
+        img[i] = {255, 255, 255, 127};
+      }
+    });
     q.reset_grid();
     q.at(10, 10) = quack::colour{1, 0, 0, 1};
     q.at(12, 8) = quack::colour{0, 0, 1, 1};

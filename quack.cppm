@@ -11,6 +11,7 @@ class renderer {
   void _fill_colour(const filler<colour> &);
   void _fill_pos(const filler<pos> &);
   void _fill_uv(const filler<uv> &);
+  void _load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &);
 
   template <typename Tp, typename Fn> class s : public filler<Tp> {
     Fn m;
@@ -36,6 +37,9 @@ public:
   }
   template <typename Fn> void fill_uv(Fn &&fn) {
     _fill_uv(s<uv, Fn>{static_cast<Fn &&>(fn)});
+  }
+  template <typename Fn> void load_atlas(unsigned w, unsigned h, Fn &&fn) {
+    _load_atlas(w, h, s<u8_rgba, Fn>{static_cast<Fn &&>(fn)});
   }
 };
 
@@ -66,6 +70,9 @@ public:
         }
       }
     });
+  }
+  void load_atlas(unsigned w, unsigned h, auto &&fn) {
+    m_r.load_atlas(w, h, fn);
   }
   void fill_colour(auto &&fn) {
     m_r.fill_colour([&](auto *c) {

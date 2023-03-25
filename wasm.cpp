@@ -35,6 +35,7 @@ renderer::~renderer() = default;
 void renderer::_fill_colour(const filler<colour> &g) { g(m_pimpl->colours()); }
 void renderer::_fill_pos(const filler<pos> &g) { g(m_pimpl->positions()); }
 void renderer::_fill_uv(const filler<uv> &g) { g(m_pimpl->uvs()); }
+void renderer::_load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {}
 void renderer::repaint(unsigned i_count) {
   for (auto i = 0; i < i_count; i++) {
     const auto &b = m_pimpl->colours()[i];

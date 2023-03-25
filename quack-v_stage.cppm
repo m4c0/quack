@@ -1,5 +1,6 @@
 export module quack:v_stage;
 import :v_per_device;
+import :objects;
 import vee;
 
 namespace quack {
@@ -26,8 +27,8 @@ public:
     return t_iv;
   }
 
-  void load_image(auto &&fn) {
-    vee::map_memory<unsigned char>(*ts_mem, fn);
+  void load_image(unsigned w, unsigned h, auto &&fn) {
+    vee::map_memory<u8_rgba>(*ts_mem, fn);
     m_dirty = true;
   }
 

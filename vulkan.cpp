@@ -34,12 +34,6 @@ public:
 
     m_ppl->set_atlas(m_stg->image_view());
 
-    m_stg->load_image([](auto ptr) {
-      for (auto i = 0; i < 16 * 16 * 4; i++) {
-        ptr[i] = 128;
-      }
-    });
-
     auto imgs = vee::get_swapchain_images(m_ext->swapchain());
     m_frms = decltype(m_frms)::make(imgs.size());
     for (auto i = 0; i < imgs.size(); i++) {
@@ -77,6 +71,10 @@ public:
     }
   }
 
+  void load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {
+    m_stg->load_image(w, h, g);
+  }
+
   [[nodiscard]] auto &ppl() noexcept { return *m_ppl; }
 };
 
@@ -92,6 +90,10 @@ void renderer::_fill_pos(const filler<pos> &g) {
 void renderer::_fill_uv(const filler<uv> &g) {
   m_pimpl->ppl().map_instances_uv(g);
 }
+void renderer::_load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {
+  m_pimpl->load_atlas(w, h, g);
+}
+
 void renderer::repaint(unsigned i_count) { m_pimpl->paint(i_count); }
 
 void renderer::setup(casein::native_handle_t nptr) {
