@@ -32,8 +32,6 @@ public:
     m_stg = hai::uptr<stage_image>::make(&*m_dev);
     m_ppl = hai::uptr<pipeline>::make(&*m_dev, &*m_ext, m_p);
 
-    m_ppl->set_atlas(m_stg->image_view());
-
     auto imgs = vee::get_swapchain_images(m_ext->swapchain());
     m_frms = decltype(m_frms)::make(imgs.size());
     for (auto i = 0; i < imgs.size(); i++) {
@@ -73,6 +71,7 @@ public:
 
   void load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {
     m_stg->load_image(w, h, g);
+    m_ppl->set_atlas(m_stg->image_view());
   }
 
   [[nodiscard]] auto &ppl() noexcept { return *m_ppl; }
