@@ -30,17 +30,16 @@ auto quack() {
     mf.add_part("v_pipeline");
     mf.add_impl("vulkan");
   };
-  const auto setup_wasm = [&](auto &mf) {
+  const auto setup_wasm = [&](mod &mf) {
     setup(mf);
     mf.add_impl("wasm");
-    mf.template add_feat<inline_js>("quack_fill_colour", R"((r, g, b) => {
+    mf.add_feat<inline_js>("quack_fill_colour", R"((r, g, b) => {
   var rr = Math.pow(r, 1.0 / 2.2) * 256.0;
   var gg = Math.pow(g, 1.0 / 2.2) * 256.0;
   var bb = Math.pow(b, 1.0 / 2.2) * 256.0;
   ctx.fillStyle = `rgb(${rr}, ${gg}, ${bb})`;
 })");
-    mf.template add_feat<inline_js>("quack_fill_rect",
-                                    "ctx.fillRect.bind(ctx)");
+    mf.add_feat<inline_js>("quack_fill_rect", "ctx.fillRect.bind(ctx)");
   };
 
   auto m = unit::create<per_feat<mod>>("quack");
