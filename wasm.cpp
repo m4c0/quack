@@ -5,6 +5,7 @@ import hai;
 
 extern "C" void quack_fill_colour(float r, float g, float b);
 extern "C" void quack_fill_rect(unsigned x, unsigned y, unsigned w, unsigned h);
+extern "C" void quack_load_atlas(unsigned w, unsigned h, void *buf);
 
 namespace quack {
 class pimpl {
@@ -35,7 +36,11 @@ renderer::~renderer() = default;
 void renderer::_fill_colour(const filler<colour> &g) { g(m_pimpl->colours()); }
 void renderer::_fill_pos(const filler<pos> &g) { g(m_pimpl->positions()); }
 void renderer::_fill_uv(const filler<uv> &g) { g(m_pimpl->uvs()); }
-void renderer::_load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {}
+void renderer::_load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {
+  auto tmp = hai::holder<u8_rgba[]>::make(w * h);
+  g(*tmp);
+  quack_load_atlas(w, h, *tmp);
+}
 void renderer::repaint(unsigned i_count) {
   for (auto i = 0; i < i_count; i++) {
     const auto &b = m_pimpl->colours()[i];

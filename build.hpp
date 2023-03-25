@@ -40,6 +40,15 @@ auto quack() {
   ctx.fillStyle = `rgb(${rr}, ${gg}, ${bb})`;
 })");
     mf.add_feat<inline_js>("quack_fill_rect", "ctx.fillRect.bind(ctx)");
+    mf.add_feat<inline_js>("quack_load_atlas", R"((w, h, buf) => {
+  var blob = new Blob(new Uint8ClampedArray(ecow_buffer, buf, w * h * 4));
+  var img = new Image();
+  img.onload = () => {
+    console.log(img);
+    ecow_globals['quack'] = img;
+  };
+  img.src = URL.createObjectURL(blob);
+})");
   };
 
   auto m = unit::create<per_feat<mod>>("quack");
