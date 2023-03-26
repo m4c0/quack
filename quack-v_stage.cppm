@@ -45,7 +45,7 @@ public:
     return t_iv;
   }
 
-  void load_image(unsigned w, unsigned h, auto &&fn) {
+  void load_image(unsigned w, unsigned h, const filler<u8_rgba> &fn) {
     if (w != m_w || h != m_h)
       resize_image(w, h);
 
