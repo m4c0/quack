@@ -20,7 +20,17 @@ class stage_image {
   unsigned m_h{};
   bool m_dirty;
 
-  void resize_image(unsigned w, unsigned h) {
+public:
+  explicit stage_image(const per_device *d) : dev{d} {}
+
+  [[nodiscard]] constexpr const auto &image_view() const noexcept {
+    return t_iv;
+  }
+
+  bool resize_image(unsigned w, unsigned h) {
+    if (w == m_w && h == m_h)
+      return false;
+
     // If we need this in higher rate, then it's better to go with multiple
     // buffers
     vee::device_wait_idle();
@@ -36,19 +46,9 @@ class stage_image {
 
     m_w = w;
     m_h = h;
+    return true;
   }
-
-public:
-  explicit stage_image(const per_device *d) : dev{d} {}
-
-  [[nodiscard]] constexpr const auto &image_view() const noexcept {
-    return t_iv;
-  }
-
-  void load_image(unsigned w, unsigned h, const filler<u8_rgba> &fn) {
-    if (w != m_w || h != m_h)
-      resize_image(w, h);
-
+  void load_image(const filler<u8_rgba> &fn) {
     vee::map_memory<u8_rgba>(*ts_mem, fn);
     m_dirty = true;
   }

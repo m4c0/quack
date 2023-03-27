@@ -70,8 +70,10 @@ public:
   }
 
   void load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {
-    m_stg->load_image(w, h, g);
-    m_ppl->set_atlas(m_stg->image_view());
+    if (m_stg->resize_image(w, h))
+      m_ppl->set_atlas(m_stg->image_view());
+
+    m_stg->load_image(g);
   }
 
   [[nodiscard]] auto &ppl() noexcept { return *m_ppl; }
