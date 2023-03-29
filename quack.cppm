@@ -41,6 +41,19 @@ public:
   template <typename Fn> void load_atlas(unsigned w, unsigned h, Fn &&fn) {
     _load_atlas(w, h, s<u8_rgba, Fn>{static_cast<Fn &&>(fn)});
   }
+
+  void process_event(const casein::event &e) {
+    switch (e.type()) {
+    case casein::CREATE_WINDOW:
+      setup(*e.as<casein::events::create_window>());
+      break;
+    case casein::QUIT:
+      quit();
+      break;
+    default:
+      break;
+    }
+  }
 };
 
 template <auto W, auto H, typename Tp> class grid_renderer {
@@ -100,6 +113,22 @@ public:
   }
   [[nodiscard]] constexpr auto &at(unsigned idx) noexcept {
     return m_data[idx];
+  }
+
+  void process_event(const casein::event &e) {
+    switch (e.type()) {
+    case casein::CREATE_WINDOW:
+      setup(*e.as<casein::events::create_window>());
+      break;
+    case casein::REPAINT:
+      repaint();
+      break;
+    case casein::QUIT:
+      quit();
+      break;
+    default:
+      break;
+    }
   }
 };
 } // namespace quack
