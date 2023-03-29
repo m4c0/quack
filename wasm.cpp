@@ -14,6 +14,8 @@ class pimpl {
   hai::holder<uv[]> m_uvs;
   unsigned m_grid_w;
   unsigned m_grid_h;
+  unsigned m_canvas_w;
+  unsigned m_canvas_h;
 
 public:
   pimpl(const params &p)
@@ -47,12 +49,16 @@ void renderer::repaint(unsigned i_count) {
     quack_fill_colour(b.r, b.g, b.b);
 
     const auto &p = m_pimpl->positions()[i];
-    const auto w = 800 / m_pimpl->grid_w();
-    const auto h = 600 / m_pimpl->grid_h();
+    const auto w = m_canvas_w / m_pimpl->grid_w();
+    const auto h = m_canvas_h / m_pimpl->grid_h();
     const auto x = w * p.x;
     const auto y = h * p.y;
     quack_fill_rect(x, y, w, h);
   }
+}
+void renderer::resize(unsigned w, unsigned h) {
+  m_canvas_w = w;
+  m_canvas_h = h;
 }
 void renderer::setup(casein::native_handle_t) {}
 void renderer::quit() {}
