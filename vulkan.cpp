@@ -16,6 +16,7 @@ class pimpl {
   hai::uptr<inflight_pair> m_infs{};
   hai::holder<hai::uptr<per_frame>[]> m_frms{};
   hai::uptr<stage_image> m_stg{};
+  hai::uptr<pipeline_stuff> m_ps{};
   hai::uptr<pipeline> m_ppl{};
   params m_p;
 
@@ -24,13 +25,15 @@ public:
 
   void setup(casein::native_handle_t nptr) {
     m_dev = hai::uptr<per_device>::make(nptr);
-    setup();
-  }
-  void setup() {
-    m_ext = hai::uptr<per_extent>::make(&*m_dev);
     m_infs = hai::uptr<inflight_pair>::make(&*m_dev);
     m_stg = hai::uptr<stage_image>::make(&*m_dev);
-    m_ppl = hai::uptr<pipeline>::make(&*m_dev, &*m_ext, m_p);
+    m_ps = hai::uptr<pipeline_stuff>::make(&*m_dev, m_p);
+    resize();
+  }
+  void resize() {
+    vee::device_wait_idle();
+    m_ext = hai::uptr<per_extent>::make(&*m_dev);
+    m_ppl = hai::uptr<pipeline>::make(&*m_ext, &*m_ps);
 
     auto imgs = vee::get_swapchain_images(m_ext->swapchain());
     m_frms = decltype(m_frms)::make(imgs.size());
@@ -64,32 +67,31 @@ public:
           .image_index = idx,
       });
     } catch (vee::out_of_date_error) {
-      vee::device_wait_idle();
-      setup();
+      resize();
     }
   }
 
   void load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {
     if (m_stg->resize_image(w, h))
-      m_ppl->set_atlas(m_stg->image_view());
+      m_ps->set_atlas(m_stg->image_view());
 
     m_stg->load_image(g);
   }
 
-  [[nodiscard]] auto &ppl() noexcept { return *m_ppl; }
+  [[nodiscard]] auto &ps() noexcept { return *m_ps; }
 };
 
 renderer::renderer(const params &p) : m_pimpl{hai::uptr<pimpl>::make(p)} {}
 renderer::~renderer() = default;
 
 void renderer::_fill_colour(const filler<colour> &g) {
-  m_pimpl->ppl().map_instances_colour(g);
+  m_pimpl->ps().map_instances_colour(g);
 }
 void renderer::_fill_pos(const filler<pos> &g) {
-  m_pimpl->ppl().map_instances_pos(g);
+  m_pimpl->ps().map_instances_pos(g);
 }
 void renderer::_fill_uv(const filler<uv> &g) {
-  m_pimpl->ppl().map_instances_uv(g);
+  m_pimpl->ps().map_instances_uv(g);
 }
 void renderer::_load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {
   m_pimpl->load_atlas(w, h, g);
@@ -101,6 +103,8 @@ void renderer::setup(casein::native_handle_t nptr) {
   vee::initialise();
   m_pimpl->setup(nptr);
 }
+
+void renderer::resize(unsigned w, unsigned h) { m_pimpl->resize(); }
 
 void renderer::quit() {
   vee::device_wait_idle();

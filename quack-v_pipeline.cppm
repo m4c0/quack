@@ -15,9 +15,8 @@ struct pcs {
                                                               p.grid_h / 2.0f} {
   }
 };
-class pipeline {
+class pipeline_stuff {
   const per_device *dev;
-  const per_extent *ext;
 
   vee::descriptor_set_layout dsl =
       vee::create_descriptor_set_layout({vee::dsl_fragment_sampler()});
@@ -31,24 +30,6 @@ class pipeline {
       vee::create_shader_module_from_resource("quack.vert.spv");
   vee::shader_module frag =
       vee::create_shader_module_from_resource("quack.frag.spv");
-  vee::gr_pipeline gp = vee::create_graphics_pipeline(
-      *pl, ext->render_pass(),
-      {
-          vee::pipeline_vert_stage(*vert, "main"),
-          vee::pipeline_frag_stage(*frag, "main"),
-      },
-      {
-          vee::vertex_input_bind(sizeof(pos)),
-          vee::vertex_input_bind_per_instance(sizeof(pos)),
-          vee::vertex_input_bind_per_instance(sizeof(colour)),
-          vee::vertex_input_bind_per_instance(sizeof(uv)),
-      },
-      {
-          vee::vertex_attribute_vec2(0, 0),
-          vee::vertex_attribute_vec2(1, 0),
-          vee::vertex_attribute_vec4(2, 0),
-          vee::vertex_attribute_vec4(3, 0),
-      });
 
   vee::descriptor_pool desc_pool =
       vee::create_descriptor_pool(1, {vee::combined_image_sampler()});
@@ -76,9 +57,9 @@ class pipeline {
   }
 
 public:
-  explicit pipeline(const per_device *d, const per_extent *e, const params &p)
-      : dev{d}, ext{e}, instance_pos{dev, p.max_quads},
-        instance_colour{dev, p.max_quads},
+  pipeline_stuff(const per_device *d, const params &p)
+      : dev{d}, instance_pos{dev, p.max_quads}, instance_colour{dev,
+                                                                p.max_quads},
         instance_uv{dev, p.max_quads}, pc{p} {
     map_vertices();
   }
@@ -94,12 +75,6 @@ public:
   void map_instances_uv(const filler<uv> &fn) { instance_uv.map(fn); }
 
   void build_commands(vee::command_buffer cb, unsigned i_count) const {
-    const auto extent = ext->extent_2d();
-
-    vee::begin_cmd_buf_render_pass_continue(cb, ext->render_pass());
-    vee::cmd_set_scissor(cb, extent);
-    vee::cmd_set_viewport(cb, extent);
-    vee::cmd_bind_gr_pipeline(cb, *gp);
     vee::cmd_bind_vertex_buffers(cb, 0, *vertices);
     vee::cmd_bind_vertex_buffers(cb, 1, *instance_pos);
     vee::cmd_bind_vertex_buffers(cb, 2, *instance_colour);
@@ -107,6 +82,47 @@ public:
     vee::cmd_bind_descriptor_set(cb, *pl, 0, desc_set);
     vee::cmd_push_vertex_constants(cb, *pl, &pc);
     vee::cmd_draw(cb, v_count, i_count);
+  }
+
+  [[nodiscard]] auto create_pipeline(const per_extent *ext) const {
+    return vee::create_graphics_pipeline(
+        *pl, ext->render_pass(),
+        {
+            vee::pipeline_vert_stage(*vert, "main"),
+            vee::pipeline_frag_stage(*frag, "main"),
+        },
+        {
+            vee::vertex_input_bind(sizeof(pos)),
+            vee::vertex_input_bind_per_instance(sizeof(pos)),
+            vee::vertex_input_bind_per_instance(sizeof(colour)),
+            vee::vertex_input_bind_per_instance(sizeof(uv)),
+        },
+        {
+            vee::vertex_attribute_vec2(0, 0),
+            vee::vertex_attribute_vec2(1, 0),
+            vee::vertex_attribute_vec4(2, 0),
+            vee::vertex_attribute_vec4(3, 0),
+        });
+  }
+};
+class pipeline {
+  const per_extent *m_ext;
+  const pipeline_stuff *m_stuff;
+
+  vee::gr_pipeline gp = m_stuff->create_pipeline(m_ext);
+
+public:
+  explicit pipeline(const per_extent *ext, const pipeline_stuff *ps)
+      : m_ext{ext}, m_stuff{ps} {}
+
+  void build_commands(vee::command_buffer cb, unsigned i_count) const {
+    const auto extent = m_ext->extent_2d();
+
+    vee::begin_cmd_buf_render_pass_continue(cb, m_ext->render_pass());
+    vee::cmd_set_scissor(cb, extent);
+    vee::cmd_set_viewport(cb, extent);
+    vee::cmd_bind_gr_pipeline(cb, *gp);
+    m_stuff->build_commands(cb, i_count);
     vee::end_cmd_buf(cb);
   }
 };

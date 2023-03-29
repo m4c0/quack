@@ -27,6 +27,7 @@ public:
 
   void setup(casein::native_handle_t);
   void repaint(unsigned i_count);
+  void resize(unsigned w, unsigned h);
   void quit();
 
   template <typename Fn> void fill_pos(Fn &&fn) {
@@ -47,6 +48,11 @@ public:
     case casein::CREATE_WINDOW:
       setup(*e.as<casein::events::create_window>());
       break;
+    case casein::RESIZE_WINDOW: {
+      const auto &[w, h, live] = *e.as<casein::events::resize_window>();
+      resize(w, h);
+      break;
+    }
     case casein::QUIT:
       quit();
       break;
@@ -123,10 +129,8 @@ public:
     case casein::REPAINT:
       repaint();
       break;
-    case casein::QUIT:
-      quit();
-      break;
     default:
+      m_r.process_event(e);
       break;
     }
   }
