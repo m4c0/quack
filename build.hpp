@@ -10,6 +10,7 @@ auto quack() {
     mf.add_wsdep("casein", casein());
     mf.add_wsdep("hai", hai());
     mf.add_part("objects");
+    mf.add_part("renderer");
 
     mf.add_unit<spirv>("quack.vert");
     mf.add_unit<spirv>("quack.frag");
