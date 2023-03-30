@@ -4,6 +4,7 @@ import :v_per_extent;
 import :v_per_frame;
 import :v_per_inflight;
 import :v_pipeline;
+import :v_pipeline_stuff;
 import :v_stage;
 import hai;
 import casein;

@@ -28,6 +28,7 @@ auto quack() {
     mf.add_part("v_per_inflight");
     mf.add_part("v_bbuffer");
     mf.add_part("v_stage");
+    mf.add_part("v_pipeline_stuff");
     mf.add_part("v_pipeline");
     mf.add_impl("vulkan");
   };
