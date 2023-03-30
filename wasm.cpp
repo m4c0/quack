@@ -8,7 +8,7 @@ extern "C" void quack_fill_rect(unsigned x, unsigned y, unsigned w, unsigned h);
 extern "C" void quack_load_atlas(unsigned w, unsigned h, void *buf);
 
 namespace quack {
-class pimpl {
+class wpimpl : public pimpl {
   hai::holder<colour[]> m_colour;
   hai::holder<pos[]> m_pos;
   hai::holder<uv[]> m_uvs;
@@ -18,48 +18,44 @@ class pimpl {
   unsigned m_canvas_h;
 
 public:
-  pimpl(const params &p)
+  explicit wpimpl(const params &p)
       : m_colour{hai::holder<colour[]>::make(p.max_quads)},
         m_pos{hai::holder<pos[]>::make(p.max_quads)},
         m_uvs{hai::holder<uv[]>::make(p.max_quads)}, m_grid_w{p.grid_w},
         m_grid_h{p.grid_h} {}
 
-  [[nodiscard]] constexpr auto colours() noexcept { return *m_colour; }
-  [[nodiscard]] constexpr auto positions() noexcept { return *m_pos; }
-  [[nodiscard]] constexpr auto uvs() noexcept { return *m_uvs; }
+  void fill_colour(const filler<colour> &g) override { g(*m_colour); }
+  void fill_pos(const filler<pos> &g) override { g(*m_pos); }
+  void fill_uv(const filler<uv> &g) override { g(*m_uvs); }
 
-  [[nodiscard]] constexpr auto grid_w() const noexcept { return m_grid_w; }
-  [[nodiscard]] constexpr auto grid_h() const noexcept { return m_grid_h; }
+  void load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) override {
+    auto tmp = hai::holder<u8_rgba[]>::make(w * h);
+    g(*tmp);
+    quack_load_atlas(w, h, *tmp);
+  }
+
+  void repaint(unsigned i_count) override {
+    for (auto i = 0; i < i_count; i++) {
+      const auto &b = (*m_colour)[i];
+      quack_fill_colour(b.r, b.g, b.b);
+
+      const auto &p = (*m_pos)[i];
+      const auto w = m_canvas_w / m_grid_w;
+      const auto h = m_canvas_h / m_grid_h;
+      const auto x = w * p.x;
+      const auto y = h * p.y;
+      quack_fill_rect(x, y, w, h);
+    }
+  }
+
+  void resize(unsigned w, unsigned h) override {
+    m_canvas_w = w;
+    m_canvas_h = h;
+  }
+
+  void setup(casein::native_handle_t) override {}
 };
 
-renderer::renderer(const params &p) : m_pimpl{hai::uptr<pimpl>::make(p)} {}
-renderer::~renderer() = default;
-
-void renderer::_fill_colour(const filler<colour> &g) { g(m_pimpl->colours()); }
-void renderer::_fill_pos(const filler<pos> &g) { g(m_pimpl->positions()); }
-void renderer::_fill_uv(const filler<uv> &g) { g(m_pimpl->uvs()); }
-void renderer::_load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {
-  auto tmp = hai::holder<u8_rgba[]>::make(w * h);
-  g(*tmp);
-  quack_load_atlas(w, h, *tmp);
-}
-void renderer::repaint(unsigned i_count) {
-  for (auto i = 0; i < i_count; i++) {
-    const auto &b = m_pimpl->colours()[i];
-    quack_fill_colour(b.r, b.g, b.b);
-
-    const auto &p = m_pimpl->positions()[i];
-    const auto w = m_canvas_w / m_pimpl->grid_w();
-    const auto h = m_canvas_h / m_pimpl->grid_h();
-    const auto x = w * p.x;
-    const auto y = h * p.y;
-    quack_fill_rect(x, y, w, h);
-  }
-}
-void renderer::resize(unsigned w, unsigned h) {
-  m_canvas_w = w;
-  m_canvas_h = h;
-}
-void renderer::setup(casein::native_handle_t) {}
-void renderer::quit() {}
+renderer::renderer(const params &p)
+    : m_pimpl{hai::uptr<pimpl>(new wpimpl(p))} {}
 } // namespace quack

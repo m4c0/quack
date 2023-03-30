@@ -10,7 +10,7 @@ import casein;
 import vee;
 
 namespace quack {
-class pimpl {
+class vpimpl : public pimpl {
   hai::uptr<per_device> m_dev{};
   hai::uptr<per_extent> m_ext{};
   hai::uptr<inflight_pair> m_infs{};
@@ -21,9 +21,11 @@ class pimpl {
   params m_p;
 
 public:
-  explicit pimpl(const params &p) : m_p{p} {}
+  explicit vpimpl(const params &p) : m_p{p} {}
+  virtual ~vpimpl() { vee::device_wait_idle(); }
 
-  void setup(casein::native_handle_t nptr) {
+  void setup(casein::native_handle_t nptr) override {
+    vee::initialise();
     m_dev = hai::uptr<per_device>::make(nptr);
     m_infs = hai::uptr<inflight_pair>::make(&*m_dev);
     m_stg = hai::uptr<stage_image>::make(&*m_dev);
@@ -42,12 +44,12 @@ public:
       (*m_frms)[i] = hai::uptr<per_frame>::make(&*m_dev, &*m_ext, img);
     }
   }
-  void resize(float aspect) {
-    m_ps->resize(m_p, aspect);
+  void resize(unsigned w, unsigned h) override {
+    m_ps->resize(m_p, static_cast<float>(w) / static_cast<float>(h));
     resize();
   }
 
-  void paint(unsigned i_count) {
+  void repaint(unsigned i_count) override {
     try {
       auto &inf = m_infs->flip();
 
@@ -75,45 +77,20 @@ public:
     }
   }
 
-  void load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {
+  void fill_colour(const filler<colour> &g) override {
+    m_ps->map_instances_colour(g);
+  }
+  void fill_pos(const filler<pos> &g) override { m_ps->map_instances_pos(g); }
+  void fill_uv(const filler<uv> &g) override { m_ps->map_instances_uv(g); }
+
+  void load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) override {
     if (m_stg->resize_image(w, h))
       m_ps->set_atlas(m_stg->image_view());
 
     m_stg->load_image(g);
   }
-
-  [[nodiscard]] auto &ps() noexcept { return *m_ps; }
 };
 
-renderer::renderer(const params &p) : m_pimpl{hai::uptr<pimpl>::make(p)} {}
-renderer::~renderer() = default;
-
-void renderer::_fill_colour(const filler<colour> &g) {
-  m_pimpl->ps().map_instances_colour(g);
-}
-void renderer::_fill_pos(const filler<pos> &g) {
-  m_pimpl->ps().map_instances_pos(g);
-}
-void renderer::_fill_uv(const filler<uv> &g) {
-  m_pimpl->ps().map_instances_uv(g);
-}
-void renderer::_load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) {
-  m_pimpl->load_atlas(w, h, g);
-}
-
-void renderer::repaint(unsigned i_count) { m_pimpl->paint(i_count); }
-
-void renderer::setup(casein::native_handle_t nptr) {
-  vee::initialise();
-  m_pimpl->setup(nptr);
-}
-
-void renderer::resize(unsigned w, unsigned h) {
-  m_pimpl->resize(static_cast<float>(w) / static_cast<float>(h));
-}
-
-void renderer::quit() {
-  vee::device_wait_idle();
-  m_pimpl = {};
-}
+renderer::renderer(const params &p)
+    : m_pimpl{hai::uptr<pimpl>(new vpimpl(p))} {}
 } // namespace quack

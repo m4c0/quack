@@ -4,14 +4,22 @@ import casein;
 import hai;
 
 export namespace quack {
-class pimpl;
+class pimpl {
+public:
+  pimpl() {}
+  virtual ~pimpl() {}
+
+  virtual void fill_colour(const filler<colour> &) = 0;
+  virtual void fill_pos(const filler<pos> &) = 0;
+  virtual void fill_uv(const filler<uv> &) = 0;
+  virtual void load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &) = 0;
+
+  virtual void setup(casein::native_handle_t nptr) = 0;
+  virtual void repaint(unsigned i_count) = 0;
+  virtual void resize(unsigned w, unsigned h) = 0;
+};
 class renderer {
   hai::uptr<pimpl> m_pimpl;
-
-  void _fill_colour(const filler<colour> &);
-  void _fill_pos(const filler<pos> &);
-  void _fill_uv(const filler<uv> &);
-  void _load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &);
 
   template <typename Tp, typename Fn> class s : public filler<Tp> {
     Fn m;
@@ -23,24 +31,24 @@ class renderer {
 
 public:
   renderer(const params &p);
-  ~renderer();
+  ~renderer() = default;
 
-  void setup(casein::native_handle_t);
-  void repaint(unsigned i_count);
-  void resize(unsigned w, unsigned h);
-  void quit();
+  void setup(casein::native_handle_t nptr) { m_pimpl->setup(nptr); }
+  void repaint(unsigned i_count) { m_pimpl->repaint(i_count); }
+  void resize(unsigned w, unsigned h) { m_pimpl->resize(w, h); }
+  void quit() { m_pimpl = {}; }
 
   template <typename Fn> void fill_pos(Fn &&fn) {
-    _fill_pos(s<pos, Fn>{static_cast<Fn &&>(fn)});
+    m_pimpl->fill_pos(s<pos, Fn>{static_cast<Fn &&>(fn)});
   }
   template <typename Fn> void fill_colour(Fn &&fn) {
-    _fill_colour(s<colour, Fn>{static_cast<Fn &&>(fn)});
+    m_pimpl->fill_colour(s<colour, Fn>{static_cast<Fn &&>(fn)});
   }
   template <typename Fn> void fill_uv(Fn &&fn) {
-    _fill_uv(s<uv, Fn>{static_cast<Fn &&>(fn)});
+    m_pimpl->fill_uv(s<uv, Fn>{static_cast<Fn &&>(fn)});
   }
   template <typename Fn> void load_atlas(unsigned w, unsigned h, Fn &&fn) {
-    _load_atlas(w, h, s<u8_rgba, Fn>{static_cast<Fn &&>(fn)});
+    m_pimpl->load_atlas(w, h, s<u8_rgba, Fn>{static_cast<Fn &&>(fn)});
   }
 
   void process_event(const casein::event &e) {
