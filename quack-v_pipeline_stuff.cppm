@@ -10,11 +10,9 @@ class pcs {
   pos grid_pos{};
   pos grid_size{};
 
-  pcs(float gw, float gh) : grid_pos{gw, gh}, grid_size{gw, gh} {}
-
 public:
   constexpr pcs() = default;
-  pcs(const params &p) : pcs(p.grid_w / 2.0f, p.grid_h / 2.0f) {}
+  pcs(float gw, float gh) : grid_pos{gw, gh}, grid_size{gw, gh} {}
 };
 class pipeline_stuff {
   const per_device *dev;
@@ -64,7 +62,11 @@ public:
     map_vertices();
   }
 
-  void resize(const params &p, float aspect) { pc = pcs{p}; }
+  void resize(const params &p, float aspect) {
+    float gw = p.grid_w / 2.0;
+    float gh = p.grid_h / 2.0;
+    pc = aspect > 1 ? pcs{aspect * gw, gh} : pcs{gw, gh / aspect};
+  }
 
   void set_atlas(const vee::image_view &iv) {
     vee::update_descriptor_set(desc_set, 0, *iv, *smp);
