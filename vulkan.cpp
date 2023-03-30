@@ -27,7 +27,7 @@ public:
     m_dev = hai::uptr<per_device>::make(nptr);
     m_infs = hai::uptr<inflight_pair>::make(&*m_dev);
     m_stg = hai::uptr<stage_image>::make(&*m_dev);
-    m_ps = hai::uptr<pipeline_stuff>::make(&*m_dev, m_p);
+    m_ps = hai::uptr<pipeline_stuff>::make(&*m_dev, m_p.max_quads);
     resize();
   }
   void resize() {
@@ -41,6 +41,10 @@ public:
       auto img = (imgs.data())[i];
       (*m_frms)[i] = hai::uptr<per_frame>::make(&*m_dev, &*m_ext, img);
     }
+  }
+  void resize(float aspect) {
+    m_ps->resize(m_p, aspect);
+    resize();
   }
 
   void paint(unsigned i_count) {
@@ -104,7 +108,9 @@ void renderer::setup(casein::native_handle_t nptr) {
   m_pimpl->setup(nptr);
 }
 
-void renderer::resize(unsigned w, unsigned h) { m_pimpl->resize(); }
+void renderer::resize(unsigned w, unsigned h) {
+  m_pimpl->resize(static_cast<float>(w) / static_cast<float>(h));
+}
 
 void renderer::quit() {
   vee::device_wait_idle();

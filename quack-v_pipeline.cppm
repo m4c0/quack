@@ -7,12 +7,13 @@ import vee;
 
 namespace quack {
 class pcs {
-  pos grid_pos;
-  pos grid_size;
+  pos grid_pos{};
+  pos grid_size{};
 
   pcs(float gw, float gh) : grid_pos{gw, gh}, grid_size{gw, gh} {}
 
 public:
+  constexpr pcs() = default;
   pcs(const params &p) : pcs(p.grid_w / 2.0f, p.grid_h / 2.0f) {}
 };
 class pipeline_stuff {
@@ -57,12 +58,13 @@ class pipeline_stuff {
   }
 
 public:
-  pipeline_stuff(const per_device *d, const params &p)
-      : dev{d}, instance_pos{dev, p.max_quads}, instance_colour{dev,
-                                                                p.max_quads},
-        instance_uv{dev, p.max_quads}, pc{p} {
+  pipeline_stuff(const per_device *d, unsigned max_quads)
+      : dev{d}, instance_pos{dev, max_quads}, instance_colour{dev, max_quads},
+        instance_uv{dev, max_quads} {
     map_vertices();
   }
+
+  void resize(const params &p, float aspect) { pc = pcs{p}; }
 
   void set_atlas(const vee::image_view &iv) {
     vee::update_descriptor_set(desc_set, 0, *iv, *smp);
