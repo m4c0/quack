@@ -6,14 +6,14 @@ import :v_per_extent;
 import vee;
 
 namespace quack {
-struct pcs {
+class pcs {
   pos grid_pos;
   pos grid_size;
 
-  pcs(const params &p)
-      : grid_pos{p.grid_w / 2.0f, p.grid_h / 2.0f}, grid_size{p.grid_w / 2.0f,
-                                                              p.grid_h / 2.0f} {
-  }
+  pcs(float gw, float gh) : grid_pos{gw, gh}, grid_size{gw, gh} {}
+
+public:
+  pcs(const params &p) : pcs(p.grid_w / 2.0f, p.grid_h / 2.0f) {}
 };
 class pipeline_stuff {
   const per_device *dev;
