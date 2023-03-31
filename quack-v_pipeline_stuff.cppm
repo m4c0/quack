@@ -6,13 +6,9 @@ import :v_per_extent;
 import vee;
 
 namespace quack {
-class pcs {
+struct pcs {
   pos grid_pos{};
   pos grid_size{};
-
-public:
-  constexpr pcs() = default;
-  pcs(float gw, float gh) : grid_pos{gw, gh}, grid_size{gw, gh} {}
 };
 class pipeline_stuff {
   const per_device *dev;
@@ -66,7 +62,10 @@ public:
     float gw = p.grid_w / 2.0;
     float gh = p.grid_h / 2.0;
     float grid_aspect = gw / gh;
-    pc = grid_aspect < aspect ? pcs{aspect * gh, gh} : pcs{gw, gw / aspect};
+    auto grid_pos = pos{gw, gh};
+    auto grid_size =
+        grid_aspect < aspect ? pos{aspect * gh, gh} : pos{gw, gw / aspect};
+    pc = {grid_pos, grid_size};
   }
 
   void set_atlas(const vee::image_view &iv) {
