@@ -24,6 +24,7 @@ public:
         .render_pass = ext->render_pass(),
         .framebuffer = *fb,
         .extent = ext->extent_2d(),
+        .clear_color = {0.05, 0.1f, 0.15, 1.0f},
     });
 
     fn(cb);
