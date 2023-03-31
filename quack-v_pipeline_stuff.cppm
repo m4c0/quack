@@ -65,7 +65,8 @@ public:
   void resize(const params &p, float aspect) {
     float gw = p.grid_w / 2.0;
     float gh = p.grid_h / 2.0;
-    pc = aspect > 1 ? pcs{aspect * gw, gh} : pcs{gw, gh / aspect};
+    float grid_aspect = gw / gh;
+    pc = grid_aspect < aspect ? pcs{aspect * gh, gh} : pcs{gw, gw / aspect};
   }
 
   void set_atlas(const vee::image_view &iv) {
