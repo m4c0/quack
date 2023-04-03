@@ -17,6 +17,8 @@ public:
   virtual void setup(casein::native_handle_t nptr) = 0;
   virtual void repaint(unsigned i_count) = 0;
   virtual void resize(unsigned w, unsigned h, float scale) = 0;
+
+  virtual void mouse_move(unsigned x, unsigned y) = 0;
 };
 class renderer {
   hai::uptr<pimpl> m_pimpl;
@@ -53,6 +55,8 @@ public:
     m_pimpl->load_atlas(w, h, s<u8_rgba, Fn>{static_cast<Fn &&>(fn)});
   }
 
+  void mouse_move(unsigned w, unsigned h) { m_pimpl->mouse_move(w, h); }
+
   void process_event(const casein::event &e) {
     switch (e.type()) {
     case casein::CREATE_WINDOW:
@@ -61,6 +65,11 @@ public:
     case casein::RESIZE_WINDOW: {
       const auto &[w, h, scale, live] = *e.as<casein::events::resize_window>();
       resize(w, h, scale);
+      break;
+    }
+    case casein::MOUSE_MOVE: {
+      const auto &[x, y] = *e.as<casein::events::mouse_move>();
+      mouse_move(x, y);
       break;
     }
     case casein::QUIT:

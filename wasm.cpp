@@ -54,6 +54,8 @@ public:
   }
 
   void setup(casein::native_handle_t) override {}
+
+  void mouse_move(unsigned x, unsigned y) override {}
 };
 
 renderer::renderer(const params &p)

@@ -52,6 +52,10 @@ public:
     m_content_scale = scale;
   }
 
+  void mouse_move(unsigned x, unsigned y) override {
+    m_ps->mouse_move(x * m_content_scale, y * m_content_scale);
+  }
+
   void repaint(unsigned i_count) override {
     try {
       auto &inf = m_infs->flip();

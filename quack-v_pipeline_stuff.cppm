@@ -6,10 +6,12 @@ import :v_per_extent;
 import vee;
 
 namespace quack {
-struct pcs {
+struct upc {
   pos grid_pos{};
   pos grid_size{};
+  pos mouse_pos{};
 };
+
 class pipeline_stuff {
   const per_device *dev;
 
@@ -17,9 +19,7 @@ class pipeline_stuff {
       vee::create_descriptor_set_layout({vee::dsl_fragment_sampler()});
 
   vee::pipeline_layout pl = vee::create_pipeline_layout(
-      {*dsl}, {
-                  vee::vertex_push_constant_range<pcs>(),
-              });
+      {*dsl}, {vee::vert_frag_push_constant_range<upc>()});
 
   vee::shader_module vert =
       vee::create_shader_module_from_resource("quack.vert.spv");
@@ -37,7 +37,7 @@ class pipeline_stuff {
   bound_buffer<pos> instance_pos;
   bound_buffer<colour> instance_colour;
   bound_buffer<uv> instance_uv;
-  pcs pc;
+  upc pc;
 
   void map_vertices() {
     vertices.map([](auto vs) {
@@ -62,11 +62,12 @@ public:
     float gw = p.grid_w / 2.0;
     float gh = p.grid_h / 2.0;
     float grid_aspect = gw / gh;
-    auto grid_pos = pos{gw, gh};
-    auto grid_size =
+    pc.grid_pos = pos{gw, gh};
+    pc.grid_size =
         grid_aspect < aspect ? pos{aspect * gh, gh} : pos{gw, gw / aspect};
-    pc = {grid_pos, grid_size};
   }
+
+  void mouse_move(float x, float y) { pc.mouse_pos = {x, y}; }
 
   void set_atlas(const vee::image_view &iv) {
     vee::update_descriptor_set(desc_set, 0, *iv, *smp);
@@ -84,7 +85,7 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 2, *instance_colour);
     vee::cmd_bind_vertex_buffers(cb, 3, *instance_uv);
     vee::cmd_bind_descriptor_set(cb, *pl, 0, desc_set);
-    vee::cmd_push_vertex_constants(cb, *pl, &pc);
+    vee::cmd_push_vert_frag_constants(cb, *pl, &pc);
     vee::cmd_draw(cb, v_count, i_count);
   }
 

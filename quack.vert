@@ -3,6 +3,7 @@
 layout(push_constant) uniform upc {
   vec2 grid_pos;
   vec2 grid_size;
+  vec2 mouse_pos;
 } pc;
 
 layout(location = 0) in vec2 pos;
