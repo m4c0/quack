@@ -16,7 +16,7 @@ public:
 
   virtual void setup(casein::native_handle_t nptr) = 0;
   virtual void repaint(unsigned i_count) = 0;
-  virtual void resize(unsigned w, unsigned h) = 0;
+  virtual void resize(unsigned w, unsigned h, float scale) = 0;
 };
 class renderer {
   hai::uptr<pimpl> m_pimpl;
@@ -35,7 +35,9 @@ public:
 
   void setup(casein::native_handle_t nptr) { m_pimpl->setup(nptr); }
   void repaint(unsigned i_count) { m_pimpl->repaint(i_count); }
-  void resize(unsigned w, unsigned h) { m_pimpl->resize(w, h); }
+  void resize(unsigned w, unsigned h, float scale) {
+    m_pimpl->resize(w, h, scale);
+  }
   void quit() { m_pimpl = {}; }
 
   template <typename Fn> void fill_pos(Fn &&fn) {
@@ -57,8 +59,8 @@ public:
       setup(*e.as<casein::events::create_window>());
       break;
     case casein::RESIZE_WINDOW: {
-      const auto &[w, h, live] = *e.as<casein::events::resize_window>();
-      resize(w, h);
+      const auto &[w, h, scale, live] = *e.as<casein::events::resize_window>();
+      resize(w, h, scale);
       break;
     }
     case casein::QUIT:

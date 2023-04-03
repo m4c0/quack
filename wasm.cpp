@@ -48,7 +48,7 @@ public:
     }
   }
 
-  void resize(unsigned w, unsigned h) override {
+  void resize(unsigned w, unsigned h, float) override {
     m_canvas_w = w;
     m_canvas_h = h;
   }

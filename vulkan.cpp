@@ -20,6 +20,7 @@ class vpimpl : public pimpl {
   hai::uptr<pipeline_stuff> m_ps{};
   hai::uptr<pipeline> m_ppl{};
   params m_p;
+  float m_content_scale{1};
 
 public:
   explicit vpimpl(const params &p) : m_p{p} {}
@@ -45,9 +46,10 @@ public:
       (*m_frms)[i] = hai::uptr<per_frame>::make(&*m_dev, &*m_ext, img);
     }
   }
-  void resize(unsigned w, unsigned h) override {
+  void resize(unsigned w, unsigned h, float scale) override {
     m_ps->resize(m_p, static_cast<float>(w) / static_cast<float>(h));
     resize();
+    m_content_scale = scale;
   }
 
   void repaint(unsigned i_count) override {
