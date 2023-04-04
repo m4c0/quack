@@ -53,6 +53,7 @@ public:
     for (auto &d : m_data)
       d = {};
   }
+  void resize(unsigned w, unsigned h, float scale) { m_r.resize(w, h, scale); }
   void repaint() { m_r.repaint(cells); }
   void quit() { m_r.quit(); }
 
