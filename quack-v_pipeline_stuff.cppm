@@ -15,8 +15,10 @@ struct upc {
 class pipeline_stuff {
   const per_device *dev;
 
-  vee::descriptor_set_layout dsl =
-      vee::create_descriptor_set_layout({vee::dsl_fragment_sampler()});
+  vee::descriptor_set_layout dsl = vee::create_descriptor_set_layout({
+      vee::dsl_fragment_sampler(),
+      vee::dsl_fragment_storage(),
+  });
 
   vee::pipeline_layout pl = vee::create_pipeline_layout(
       {*dsl}, {vee::vert_frag_push_constant_range<upc>()});
@@ -26,17 +28,18 @@ class pipeline_stuff {
   vee::shader_module frag =
       vee::create_shader_module_from_resource("quack.frag.spv");
 
-  vee::descriptor_pool desc_pool =
-      vee::create_descriptor_pool(1, {vee::combined_image_sampler()});
+  vee::descriptor_pool desc_pool = vee::create_descriptor_pool(
+      1, {vee::combined_image_sampler(), vee::storage_buffer()});
   vee::descriptor_set desc_set = vee::allocate_descriptor_set(*desc_pool, *dsl);
   vee::sampler smp = vee::create_sampler(vee::nearest_sampler);
 
   static constexpr const auto v_count = 6;
 
-  bound_buffer<pos> vertices{dev, v_count};
+  bound_buffer<pos> vertices{bb_vertex{}, dev, v_count};
   bound_buffer<pos> instance_pos;
   bound_buffer<colour> instance_colour;
   bound_buffer<uv> instance_uv;
+  bound_buffer<float> storage;
   upc pc;
 
   void map_vertices() {
@@ -53,9 +56,12 @@ class pipeline_stuff {
 
 public:
   pipeline_stuff(const per_device *d, unsigned max_quads)
-      : dev{d}, instance_pos{dev, max_quads}, instance_colour{dev, max_quads},
-        instance_uv{dev, max_quads} {
+      : dev{d}, instance_pos{bb_vertex{}, dev, max_quads},
+        instance_colour{bb_vertex{}, dev, max_quads},
+        instance_uv{bb_vertex{}, dev, max_quads}, storage{bb_storage{}, dev,
+                                                          max_quads} {
     map_vertices();
+    vee::update_descriptor_set_with_storage(desc_set, 1, *storage);
   }
 
   void resize(const params &p, float aspect) {
