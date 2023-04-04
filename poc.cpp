@@ -20,6 +20,11 @@ extern "C" void casein_handle(const casein::event &e) {
     q.fill_colour([](quack::colour qs) { return qs; });
     q.fill_uv([](quack::colour qs) { return quack::uv{{0, 0}, {1, 0.5}}; });
     break;
+  case casein::MOUSE_DOWN:
+    q.current_hover().map([&](auto idx) {
+      q.at(idx) = quack::colour{1, 1, 1, 1};
+    });
+    q.fill_colour([](quack::colour qs) { return qs; });
   default:
     break;
   }

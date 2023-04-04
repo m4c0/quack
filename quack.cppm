@@ -64,6 +64,10 @@ public:
     return m_data[idx];
   }
 
+  [[nodiscard]] constexpr auto current_hover() noexcept {
+    return m_r.current_hover();
+  }
+
   void process_event(const casein::event &e) {
     switch (e.type()) {
     case casein::CREATE_WINDOW:
