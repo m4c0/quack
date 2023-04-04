@@ -3,6 +3,7 @@ import :objects;
 import :v_bbuffer;
 import :v_per_device;
 import :v_per_extent;
+import missingno;
 import vee;
 
 namespace quack {
@@ -41,6 +42,7 @@ class pipeline_stuff {
   bound_buffer<uv> instance_uv;
   bound_buffer<float> storage;
   upc pc;
+  unsigned m_max_quads;
 
   void map_vertices() {
     vertices.map([](auto vs) {
@@ -57,9 +59,10 @@ class pipeline_stuff {
 public:
   pipeline_stuff(const per_device *d, unsigned max_quads)
       : dev{d}, instance_pos{bb_vertex{}, dev, max_quads},
-        instance_colour{bb_vertex{}, dev, max_quads},
-        instance_uv{bb_vertex{}, dev, max_quads}, storage{bb_storage{}, dev,
-                                                          max_quads} {
+        instance_colour{bb_vertex{}, dev, max_quads}, instance_uv{bb_vertex{},
+                                                                  dev,
+                                                                  max_quads},
+        storage{bb_storage{}, dev, max_quads}, m_max_quads{max_quads} {
     map_vertices();
     vee::update_descriptor_set_with_storage(desc_set, 1, *storage);
   }
@@ -73,6 +76,17 @@ public:
         grid_aspect < aspect ? pos{aspect * gh, gh} : pos{gw, gw / aspect};
   }
 
+  mno::opt<unsigned> current_hover() {
+    mno::opt<unsigned> res{};
+    storage.map([&](auto *f) {
+      for (auto i = 0U; i < m_max_quads; i++) {
+        if (f[i] > 0) {
+          res = i;
+        }
+      }
+    });
+    return res;
+  }
   void mouse_move(float x, float y) { pc.mouse_pos = {x, y}; }
 
   void set_atlas(const vee::image_view &iv) {

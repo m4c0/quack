@@ -53,7 +53,7 @@ public:
     m_content_scale = scale;
   }
 
-  mno::opt<unsigned> current_hover() override { return {}; }
+  mno::opt<unsigned> current_hover() override { return m_ps->current_hover(); }
 
   void mouse_move(unsigned x, unsigned y) override {
     m_ps->mouse_move(x * m_content_scale, y * m_content_scale);

@@ -19,7 +19,7 @@ public:
   virtual void repaint(unsigned i_count) = 0;
   virtual void resize(unsigned w, unsigned h, float scale) = 0;
 
-  virtual mno::opt<unsigned> current_hover() = 0;
+  [[nodiscard]] virtual mno::opt<unsigned> current_hover() = 0;
   virtual void mouse_move(unsigned x, unsigned y) = 0;
 };
 class renderer {
@@ -55,6 +55,10 @@ public:
   }
   template <typename Fn> void load_atlas(unsigned w, unsigned h, Fn &&fn) {
     m_pimpl->load_atlas(w, h, s<u8_rgba, Fn>{static_cast<Fn &&>(fn)});
+  }
+
+  [[nodiscard]] mno::opt<unsigned> current_hover() {
+    return m_pimpl->current_hover();
   }
 
   void mouse_move(unsigned w, unsigned h) { m_pimpl->mouse_move(w, h); }
