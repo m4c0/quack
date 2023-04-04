@@ -8,6 +8,7 @@ import :v_pipeline_stuff;
 import :v_stage;
 import hai;
 import casein;
+import missingno;
 import vee;
 
 namespace quack {
@@ -51,6 +52,8 @@ public:
     resize();
     m_content_scale = scale;
   }
+
+  mno::opt<unsigned> current_hover() override { return {}; }
 
   void mouse_move(unsigned x, unsigned y) override {
     m_ps->mouse_move(x * m_content_scale, y * m_content_scale);

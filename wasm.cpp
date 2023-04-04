@@ -2,6 +2,7 @@ module quack;
 import :objects;
 import casein;
 import hai;
+import missingno;
 
 extern "C" void quack_fill_colour(float r, float g, float b);
 extern "C" void quack_fill_rect(unsigned x, unsigned y, unsigned w, unsigned h);
@@ -55,6 +56,7 @@ public:
 
   void setup(casein::native_handle_t) override {}
 
+  mno::opt<unsigned> current_hover() override { return {}; }
   void mouse_move(unsigned x, unsigned y) override {}
 };
 

@@ -2,6 +2,7 @@ export module quack:renderer;
 import :objects;
 import casein;
 import hai;
+import missingno;
 
 export namespace quack {
 class pimpl {
@@ -18,6 +19,7 @@ public:
   virtual void repaint(unsigned i_count) = 0;
   virtual void resize(unsigned w, unsigned h, float scale) = 0;
 
+  virtual mno::opt<unsigned> current_hover() = 0;
   virtual void mouse_move(unsigned x, unsigned y) = 0;
 };
 class renderer {

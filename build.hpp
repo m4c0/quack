@@ -1,4 +1,5 @@
 #include "../hai/build.hpp"
+#include "../missingno/build.hpp"
 #include "../traits/build.hpp"
 #include "../vee/build.hpp"
 #include "ecow.hpp"
@@ -9,6 +10,7 @@ auto quack() {
   const auto setup = [](mod & mf) -> auto & {
     mf.add_wsdep("casein", casein());
     mf.add_wsdep("hai", hai());
+    mf.add_wsdep("missingno", missingno());
     mf.add_part("objects");
     mf.add_part("renderer");
 
