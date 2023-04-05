@@ -11,6 +11,7 @@ struct upc {
   pos grid_pos{};
   pos grid_size{};
   pos mouse_pos{};
+  unsigned gen{};
 };
 
 class pipeline_stuff {
@@ -40,7 +41,7 @@ class pipeline_stuff {
   bound_buffer<pos> instance_pos;
   bound_buffer<colour> instance_colour;
   bound_buffer<uv> instance_uv;
-  bound_buffer<float> storage;
+  bound_buffer<unsigned> storage;
   upc pc;
   unsigned m_max_quads;
 
@@ -78,16 +79,21 @@ public:
 
   mno::opt<unsigned> current_hover() {
     mno::opt<unsigned> res{};
+    unsigned max{};
     storage.map([&](auto *f) {
       for (auto i = 0U; i < m_max_quads; i++) {
-        if (f[i] > 0) {
+        if (f[i] > max) {
           res = i;
+          max = f[i];
         }
       }
     });
     return res;
   }
-  void mouse_move(float x, float y) { pc.mouse_pos = {x, y}; }
+  void mouse_move(float x, float y) {
+    pc.mouse_pos = {x, y};
+    pc.gen++;
+  }
 
   void set_atlas(const vee::image_view &iv) {
     vee::update_descriptor_set(desc_set, 0, *iv, *smp);
