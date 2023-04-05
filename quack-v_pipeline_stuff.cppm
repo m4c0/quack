@@ -79,13 +79,13 @@ public:
 
   mno::opt<unsigned> current_hover() {
     mno::opt<unsigned> res{};
-    unsigned max{};
-    storage.map([&](auto *f) {
-      for (auto i = 0U; i < m_max_quads; i++) {
-        if (f[i] > max) {
-          res = i;
-          max = f[i];
-        }
+    storage.map([&res, gen = pc.gen, q = m_max_quads](auto *f) {
+      for (auto i = 0U; i < q; i++) {
+        if (f[i] != gen)
+          continue;
+
+        res = i;
+        break;
       }
     });
     return res;
