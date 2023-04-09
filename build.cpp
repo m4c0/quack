@@ -5,6 +5,7 @@ int main(int argc, char **argv) {
   using namespace ecow;
 
   auto poc = unit::create<app>("poc");
+  poc->add_requirement(native);
   poc->add_wsdep("casein", casein());
   poc->add_ref(quack());
   poc->add_unit("poc");

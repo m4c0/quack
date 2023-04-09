@@ -7,57 +7,29 @@
 auto quack() {
   using namespace ecow;
 
-  const auto setup = [](mod & mf) -> auto & {
-    mf.add_wsdep("casein", casein());
-    mf.add_wsdep("hai", hai());
-    mf.add_wsdep("missingno", missingno());
-    mf.add_part("objects");
-    mf.add_part("renderer");
+  auto m = unit::create<mod>("quack");
+  m->add_wsdep("casein", casein());
+  m->add_wsdep("hai", hai());
+  m->add_wsdep("missingno", missingno());
+  m->add_wsdep("traits", traits());
+  m->add_wsdep("vee", vee());
 
-    mf.add_unit<spirv>("quack.vert");
-    mf.add_unit<spirv>("quack.frag");
-    mf.add_resource("quack.vert.spv");
-    mf.add_resource("quack.frag.spv");
-    return mf;
-  };
-  const auto setup_vulkan = [&](auto &mf) {
-    setup(mf);
-    mf.add_wsdep("traits", traits());
-    mf.add_wsdep("vee", vee());
-    mf.add_part("v_per_device");
-    mf.add_part("v_per_extent");
-    mf.add_part("v_per_frame");
-    mf.add_part("v_per_inflight");
-    mf.add_part("v_bbuffer");
-    mf.add_part("v_stage");
-    mf.add_part("v_pipeline_stuff");
-    mf.add_part("v_pipeline");
-    mf.add_impl("vulkan");
-  };
-  const auto setup_wasm = [&](mod &mf) {
-    setup(mf);
-    mf.add_impl("wasm");
-    mf.add_feat<inline_js>("quack_fill_colour", R"((r, g, b) => {
-  var rr = Math.pow(r, 1.0 / 2.2) * 256.0;
-  var gg = Math.pow(g, 1.0 / 2.2) * 256.0;
-  var bb = Math.pow(b, 1.0 / 2.2) * 256.0;
-  ctx.fillStyle = `rgb(${rr}, ${gg}, ${bb})`;
-})");
-    mf.add_feat<inline_js>("quack_fill_rect", "ctx.fillRect.bind(ctx)");
-    mf.add_feat<inline_js>("quack_load_atlas", R"((w, h, buf) => {
-  var blob = new Blob(new Uint8ClampedArray(ecow_buffer, buf, w * h * 4));
-  var img = new Image();
-  img.onload = () => {
-    console.log(img);
-    ecow_globals['quack'] = img;
-  };
-  img.src = URL.createObjectURL(blob);
-})");
-  };
+  m->add_part("objects");
+  m->add_part("renderer");
+  m->add_part("v_per_device");
+  m->add_part("v_per_extent");
+  m->add_part("v_per_frame");
+  m->add_part("v_per_inflight");
+  m->add_part("v_bbuffer");
+  m->add_part("v_stage");
+  m->add_part("v_pipeline_stuff");
+  m->add_part("v_pipeline");
+  m->add_impl("vulkan");
 
-  auto m = unit::create<per_feat<mod>>("quack");
-  setup_vulkan(m->for_feature(android_ndk));
-  setup_vulkan(m->for_feature(posix));
-  setup_wasm(m->for_feature(webassembly));
+  m->add_unit<spirv>("quack.vert");
+  m->add_unit<spirv>("quack.frag");
+  m->add_resource("quack.vert.spv");
+  m->add_resource("quack.frag.spv");
+
   return m;
 }
