@@ -1,5 +1,5 @@
-export module quack:v_per_extent;
-import :v_per_device;
+export module quack:per_extent;
+import :per_device;
 import vee;
 
 namespace quack {

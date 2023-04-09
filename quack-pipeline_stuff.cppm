@@ -1,8 +1,8 @@
-export module quack:v_pipeline_stuff;
+export module quack:pipeline_stuff;
 import :objects;
-import :v_bbuffer;
-import :v_per_device;
-import :v_per_extent;
+import :bbuffer;
+import :per_device;
+import :per_extent;
 import missingno;
 import vee;
 

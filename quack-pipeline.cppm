@@ -1,6 +1,6 @@
-export module quack:v_pipeline;
-import :v_per_extent;
-import :v_pipeline_stuff;
+export module quack:pipeline;
+import :per_extent;
+import :pipeline_stuff;
 import vee;
 
 namespace quack {

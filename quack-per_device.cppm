@@ -1,4 +1,4 @@
-export module quack:v_per_device;
+export module quack:per_device;
 import casein;
 import vee;
 

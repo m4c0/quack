@@ -1,5 +1,5 @@
-export module quack:v_per_inflight;
-import :v_per_extent;
+export module quack:per_inflight;
+import :per_extent;
 import traits;
 import vee;
 

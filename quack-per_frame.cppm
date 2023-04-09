@@ -1,5 +1,5 @@
-export module quack:v_per_frame;
-import :v_per_extent;
+export module quack:per_frame;
+import :per_extent;
 import vee;
 
 namespace quack {

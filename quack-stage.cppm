@@ -1,5 +1,5 @@
-export module quack:v_stage;
-import :v_per_device;
+export module quack:stage;
+import :per_device;
 import :objects;
 import vee;
 

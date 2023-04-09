@@ -1,5 +1,5 @@
-export module quack:v_bbuffer;
-import :v_per_device;
+export module quack:bbuffer;
+import :per_device;
 import vee;
 
 namespace quack {

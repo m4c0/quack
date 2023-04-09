@@ -16,14 +16,14 @@ auto quack() {
 
   m->add_part("objects");
   m->add_part("renderer");
-  m->add_part("v_per_device");
-  m->add_part("v_per_extent");
-  m->add_part("v_per_frame");
-  m->add_part("v_per_inflight");
-  m->add_part("v_bbuffer");
-  m->add_part("v_stage");
-  m->add_part("v_pipeline_stuff");
-  m->add_part("v_pipeline");
+  m->add_part("per_device");
+  m->add_part("per_extent");
+  m->add_part("per_frame");
+  m->add_part("per_inflight");
+  m->add_part("bbuffer");
+  m->add_part("stage");
+  m->add_part("pipeline_stuff");
+  m->add_part("pipeline");
   m->add_impl("vulkan");
 
   m->add_unit<spirv>("quack.vert");
