@@ -40,6 +40,10 @@ class pipeline_stuff {
   upc pc;
   unsigned m_max_quads;
 
+  pos m_mouse_pos{};
+  pos m_screen_disp{};
+  pos m_screen_scale{};
+
   void map_vertices() {
     vertices.map([](auto vs) {
       vs[0] = {0, 0};
@@ -60,20 +64,40 @@ public:
     map_vertices();
   }
 
-  void resize(const params &p, float aspect) {
+  void resize(const params &p, float sw, float sh) {
+    float aspect = sw / sh;
     float gw = p.grid_w / 2.0;
     float gh = p.grid_h / 2.0;
     float grid_aspect = gw / gh;
     pc.grid_pos = pos{gw, gh};
     pc.grid_size =
         grid_aspect < aspect ? pos{aspect * gh, gh} : pos{gw, gw / aspect};
+    m_screen_scale = {2.0f * pc.grid_size.x / sw, 2.0f * pc.grid_size.y / sh};
+    m_screen_disp = {pc.grid_size.x - gw, pc.grid_size.y - gh};
   }
 
   mno::opt<unsigned> current_hover() {
     mno::opt<unsigned> res{};
+    instance_pos.map([&](auto *is) {
+      for (auto i = 0U; i < m_max_quads; i++) {
+        if (m_mouse_pos.x < is[i].x)
+          continue;
+        if (m_mouse_pos.y < is[i].y)
+          continue;
+        if (m_mouse_pos.x > is[i].x + 1.0f)
+          continue;
+        if (m_mouse_pos.y > is[i].y + 1.0f)
+          continue;
+        res = i;
+        break;
+      }
+    });
     return res;
   }
-  void mouse_move(float x, float y) {}
+  void mouse_move(float x, float y) {
+    m_mouse_pos.x = x * m_screen_scale.x - m_screen_disp.x;
+    m_mouse_pos.y = y * m_screen_scale.y - m_screen_disp.y;
+  }
 
   void set_atlas(const vee::image_view &iv) {
     vee::update_descriptor_set(desc_set, 0, *iv, *smp);

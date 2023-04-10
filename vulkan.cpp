@@ -21,7 +21,6 @@ class vpimpl : public pimpl {
   hai::uptr<pipeline_stuff> m_ps{};
   hai::uptr<pipeline> m_ppl{};
   params m_p;
-  float m_content_scale{1};
 
 public:
   explicit vpimpl(const params &p) : m_p{p} {}
@@ -48,16 +47,13 @@ public:
     }
   }
   void resize(unsigned w, unsigned h, float scale) override {
-    m_ps->resize(m_p, static_cast<float>(w) / static_cast<float>(h));
+    m_ps->resize(m_p, w, h);
     resize();
-    m_content_scale = scale;
   }
 
   mno::opt<unsigned> current_hover() override { return m_ps->current_hover(); }
 
-  void mouse_move(unsigned x, unsigned y) override {
-    m_ps->mouse_move(x * m_content_scale, y * m_content_scale);
-  }
+  void mouse_move(unsigned x, unsigned y) override { m_ps->mouse_move(x, y); }
 
   void repaint(unsigned i_count) override {
     try {
