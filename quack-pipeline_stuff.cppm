@@ -10,17 +10,13 @@ namespace quack {
 struct upc {
   pos grid_pos{};
   pos grid_size{};
-  pos mouse_pos{};
-  unsigned gen{};
 };
 
 class pipeline_stuff {
   const per_device *dev;
 
-  vee::descriptor_set_layout dsl = vee::create_descriptor_set_layout({
-      vee::dsl_fragment_sampler(),
-      vee::dsl_fragment_storage(),
-  });
+  vee::descriptor_set_layout dsl =
+      vee::create_descriptor_set_layout({vee::dsl_fragment_sampler()});
 
   vee::pipeline_layout pl = vee::create_pipeline_layout(
       {*dsl}, {vee::vert_frag_push_constant_range<upc>()});
@@ -30,8 +26,8 @@ class pipeline_stuff {
   vee::shader_module frag =
       vee::create_shader_module_from_resource("quack.frag.spv");
 
-  vee::descriptor_pool desc_pool = vee::create_descriptor_pool(
-      1, {vee::combined_image_sampler(), vee::storage_buffer()});
+  vee::descriptor_pool desc_pool =
+      vee::create_descriptor_pool(1, {vee::combined_image_sampler()});
   vee::descriptor_set desc_set = vee::allocate_descriptor_set(*desc_pool, *dsl);
   vee::sampler smp = vee::create_sampler(vee::nearest_sampler);
 
@@ -41,7 +37,6 @@ class pipeline_stuff {
   bound_buffer<pos> instance_pos;
   bound_buffer<colour> instance_colour;
   bound_buffer<uv> instance_uv;
-  bound_buffer<unsigned> storage;
   upc pc;
   unsigned m_max_quads;
 
@@ -60,12 +55,9 @@ class pipeline_stuff {
 public:
   pipeline_stuff(const per_device *d, unsigned max_quads)
       : dev{d}, instance_pos{bb_vertex{}, dev, max_quads},
-        instance_colour{bb_vertex{}, dev, max_quads}, instance_uv{bb_vertex{},
-                                                                  dev,
-                                                                  max_quads},
-        storage{bb_storage{}, dev, max_quads}, m_max_quads{max_quads} {
+        instance_colour{bb_vertex{}, dev, max_quads},
+        instance_uv{bb_vertex{}, dev, max_quads}, m_max_quads{max_quads} {
     map_vertices();
-    vee::update_descriptor_set_with_storage(desc_set, 1, *storage);
   }
 
   void resize(const params &p, float aspect) {
@@ -79,21 +71,9 @@ public:
 
   mno::opt<unsigned> current_hover() {
     mno::opt<unsigned> res{};
-    storage.map([&res, gen = pc.gen, q = m_max_quads](auto *f) {
-      for (auto i = 0U; i < q; i++) {
-        if (f[i] != gen)
-          continue;
-
-        res = i;
-        break;
-      }
-    });
     return res;
   }
-  void mouse_move(float x, float y) {
-    pc.mouse_pos = {x, y};
-    pc.gen++;
-  }
+  void mouse_move(float x, float y) {}
 
   void set_atlas(const vee::image_view &iv) {
     vee::update_descriptor_set(desc_set, 0, *iv, *smp);
