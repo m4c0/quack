@@ -1,4 +1,5 @@
 module quack;
+import :agg;
 import :per_device;
 import :per_extent;
 import :per_frame;
@@ -14,13 +15,8 @@ import vee;
 
 namespace quack {
 class vpimpl : public pimpl {
-  hai::uptr<per_device> m_dev{};
-  hai::uptr<per_extent> m_ext{};
-  hai::uptr<inflight_pair> m_infs{};
-  hai::uptr<frames> m_frms{};
-  hai::uptr<stage_image> m_stg{};
-  hai::uptr<pipeline_stuff> m_ps{};
-  hai::uptr<pipeline> m_ppl{};
+  hai::uptr<level_0> m_l0{};
+  hai::uptr<level_1> m_l1{};
   params m_p;
 
 public:
@@ -29,47 +25,45 @@ public:
 
   void setup(casein::native_handle_t nptr) override {
     vee::initialise();
-    m_dev = hai::uptr<per_device>::make(nptr);
-    m_infs = hai::uptr<inflight_pair>::make(&*m_dev);
-    m_stg = hai::uptr<stage_image>::make(&*m_dev);
-    m_ps = hai::uptr<pipeline_stuff>::make(&*m_dev, m_p.max_quads);
+    m_l0 = hai::uptr<level_0>::make(nptr, m_p.max_quads);
     resize();
   }
   void resize() {
     vee::device_wait_idle();
-    m_ext = hai::uptr<per_extent>::make(&*m_dev);
-    m_ppl = hai::uptr<pipeline>::make(&*m_ext, &*m_ps);
-    m_frms = hai::uptr<frames>::make(&*m_dev, &*m_ext);
+    m_l1 = hai::uptr<level_1>::make(&*m_l0);
   }
   void resize(unsigned w, unsigned h, float scale) override {
-    m_ps->resize(m_p, w, h);
+    m_l0->ps()->resize(m_p, w, h);
     resize();
   }
 
-  mno::opt<unsigned> current_hover() override { return m_ps->current_hover(); }
-
-  void mouse_move(unsigned x, unsigned y) override { m_ps->mouse_move(x, y); }
+  mno::opt<unsigned> current_hover() override {
+    return m_l0->ps()->current_hover();
+  }
+  void mouse_move(unsigned x, unsigned y) override {
+    m_l0->ps()->mouse_move(x, y);
+  }
 
   void repaint(unsigned i_count) override {
     try {
-      auto &inf = m_infs->flip();
+      auto &inf = m_l0->flip();
 
-      auto idx = inf.wait_and_takeoff(&*m_ext);
+      auto idx = inf.wait_and_takeoff(m_l1->ext());
 
-      m_ppl->build_commands(inf.command_buffer(), i_count);
+      m_l1->ppl()->build_commands(inf.command_buffer(), i_count);
 
       const auto exec_secondary = [&inf](auto cb) {
         vee::cmd_execute_command(cb, inf.command_buffer());
       };
-      const auto prepare_stage = [stg = &*m_stg](auto cb) {
+      const auto prepare_stage = [stg = m_l0->stg()](auto cb) {
         stg->build_commands(cb);
       };
 
-      inf.submit(&*m_dev, (*m_frms)[idx]->one_time_submit(prepare_stage,
-                                                          exec_secondary));
+      inf.submit(m_l0->dev(), m_l1->frm(idx)->one_time_submit(prepare_stage,
+                                                              exec_secondary));
       vee::queue_present({
-          .queue = m_dev->queue(),
-          .swapchain = m_ext->swapchain(),
+          .queue = m_l0->dev()->queue(),
+          .swapchain = m_l1->ext()->swapchain(),
           .wait_semaphore = inf.render_finished_sema(),
           .image_index = idx,
       });
@@ -79,16 +73,20 @@ public:
   }
 
   void fill_colour(const filler<colour> &g) override {
-    m_ps->map_instances_colour(g);
+    m_l0->ps()->map_instances_colour(g);
   }
-  void fill_pos(const filler<pos> &g) override { m_ps->map_instances_pos(g); }
-  void fill_uv(const filler<uv> &g) override { m_ps->map_instances_uv(g); }
+  void fill_pos(const filler<pos> &g) override {
+    m_l0->ps()->map_instances_pos(g);
+  }
+  void fill_uv(const filler<uv> &g) override {
+    m_l0->ps()->map_instances_uv(g);
+  }
 
   void load_atlas(unsigned w, unsigned h, const filler<u8_rgba> &g) override {
-    if (m_stg->resize_image(w, h))
-      m_ps->set_atlas(m_stg->image_view());
+    if (m_l0->stg()->resize_image(w, h))
+      m_l0->ps()->set_atlas(m_l0->stg()->image_view());
 
-    m_stg->load_image(g);
+    m_l0->stg()->load_image(g);
   }
 };
 

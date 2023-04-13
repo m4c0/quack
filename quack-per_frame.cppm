@@ -17,7 +17,7 @@ public:
       : ext{ext}, iv{vee::create_rgba_image_view(img, dev->physical_device(),
                                                  dev->surface())} {}
 
-  [[nodiscard]] auto one_time_submit(auto pfn, auto fn) {
+  [[nodiscard]] auto one_time_submit(auto pfn, auto fn) const {
     vee::begin_cmd_buf_one_time_submit(cb);
     pfn(cb);
 
@@ -50,7 +50,7 @@ public:
     }
   }
 
-  [[nodiscard]] auto &operator[](unsigned idx) noexcept {
+  [[nodiscard]] auto &operator[](unsigned idx) const noexcept {
     return (*m_data)[idx];
   }
 };

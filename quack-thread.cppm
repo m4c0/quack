@@ -1,4 +1,5 @@
 export module quack:thread;
+import :agg;
 import :objects;
 import :per_device;
 import :per_extent;
@@ -23,24 +24,17 @@ class thread : public sith::thread {
 
   void run() override {
     vee::initialise();
-
-    per_device d{m_nptr};
-    inflight_pair i{&d};
-    stage_image s{&d};
-    pipeline_stuff ps{&d, m_max_quads};
+    level_0 l0{m_nptr, m_max_quads};
 
     while (!interrupted()) {
       try {
         vee::device_wait_idle();
-
-        per_extent e{&d};
-        pipeline p{&e, &ps};
-        frames f{&d, &e};
+        level_1 l1{&l0};
 
         while (!interrupted()) {
         }
       } catch (const resized_exception &e) {
-        ps.resize(e.p, e.sw, e.sh);
+        // ps.resize(e.p, e.sw, e.sh);
       }
     }
   }
