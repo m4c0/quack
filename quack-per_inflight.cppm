@@ -29,7 +29,7 @@ public:
     vee::queue_submit({
         .queue = dev->queue(),
         .fence = *f,
-        .command_buffer = primary_cb, // TODO: "per_frame"
+        .command_buffer = primary_cb,
         .wait_semaphore = *img_available_sema,
         .signal_semaphore = *rnd_finished_sema,
     });

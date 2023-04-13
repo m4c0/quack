@@ -26,6 +26,7 @@ auto quack() {
   m->add_part("stage");
   m->add_part("pipeline_stuff");
   m->add_part("pipeline");
+  m->add_part("raii");
   m->add_impl("vulkan");
   m->add_part("agg");
   m->add_part("thread");

@@ -1,12 +1,6 @@
 module quack;
 import :agg;
-import :per_device;
-import :per_extent;
-import :per_frame;
-import :per_inflight;
-import :pipeline;
-import :pipeline_stuff;
-import :stage;
+import :raii;
 import :thread;
 import hai;
 import casein;
@@ -44,6 +38,16 @@ public:
     m_l0->ps()->mouse_move(x, y);
   }
 
+  [[nodiscard]] auto build_primary_cmd_buf(const per_frame &frm,
+                                           const per_inflight &inf) {
+    one_time_submitter ots{frm.command_buffer()};
+    ots([this](auto cb) { m_l0->stg()->build_commands(cb); });
+    ots([&, this](auto cb) {
+      render_passer rp{cb, frm.framebuffer(), m_l1->ext()};
+      rp.execute(inf.command_buffer());
+    });
+    return frm.command_buffer();
+  }
   void repaint(unsigned i_count) override {
     try {
       auto &inf = m_l0->flip();
@@ -53,15 +57,9 @@ public:
 
       m_l1->ppl()->build_commands(inf.command_buffer(), i_count);
 
-      const auto exec_secondary = [&inf](auto cb) {
-        vee::cmd_execute_command(cb, inf.command_buffer());
-      };
-      const auto prepare_stage = [stg = m_l0->stg()](auto cb) {
-        stg->build_commands(cb);
-      };
+      auto cb = build_primary_cmd_buf(*m_l1->frm(idx), inf);
+      inf.submit(m_l0->dev(), cb);
 
-      inf.submit(m_l0->dev(), m_l1->frm(idx)->one_time_submit(prepare_stage,
-                                                              exec_secondary));
       vee::queue_present({
           .queue = m_l0->dev()->queue(),
           .swapchain = m_l1->ext()->swapchain(),
