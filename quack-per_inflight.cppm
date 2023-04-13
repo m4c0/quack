@@ -15,14 +15,14 @@ public:
       : cb{vee::allocate_secondary_command_buffer(**pool)} {}
 
   [[nodiscard]] constexpr auto command_buffer() const noexcept { return cb; }
+  [[nodiscard]] constexpr auto image_available_sema() const noexcept {
+    return *img_available_sema;
+  }
   [[nodiscard]] constexpr auto render_finished_sema() const noexcept {
     return *rnd_finished_sema;
   }
 
-  [[nodiscard]] auto wait_and_takeoff(const per_extent *ext) const {
-    vee::wait_and_reset_fence(*f);
-    return vee::acquire_next_image(ext->swapchain(), *img_available_sema);
-  }
+  void wait_and_reset_fence() const { vee::wait_and_reset_fence(*f); }
 
   void submit(const per_device *dev,
               const vee::command_buffer primary_cb) const {
@@ -51,6 +51,7 @@ public:
     front = traits::move(back);
     back = traits::move(tmp);
 
+    back.wait_and_reset_fence();
     return back;
   }
 };

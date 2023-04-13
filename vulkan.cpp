@@ -48,7 +48,8 @@ public:
     try {
       auto &inf = m_l0->flip();
 
-      auto idx = inf.wait_and_takeoff(m_l1->ext());
+      auto idx = vee::acquire_next_image(m_l1->ext()->swapchain(),
+                                         inf.image_available_sema());
 
       m_l1->ppl()->build_commands(inf.command_buffer(), i_count);
 
