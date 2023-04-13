@@ -6,6 +6,7 @@ import :per_inflight;
 import :pipeline;
 import :pipeline_stuff;
 import :stage;
+import :thread;
 import hai;
 import casein;
 import missingno;
@@ -13,6 +14,7 @@ import vee;
 
 namespace quack {
 class vpimpl : public pimpl {
+  thread m_thread{};
   hai::uptr<per_device> m_dev{};
   hai::uptr<per_extent> m_ext{};
   hai::uptr<inflight_pair> m_infs{};

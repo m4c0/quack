@@ -1,5 +1,6 @@
 #include "../hai/build.hpp"
 #include "../missingno/build.hpp"
+#include "../sith/build.hpp"
 #include "../traits/build.hpp"
 #include "../vee/build.hpp"
 #include "ecow.hpp"
@@ -11,6 +12,7 @@ auto quack() {
   m->add_wsdep("casein", casein());
   m->add_wsdep("hai", hai());
   m->add_wsdep("missingno", missingno());
+  m->add_wsdep("sith", sith());
   m->add_wsdep("traits", traits());
   m->add_wsdep("vee", vee());
 
@@ -25,6 +27,7 @@ auto quack() {
   m->add_part("pipeline_stuff");
   m->add_part("pipeline");
   m->add_impl("vulkan");
+  m->add_part("thread");
 
   m->add_unit<spirv>("quack.vert");
   m->add_unit<spirv>("quack.frag");
