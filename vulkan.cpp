@@ -14,11 +14,10 @@ import vee;
 
 namespace quack {
 class vpimpl : public pimpl {
-  thread m_thread{};
   hai::uptr<per_device> m_dev{};
   hai::uptr<per_extent> m_ext{};
   hai::uptr<inflight_pair> m_infs{};
-  hai::holder<hai::uptr<per_frame>[]> m_frms{};
+  hai::uptr<frames> m_frms{};
   hai::uptr<stage_image> m_stg{};
   hai::uptr<pipeline_stuff> m_ps{};
   hai::uptr<pipeline> m_ppl{};
@@ -40,13 +39,7 @@ public:
     vee::device_wait_idle();
     m_ext = hai::uptr<per_extent>::make(&*m_dev);
     m_ppl = hai::uptr<pipeline>::make(&*m_ext, &*m_ps);
-
-    auto imgs = vee::get_swapchain_images(m_ext->swapchain());
-    m_frms = decltype(m_frms)::make(imgs.size());
-    for (auto i = 0; i < imgs.size(); i++) {
-      auto img = (imgs.data())[i];
-      (*m_frms)[i] = hai::uptr<per_frame>::make(&*m_dev, &*m_ext, img);
-    }
+    m_frms = hai::uptr<frames>::make(&*m_dev, &*m_ext);
   }
   void resize(unsigned w, unsigned h, float scale) override {
     m_ps->resize(m_p, w, h);
