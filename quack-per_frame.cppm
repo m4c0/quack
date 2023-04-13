@@ -1,5 +1,7 @@
 export module quack:per_frame;
+import :per_device;
 import :per_extent;
+import hai;
 import vee;
 
 namespace quack {
@@ -32,6 +34,24 @@ public:
     vee::cmd_end_render_pass(cb);
     vee::end_cmd_buf(cb);
     return cb;
+  }
+};
+
+class frames {
+  hai::holder<hai::uptr<per_frame>[]> m_data{};
+
+public:
+  explicit frames(const per_device *dev, const per_extent *ext) {
+    auto imgs = vee::get_swapchain_images(ext->swapchain());
+    m_data = decltype(m_data)::make(imgs.size());
+    for (auto i = 0; i < imgs.size(); i++) {
+      auto img = (imgs.data())[i];
+      (*m_data)[i] = hai::uptr<per_frame>::make(dev, ext, img);
+    }
+  }
+
+  [[nodiscard]] auto &operator[](unsigned idx) noexcept {
+    return (*m_data)[idx];
   }
 };
 } // namespace quack
