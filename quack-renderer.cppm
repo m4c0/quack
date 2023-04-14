@@ -16,27 +16,16 @@ class renderer {
   params m_p;
   pos m_mouse_pos{};
 
-  template <typename Tp, typename Fn> class s : public filler<Tp> {
-    Fn m;
-
-  public:
-    constexpr s(Fn &&fn) : m{fn} {}
-    void operator()(Tp *c) const noexcept { m(c); }
-  };
-
-  [[nodiscard]] auto build_primary_cmd_buf(const per_frame &frm,
-                                           const per_inflight &inf) {
+  [[nodiscard]] auto build_primary_cmd_buf(const per_frame &frm) {
     one_time_submitter ots{frm.command_buffer()};
     ots([this](auto cb) { m_l0->stg()->build_commands(cb); });
     ots([&, this](auto cb) {
       render_passer rp{cb, frm.framebuffer(), m_l1->ext()};
-      rp.execute(inf.command_buffer());
+      build_render_pass(cb);
     });
     return frm.command_buffer();
   }
-  void build_secondary_cmd_buf(vee::command_buffer scb) {
-    render_pass_continuer rpc{scb, m_l1->ext()};
-
+  void build_render_pass(vee::command_buffer scb) {
     const auto extent = m_l1->ext()->extent_2d();
     vee::cmd_set_scissor(scb, extent);
     vee::cmd_set_viewport(scb, extent);
@@ -77,9 +66,7 @@ public:
       auto idx = vee::acquire_next_image(m_l1->ext()->swapchain(),
                                          inf.image_available_sema());
 
-      build_secondary_cmd_buf(inf.command_buffer());
-
-      auto cb = build_primary_cmd_buf(*m_l1->frm(idx), inf);
+      auto cb = build_primary_cmd_buf(*m_l1->frm(idx));
       inf.submit(m_l0->dev(), cb);
 
       vee::queue_present({

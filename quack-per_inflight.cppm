@@ -8,13 +8,8 @@ class per_inflight {
   vee::semaphore img_available_sema = vee::create_semaphore();
   vee::semaphore rnd_finished_sema = vee::create_semaphore();
   vee::fence f = vee::create_fence_signaled();
-  vee::command_buffer cb;
 
 public:
-  explicit per_inflight(const vee::command_pool *pool)
-      : cb{vee::allocate_secondary_command_buffer(**pool)} {}
-
-  [[nodiscard]] constexpr auto command_buffer() const noexcept { return cb; }
   [[nodiscard]] constexpr auto image_available_sema() const noexcept {
     return *img_available_sema;
   }
@@ -37,15 +32,10 @@ public:
 };
 
 class inflight_pair {
-  vee::command_pool cp;
-
-  per_inflight front{&cp};
-  per_inflight back{&cp};
+  per_inflight front{};
+  per_inflight back{};
 
 public:
-  explicit inflight_pair(const per_device *dev)
-      : cp{vee::create_command_pool(dev->queue_family())} {}
-
   [[nodiscard]] auto &flip() {
     auto tmp = traits::move(front);
     front = traits::move(back);
