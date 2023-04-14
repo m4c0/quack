@@ -50,7 +50,13 @@ public:
   }
   void build_secondary_cmd_buf(vee::command_buffer scb, unsigned i_count) {
     render_pass_continuer rpc{scb, m_l1->ext()};
-    m_l1->ppl()->build_commands(scb, i_count);
+
+    const auto extent = m_l1->ext()->extent_2d();
+    vee::cmd_set_scissor(scb, extent);
+    vee::cmd_set_viewport(scb, extent);
+
+    m_l1->ppl()->build_commands(scb);
+    m_l0->ps()->build_commands(scb, i_count);
   }
 
   void repaint(unsigned i_count) override {

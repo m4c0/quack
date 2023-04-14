@@ -5,22 +5,14 @@ import vee;
 
 namespace quack {
 class pipeline {
-  const per_extent *m_ext;
-  const pipeline_stuff *m_stuff;
-
-  vee::gr_pipeline gp = m_stuff->create_pipeline(m_ext);
+  vee::gr_pipeline gp;
 
 public:
   explicit pipeline(const per_extent *ext, const pipeline_stuff *ps)
-      : m_ext{ext}, m_stuff{ps} {}
+      : gp{ps->create_pipeline(ext)} {}
 
-  void build_commands(vee::command_buffer cb, unsigned i_count) const {
-    const auto extent = m_ext->extent_2d();
-
-    vee::cmd_set_scissor(cb, extent);
-    vee::cmd_set_viewport(cb, extent);
+  void build_commands(vee::command_buffer cb) const {
     vee::cmd_bind_gr_pipeline(cb, *gp);
-    m_stuff->build_commands(cb, i_count);
   }
 };
 } // namespace quack
