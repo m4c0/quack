@@ -48,7 +48,7 @@ public:
     m_h = h;
     return true;
   }
-  void load_image(const filler<u8_rgba> &fn) {
+  void load_image(auto &&fn) {
     vee::map_memory<u8_rgba>(*ts_mem, fn);
     m_dirty = true;
   }

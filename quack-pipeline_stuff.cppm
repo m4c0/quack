@@ -65,13 +65,9 @@ public:
     vee::update_descriptor_set(desc_set, 0, *iv, *smp);
   }
 
-  void map_instances_pos(const filler<pos> &fn) {
-    instances.positions().map(fn);
-  }
-  void map_instances_colour(const filler<colour> &fn) {
-    instances.colours().map(fn);
-  }
-  void map_instances_uv(const filler<uv> &fn) { instances.uvs().map(fn); }
+  void map_instances_pos(auto &&fn) { instances.positions().map(fn); }
+  void map_instances_colour(auto &&fn) { instances.colours().map(fn); }
+  void map_instances_uv(auto &&fn) { instances.uvs().map(fn); }
 
   void build_commands(vee::command_buffer cb, unsigned i_count) {
     instances.set_count(i_count);

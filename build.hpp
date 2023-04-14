@@ -17,7 +17,6 @@ auto quack() {
   m->add_wsdep("vee", vee());
 
   m->add_part("objects");
-  m->add_part("renderer");
   m->add_part("per_device");
   m->add_part("per_extent");
   m->add_part("per_frame");
@@ -28,9 +27,9 @@ auto quack() {
   m->add_part("pipeline_stuff");
   m->add_part("pipeline");
   m->add_part("raii");
-  m->add_impl("vulkan");
   m->add_part("agg");
   m->add_part("thread");
+  m->add_part("renderer");
 
   m->add_unit<spirv>("quack.vert");
   m->add_unit<spirv>("quack.frag");
