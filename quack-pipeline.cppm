@@ -17,12 +17,10 @@ public:
   void build_commands(vee::command_buffer cb, unsigned i_count) const {
     const auto extent = m_ext->extent_2d();
 
-    vee::begin_cmd_buf_render_pass_continue(cb, m_ext->render_pass());
     vee::cmd_set_scissor(cb, extent);
     vee::cmd_set_viewport(cb, extent);
     vee::cmd_bind_gr_pipeline(cb, *gp);
     m_stuff->build_commands(cb, i_count);
-    vee::end_cmd_buf(cb);
   }
 };
 } // namespace quack

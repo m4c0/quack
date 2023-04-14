@@ -45,4 +45,19 @@ public:
   render_passer &operator=(const render_passer &) = delete;
   render_passer &operator=(render_passer &&) = delete;
 };
+class render_pass_continuer {
+  vee::command_buffer m_cb;
+
+public:
+  explicit render_pass_continuer(vee::command_buffer cb, const per_extent *ext)
+      : m_cb{cb} {
+    vee::begin_cmd_buf_render_pass_continue(cb, ext->render_pass());
+  }
+  ~render_pass_continuer() { vee::end_cmd_buf(m_cb); }
+
+  render_pass_continuer(const render_pass_continuer &) = delete;
+  render_pass_continuer(render_pass_continuer &&) = delete;
+  render_pass_continuer &operator=(const render_pass_continuer &) = delete;
+  render_pass_continuer &operator=(render_pass_continuer &&) = delete;
+};
 } // namespace quack

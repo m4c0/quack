@@ -48,6 +48,11 @@ public:
     });
     return frm.command_buffer();
   }
+  void build_secondary_cmd_buf(vee::command_buffer scb, unsigned i_count) {
+    render_pass_continuer rpc{scb, m_l1->ext()};
+    m_l1->ppl()->build_commands(scb, i_count);
+  }
+
   void repaint(unsigned i_count) override {
     try {
       auto &inf = m_l0->flip();
@@ -55,7 +60,7 @@ public:
       auto idx = vee::acquire_next_image(m_l1->ext()->swapchain(),
                                          inf.image_available_sema());
 
-      m_l1->ppl()->build_commands(inf.command_buffer(), i_count);
+      build_secondary_cmd_buf(inf.command_buffer(), i_count);
 
       auto cb = build_primary_cmd_buf(*m_l1->frm(idx), inf);
       inf.submit(m_l0->dev(), cb);
