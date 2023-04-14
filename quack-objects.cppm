@@ -1,6 +1,8 @@
 export module quack:objects;
 
 namespace quack {
+static constexpr const auto v_count = 6;
+
 export struct params {
   unsigned grid_w;
   unsigned grid_h;
@@ -35,5 +37,10 @@ export struct u8_rgba {
 };
 export template <typename Tp> struct filler {
   virtual void operator()(Tp *) const noexcept = 0;
+};
+
+struct upc {
+  pos grid_pos{};
+  pos grid_size{};
 };
 } // namespace quack

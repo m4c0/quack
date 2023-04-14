@@ -27,12 +27,7 @@ class pipeline_stuff {
   vee::descriptor_set desc_set = vee::allocate_descriptor_set(*desc_pool, *dsl);
   vee::sampler smp = vee::create_sampler(vee::nearest_sampler);
 
-  static constexpr const auto v_count = 6;
-
   bound_buffer<pos> vertices{bb_vertex{}, dev, v_count};
-  instance_batch instances;
-
-  pos m_mouse_pos{};
 
   void map_vertices() {
     vertices.map([](auto vs) {
@@ -47,37 +42,19 @@ class pipeline_stuff {
   }
 
 public:
-  pipeline_stuff(const per_device *d, unsigned max_quads)
-      : dev{d}, instances{dev, max_quads} {
-    map_vertices();
-  }
+  pipeline_stuff(const per_device *d) : dev{d} { map_vertices(); }
 
-  void resize(const params &p, float sw, float sh) {
-    instances.resize(p, sw, sh);
+  [[nodiscard]] constexpr const auto pipeline_layout() const noexcept {
+    return *pl;
   }
-
-  mno::opt<unsigned> current_hover() {
-    return instances.current_hover(m_mouse_pos);
-  }
-  void mouse_move(float x, float y) { m_mouse_pos = {x, y}; }
 
   void set_atlas(const vee::image_view &iv) {
     vee::update_descriptor_set(desc_set, 0, *iv, *smp);
   }
 
-  void map_instances_pos(auto &&fn) { instances.positions().map(fn); }
-  void map_instances_colour(auto &&fn) { instances.colours().map(fn); }
-  void map_instances_uv(auto &&fn) { instances.uvs().map(fn); }
-
-  void build_commands(vee::command_buffer cb, unsigned i_count) {
-    instances.set_count(i_count);
+  void build_commands(vee::command_buffer cb) const {
     vee::cmd_bind_vertex_buffers(cb, 0, *vertices);
-    vee::cmd_bind_vertex_buffers(cb, 1, *instances.positions());
-    vee::cmd_bind_vertex_buffers(cb, 2, *instances.colours());
-    vee::cmd_bind_vertex_buffers(cb, 3, *instances.uvs());
     vee::cmd_bind_descriptor_set(cb, *pl, 0, desc_set);
-    vee::cmd_push_vert_frag_constants(cb, *pl, &instances.push_constants());
-    vee::cmd_draw(cb, v_count, instances.count());
   }
 
   [[nodiscard]] auto create_pipeline(const per_extent *ext) const {

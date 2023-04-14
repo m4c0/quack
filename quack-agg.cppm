@@ -18,8 +18,8 @@ class level_0 {
   pipeline_stuff m_ps;
 
 public:
-  level_0(casein::native_handle_t nptr, unsigned max_quads)
-      : m_dev{nptr}, m_inf{&m_dev}, m_stg{&m_dev}, m_ps{&m_dev, max_quads} {}
+  level_0(casein::native_handle_t nptr)
+      : m_dev{nptr}, m_inf{&m_dev}, m_stg{&m_dev}, m_ps{&m_dev} {}
 
   [[nodiscard]] constexpr const auto *dev() const noexcept { return &m_dev; }
   [[nodiscard]] constexpr const auto *ps() const noexcept { return &m_ps; }

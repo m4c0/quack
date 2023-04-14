@@ -2,14 +2,12 @@ export module quack:ibatch;
 import :bbuffer;
 import :objects;
 import missingno;
+import vee;
 
 namespace quack {
-struct upc {
-  pos grid_pos{};
-  pos grid_size{};
-};
-
 class instance_batch {
+  vee::pipeline_layout::type m_pl;
+
   bound_buffer<pos> m_pos;
   bound_buffer<colour> m_colour;
   bound_buffer<uv> m_uv;
@@ -21,8 +19,9 @@ class instance_batch {
   unsigned m_count{};
 
 public:
-  instance_batch(const per_device *dev, unsigned max_quads)
-      : m_pos{bb_vertex{}, dev, max_quads},
+  instance_batch(const per_device *dev, vee::pipeline_layout::type pl,
+                 unsigned max_quads)
+      : m_pl{pl}, m_pos{bb_vertex{}, dev, max_quads},
         m_colour{bb_vertex{}, dev, max_quads}, m_uv{bb_vertex{}, dev,
                                                     max_quads} {}
 
@@ -74,6 +73,14 @@ public:
   [[nodiscard]] constexpr const auto &count() const noexcept { return m_count; }
   [[nodiscard]] constexpr const auto &push_constants() const noexcept {
     return m_pc;
+  }
+
+  void build_commands(vee::command_buffer cb) const {
+    vee::cmd_push_vert_frag_constants(cb, m_pl, &m_pc);
+    vee::cmd_bind_vertex_buffers(cb, 1, *m_pos);
+    vee::cmd_bind_vertex_buffers(cb, 2, *m_colour);
+    vee::cmd_bind_vertex_buffers(cb, 3, *m_uv);
+    vee::cmd_draw(cb, v_count, m_count);
   }
 };
 } // namespace quack

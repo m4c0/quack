@@ -24,7 +24,7 @@ class thread : public sith::thread {
 
   void run() override {
     vee::initialise();
-    level_0 l0{m_nptr, m_max_quads};
+    level_0 l0{m_nptr};
 
     while (!interrupted()) {
       try {

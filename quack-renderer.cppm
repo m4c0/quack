@@ -12,7 +12,9 @@ export namespace quack {
 class renderer {
   hai::uptr<level_0> m_l0{};
   hai::uptr<level_1> m_l1{};
+  hai::uptr<instance_batch> m_batch{};
   params m_p;
+  pos m_mouse_pos{};
 
   template <typename Tp, typename Fn> class s : public filler<Tp> {
     Fn m;
@@ -32,7 +34,7 @@ class renderer {
     });
     return frm.command_buffer();
   }
-  void build_secondary_cmd_buf(vee::command_buffer scb, unsigned i_count) {
+  void build_secondary_cmd_buf(vee::command_buffer scb) {
     render_pass_continuer rpc{scb, m_l1->ext()};
 
     const auto extent = m_l1->ext()->extent_2d();
@@ -40,7 +42,8 @@ class renderer {
     vee::cmd_set_viewport(scb, extent);
 
     m_l1->ppl()->build_commands(scb);
-    m_l0->ps()->build_commands(scb, i_count);
+    m_l0->ps()->build_commands(scb);
+    m_batch->build_commands(scb);
   }
 
   void resize() {
@@ -54,23 +57,27 @@ public:
 
   void setup(casein::native_handle_t nptr) {
     vee::initialise();
-    m_l0 = hai::uptr<level_0>::make(nptr, m_p.max_quads);
+    m_l0 = hai::uptr<level_0>::make(nptr);
+    m_batch = hai::uptr<instance_batch>::make(
+        m_l0->dev(), m_l0->ps()->pipeline_layout(), m_p.max_quads);
     resize();
   }
 
   void resize(unsigned w, unsigned h, float scale) {
-    m_l0->ps()->resize(m_p, w, h);
+    m_batch->resize(m_p, w, h);
     resize();
   }
 
   void repaint(unsigned i_count) {
+    m_batch->set_count(i_count);
+
     try {
       auto &inf = m_l0->flip();
 
       auto idx = vee::acquire_next_image(m_l1->ext()->swapchain(),
                                          inf.image_available_sema());
 
-      build_secondary_cmd_buf(inf.command_buffer(), i_count);
+      build_secondary_cmd_buf(inf.command_buffer());
 
       auto cb = build_primary_cmd_buf(*m_l1->frm(idx), inf);
       inf.submit(m_l0->dev(), cb);
@@ -88,18 +95,19 @@ public:
 
   void quit() {
     vee::device_wait_idle();
+    m_batch = {};
     m_l1 = {};
     m_l0 = {};
   }
 
   template <typename Fn> void fill_pos(Fn &&fn) {
-    m_l0->ps()->map_instances_pos(traits::move(fn));
+    m_batch->positions().map(traits::move(fn));
   }
   template <typename Fn> void fill_colour(Fn &&fn) {
-    m_l0->ps()->map_instances_colour(traits::move(fn));
+    m_batch->colours().map(traits::move(fn));
   }
   template <typename Fn> void fill_uv(Fn &&fn) {
-    m_l0->ps()->map_instances_uv(traits::move(fn));
+    m_batch->uvs().map(traits::move(fn));
   }
   template <typename Fn> void load_atlas(unsigned w, unsigned h, Fn &&fn) {
     if (m_l0->stg()->resize_image(w, h))
@@ -108,11 +116,10 @@ public:
     m_l0->stg()->load_image(traits::move(fn));
   }
 
+  void mouse_move(float x, float y) { m_mouse_pos = {x, y}; }
   [[nodiscard]] mno::opt<unsigned> current_hover() {
-    return m_l0->ps()->current_hover();
+    return m_batch->current_hover(m_mouse_pos);
   }
-
-  void mouse_move(unsigned x, unsigned y) { m_l0->ps()->mouse_move(x, y); }
 
   void process_event(const casein::event &e) {
     switch (e.type()) {
