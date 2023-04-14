@@ -21,6 +21,6 @@ public:
 
   [[nodiscard]] auto operator*() const noexcept { return *m_buf; }
 
-  void map(auto &&fn) { vee::map_memory<Tp>(*m_mem, fn); }
+  void map(auto &&fn) const { vee::map_memory<Tp>(*m_mem, fn); }
 };
 } // namespace quack

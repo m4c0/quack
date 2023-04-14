@@ -1,17 +1,13 @@
 export module quack:pipeline_stuff;
 import :objects;
 import :bbuffer;
+import :ibatch;
 import :per_device;
 import :per_extent;
 import missingno;
 import vee;
 
 namespace quack {
-struct upc {
-  pos grid_pos{};
-  pos grid_size{};
-};
-
 class pipeline_stuff {
   const per_device *dev;
 
@@ -34,15 +30,9 @@ class pipeline_stuff {
   static constexpr const auto v_count = 6;
 
   bound_buffer<pos> vertices{bb_vertex{}, dev, v_count};
-  bound_buffer<pos> instance_pos;
-  bound_buffer<colour> instance_colour;
-  bound_buffer<uv> instance_uv;
-  upc pc;
-  unsigned m_max_quads;
+  instance_batch instances;
 
   pos m_mouse_pos{};
-  pos m_screen_disp{};
-  pos m_screen_scale{};
 
   void map_vertices() {
     vertices.map([](auto vs) {
@@ -58,65 +48,40 @@ class pipeline_stuff {
 
 public:
   pipeline_stuff(const per_device *d, unsigned max_quads)
-      : dev{d}, instance_pos{bb_vertex{}, dev, max_quads},
-        instance_colour{bb_vertex{}, dev, max_quads},
-        instance_uv{bb_vertex{}, dev, max_quads}, m_max_quads{max_quads} {
+      : dev{d}, instances{dev, max_quads} {
     map_vertices();
   }
 
   void resize(const params &p, float sw, float sh) {
-    float aspect = sw / sh;
-    float gw = p.grid_w / 2.0;
-    float gh = p.grid_h / 2.0;
-    float grid_aspect = gw / gh;
-    pc.grid_pos = pos{gw, gh};
-    pc.grid_size =
-        grid_aspect < aspect ? pos{aspect * gh, gh} : pos{gw, gw / aspect};
-    m_screen_scale = {2.0f * pc.grid_size.x / sw, 2.0f * pc.grid_size.y / sh};
-    m_screen_disp = {pc.grid_size.x - gw, pc.grid_size.y - gh};
+    instances.resize(p, sw, sh);
   }
 
   mno::opt<unsigned> current_hover() {
-    mno::opt<unsigned> res{};
-    instance_pos.map([&](auto *is) {
-      for (auto i = 0U; i < m_max_quads; i++) {
-        if (m_mouse_pos.x < is[i].x)
-          continue;
-        if (m_mouse_pos.y < is[i].y)
-          continue;
-        if (m_mouse_pos.x > is[i].x + 1.0f)
-          continue;
-        if (m_mouse_pos.y > is[i].y + 1.0f)
-          continue;
-        res = i;
-        break;
-      }
-    });
-    return res;
+    return instances.current_hover(m_mouse_pos);
   }
-  void mouse_move(float x, float y) {
-    m_mouse_pos.x = x * m_screen_scale.x - m_screen_disp.x;
-    m_mouse_pos.y = y * m_screen_scale.y - m_screen_disp.y;
-  }
+  void mouse_move(float x, float y) { m_mouse_pos = {x, y}; }
 
   void set_atlas(const vee::image_view &iv) {
     vee::update_descriptor_set(desc_set, 0, *iv, *smp);
   }
 
-  void map_instances_pos(const filler<pos> &fn) { instance_pos.map(fn); }
-  void map_instances_colour(const filler<colour> &fn) {
-    instance_colour.map(fn);
+  void map_instances_pos(const filler<pos> &fn) {
+    instances.positions().map(fn);
   }
-  void map_instances_uv(const filler<uv> &fn) { instance_uv.map(fn); }
+  void map_instances_colour(const filler<colour> &fn) {
+    instances.colours().map(fn);
+  }
+  void map_instances_uv(const filler<uv> &fn) { instances.uvs().map(fn); }
 
-  void build_commands(vee::command_buffer cb, unsigned i_count) const {
+  void build_commands(vee::command_buffer cb, unsigned i_count) {
+    instances.set_count(i_count);
     vee::cmd_bind_vertex_buffers(cb, 0, *vertices);
-    vee::cmd_bind_vertex_buffers(cb, 1, *instance_pos);
-    vee::cmd_bind_vertex_buffers(cb, 2, *instance_colour);
-    vee::cmd_bind_vertex_buffers(cb, 3, *instance_uv);
+    vee::cmd_bind_vertex_buffers(cb, 1, *instances.positions());
+    vee::cmd_bind_vertex_buffers(cb, 2, *instances.colours());
+    vee::cmd_bind_vertex_buffers(cb, 3, *instances.uvs());
     vee::cmd_bind_descriptor_set(cb, *pl, 0, desc_set);
-    vee::cmd_push_vert_frag_constants(cb, *pl, &pc);
-    vee::cmd_draw(cb, v_count, i_count);
+    vee::cmd_push_vert_frag_constants(cb, *pl, &instances.push_constants());
+    vee::cmd_draw(cb, v_count, instances.count());
   }
 
   [[nodiscard]] auto create_pipeline(const per_extent *ext) const {
