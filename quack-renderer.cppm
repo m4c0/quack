@@ -11,10 +11,11 @@ import vee;
 
 export namespace quack {
 class renderer {
+  unsigned m_max_batches;
   hai::uptr<thread> m_thread{};
 
   void setup(casein::native_handle_t nptr) {
-    m_thread = hai::uptr<thread>::make(nptr, 1U);
+    m_thread = hai::uptr<thread>::make(nptr, m_max_batches);
     m_thread->start();
   }
 
@@ -23,6 +24,9 @@ class renderer {
   void quit() { m_thread = {}; }
 
 public:
+  explicit constexpr renderer(unsigned max_batches)
+      : m_max_batches{max_batches} {}
+
   template <typename Fn> void load_atlas(unsigned w, unsigned h, Fn &&fn) {
     m_thread->load_atlas(w, h, traits::move(fn));
   }
