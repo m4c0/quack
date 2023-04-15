@@ -16,15 +16,6 @@ class renderer {
   params m_p;
   pos m_mouse_pos{};
 
-  [[nodiscard]] auto build_primary_cmd_buf(const per_frame &frm) {
-    one_time_submitter ots{frm.command_buffer()};
-    ots([this](auto cb) { m_l0->stg()->build_commands(cb); });
-    ots([&, this](auto cb) {
-      render_passer rp{cb, frm.framebuffer(), m_l1->ext()};
-      build_render_pass(cb);
-    });
-    return frm.command_buffer();
-  }
   void build_render_pass(vee::command_buffer scb) {
     const auto extent = m_l1->ext()->extent_2d();
     vee::cmd_set_scissor(scb, extent);
@@ -61,20 +52,12 @@ public:
     m_batch->set_count(i_count);
 
     try {
-      auto &inf = m_l0->flip();
+      level_2 l2{&*m_l0, &*m_l1};
+      const auto cb = l2.command_buffer();
+      m_l0->stg()->build_commands(cb);
 
-      auto idx = vee::acquire_next_image(m_l1->ext()->swapchain(),
-                                         inf.image_available_sema());
-
-      auto cb = build_primary_cmd_buf(*m_l1->frm(idx));
-      inf.submit(m_l0->dev(), cb);
-
-      vee::queue_present({
-          .queue = m_l0->dev()->queue(),
-          .swapchain = m_l1->ext()->swapchain(),
-          .wait_semaphore = inf.render_finished_sema(),
-          .image_index = idx,
-      });
+      level_3 l3{&*m_l1, &l2};
+      build_render_pass(cb);
     } catch (vee::out_of_date_error) {
       resize();
     }
