@@ -25,10 +25,11 @@ public:
         m_colour{bb_vertex{}, dev, max_quads}, m_uv{bb_vertex{}, dev,
                                                     max_quads} {}
 
-  constexpr void resize(const params &p, float sw, float sh) noexcept {
+  constexpr void resize(unsigned grid_w, unsigned grid_h, float sw,
+                        float sh) noexcept {
     float aspect = sw / sh;
-    float gw = p.grid_w / 2.0;
-    float gh = p.grid_h / 2.0;
+    float gw = grid_w / 2.0;
+    float gh = grid_h / 2.0;
     float grid_aspect = gw / gh;
     m_pc.grid_pos = pos{gw, gh};
     m_pc.grid_size =

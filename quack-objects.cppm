@@ -3,12 +3,6 @@ export module quack:objects;
 namespace quack {
 static constexpr const auto v_count = 6;
 
-export struct params {
-  unsigned grid_w;
-  unsigned grid_h;
-  unsigned max_quads;
-};
-
 export struct pos {
   float x;
   float y;
