@@ -10,7 +10,7 @@ import vee;
 
 namespace quack {
 class thread : public sith::thread {
-  unsigned m_batch_count{};
+  volatile unsigned m_batch_count{};
   volatile bool m_reset_l1{false};
   level_0 m_l0;
   hai::holder<hai::uptr<instance_batch>[]> m_batches;
@@ -60,11 +60,11 @@ public:
     vee::device_wait_idle();
   }
 
-  // Non-thread safe. Must be called on main thread before start
   [[nodiscard]] instance_batch *allocate(unsigned max_quads) noexcept {
-    auto &res = (*m_batches)[m_batch_count++];
+    auto &res = (*m_batches)[m_batch_count];
     res = hai::uptr<instance_batch>::make(
         m_l0.dev(), m_l0.ps()->pipeline_layout(), max_quads);
+    m_batch_count = m_batch_count + 1;
     return &*res;
   }
 
