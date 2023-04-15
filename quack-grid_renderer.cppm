@@ -54,7 +54,7 @@ public:
       d = {};
   }
   void resize(unsigned w, unsigned h, float scale) { m_r.resize(w, h, scale); }
-  void repaint() { m_r.repaint(cells); }
+  void repaint() { m_r.set_icount(cells); }
   void quit() { m_r.quit(); }
 
   [[nodiscard]] constexpr auto &at(unsigned x, unsigned y) noexcept {

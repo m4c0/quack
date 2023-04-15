@@ -2,6 +2,7 @@ export module quack:renderer;
 import :agg;
 import :raii;
 import :objects;
+import :thread;
 import casein;
 import hai;
 import missingno;
@@ -10,65 +11,28 @@ import vee;
 
 export namespace quack {
 class renderer {
-  hai::uptr<level_0> m_l0{};
-  hai::uptr<level_1> m_l1{};
-  hai::uptr<instance_batch> m_batch{};
+  hai::uptr<thread> m_thread{};
+  instance_batch *m_batch{};
   params m_p;
   pos m_mouse_pos{};
 
-  void build_render_pass(vee::command_buffer scb) {
-    const auto extent = m_l1->ext()->extent_2d();
-    vee::cmd_set_scissor(scb, extent);
-    vee::cmd_set_viewport(scb, extent);
-
-    m_l1->ppl()->build_commands(scb);
-    m_l0->ps()->build_commands(scb);
-    m_batch->build_commands(scb);
-  }
-
-  void resize() {
-    vee::device_wait_idle();
-    m_l1 = hai::uptr<level_1>::make(&*m_l0);
-  }
-
 public:
   explicit renderer(const params &p) : m_p{p} {}
-  ~renderer() { vee::device_wait_idle(); }
 
   void setup(casein::native_handle_t nptr) {
-    vee::initialise();
-    m_l0 = hai::uptr<level_0>::make(nptr);
-    m_batch = hai::uptr<instance_batch>::make(
-        m_l0->dev(), m_l0->ps()->pipeline_layout(), m_p.max_quads);
-    resize();
+    m_thread = hai::uptr<thread>::make(nptr, 1U);
+    m_batch = m_thread->allocate(m_p.max_quads);
+    m_thread->start();
   }
 
   void resize(unsigned w, unsigned h, float scale) {
     m_batch->resize(m_p, w, h);
-    resize();
+    m_thread->reset_l1();
   }
 
-  void repaint(unsigned i_count) {
-    m_batch->set_count(i_count);
+  void set_icount(unsigned i_count) { m_batch->set_count(i_count); }
 
-    try {
-      level_2 l2{&*m_l0, &*m_l1};
-      const auto cb = l2.command_buffer();
-      m_l0->stg()->build_commands(cb);
-
-      level_3 l3{&*m_l1, &l2};
-      build_render_pass(cb);
-    } catch (vee::out_of_date_error) {
-      resize();
-    }
-  }
-
-  void quit() {
-    vee::device_wait_idle();
-    m_batch = {};
-    m_l1 = {};
-    m_l0 = {};
-  }
+  void quit() { m_thread = {}; }
 
   template <typename Fn> void fill_pos(Fn &&fn) {
     m_batch->positions().map(traits::move(fn));
@@ -80,10 +44,7 @@ public:
     m_batch->uvs().map(traits::move(fn));
   }
   template <typename Fn> void load_atlas(unsigned w, unsigned h, Fn &&fn) {
-    if (m_l0->stg()->resize_image(w, h))
-      m_l0->ps()->set_atlas(m_l0->stg()->image_view());
-
-    m_l0->stg()->load_image(traits::move(fn));
+    m_thread->load_atlas(w, h, traits::move(fn));
   }
 
   void mouse_move(float x, float y) { m_mouse_pos = {x, y}; }
