@@ -3,8 +3,8 @@ import quack;
 
 extern "C" void casein_handle(const casein::event &e) {
   static quack::renderer r{2};
-  static quack::grid_renderer<30, 20, quack::colour> q{&r};
-  static quack::grid_renderer<10, 10, quack::colour> p{&r};
+  static quack::grid_ilayout<30, 20, quack::colour> q{&r};
+  static quack::grid_ilayout<10, 10, quack::colour> p{&r};
 
   r.process_event(e);
   q.process_event(e);

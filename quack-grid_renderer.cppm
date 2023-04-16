@@ -5,46 +5,33 @@ import :renderer;
 import casein;
 
 namespace quack {
-export template <auto W, auto H, typename Tp> class grid_renderer {
+export template <typename Tp, unsigned N> class instance_layout {
   renderer *m_r;
   instance_batch *m_batch;
-  Tp m_data[W * H];
+  Tp m_data[N];
   pos m_mouse_pos{};
 
   void mouse_move(float x, float y) { m_mouse_pos = {x, y}; }
 
-  void setup() {
-    m_batch = m_r->allocate_batch(cells);
-    m_batch->set_count(cells);
-    m_batch->positions().map([](pos *is) {
-      unsigned i = 0;
-      for (auto y = 0; y < H; y++) {
-        for (auto x = 0; x < W; x++, i++) {
-          is[i].x = x;
-          is[i].y = y;
-        }
-      }
-    });
-  }
-  void resize(unsigned w, unsigned h) { m_batch->resize(W, H, w, h); }
+protected:
+  virtual void setup() { m_batch = m_r->allocate_batch(N); }
+  virtual void resize(unsigned w, unsigned h) {}
+
+  [[nodiscard]] constexpr auto *batch() noexcept { return m_batch; }
 
 public:
-  static constexpr const auto width = W;
-  static constexpr const auto height = H;
-  static constexpr const auto cells = width * height;
-
-  explicit constexpr grid_renderer(renderer *r) : m_r{r} {}
+  explicit constexpr instance_layout(renderer *r) : m_r{r} {}
 
   void fill_colour(auto &&fn) {
     m_batch->colours().map([&](auto *c) {
-      for (auto i = 0; i < cells; i++) {
+      for (auto i = 0; i < N; i++) {
         c[i] = fn(at(i));
       }
     });
   }
   void fill_uv(auto &&fn) {
     m_batch->uvs().map([&](auto *c) {
-      for (auto i = 0; i < cells; i++) {
+      for (auto i = 0; i < N; i++) {
         c[i] = fn(at(i));
       }
     });
@@ -54,9 +41,6 @@ public:
       d = {};
   }
 
-  [[nodiscard]] constexpr auto &at(unsigned x, unsigned y) noexcept {
-    return m_data[y * W + x];
-  }
   [[nodiscard]] constexpr auto &at(unsigned idx) noexcept {
     return m_data[idx];
   }
@@ -93,6 +77,41 @@ public:
     default:
       break;
     }
+  }
+};
+
+export template <auto W, auto H, typename Tp>
+class grid_ilayout : public instance_layout<Tp, W * H> {
+  using parent_t = instance_layout<Tp, W * H>;
+
+  void setup() override {
+    parent_t::setup();
+
+    this->batch()->set_count(cells);
+    this->batch()->positions().map([](pos *is) {
+      unsigned i = 0;
+      for (auto y = 0; y < H; y++) {
+        for (auto x = 0; x < W; x++, i++) {
+          is[i].x = x;
+          is[i].y = y;
+        }
+      }
+    });
+  };
+  void resize(unsigned w, unsigned h) override {
+    this->batch()->resize(W, H, w, h);
+  }
+
+public:
+  static constexpr const auto width = W;
+  static constexpr const auto height = H;
+  static constexpr const auto cells = width * height;
+
+  using parent_t::at;
+  using parent_t::parent_t;
+
+  [[nodiscard]] constexpr auto &at(unsigned x, unsigned y) noexcept {
+    return parent_t::at(y * W + x);
   }
 };
 } // namespace quack
