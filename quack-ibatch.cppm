@@ -21,9 +21,9 @@ class instance_batch {
 public:
   instance_batch(const per_device *dev, vee::pipeline_layout::type pl,
                  unsigned max_quads)
-      : m_pl{pl}, m_pos{bb_vertex{}, dev, max_quads},
-        m_colour{bb_vertex{}, dev, max_quads}, m_uv{bb_vertex{}, dev,
-                                                    max_quads} {}
+      : m_pl{pl}, m_pos{bb_vertex{}, dev, max_quads}, m_colour{bb_vertex{}, dev,
+                                                               max_quads},
+        m_uv{bb_vertex{}, dev, max_quads}, m_count{max_quads} {}
 
   constexpr void resize(unsigned grid_w, unsigned grid_h, float sw,
                         float sh) noexcept {

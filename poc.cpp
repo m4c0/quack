@@ -2,11 +2,13 @@ import casein;
 import quack;
 
 extern "C" void casein_handle(const casein::event &e) {
-  static quack::renderer r{2};
+  static quack::renderer r{3};
+  static quack::instance_layout<bool, 1> s{&r};
   static quack::grid_ilayout<30, 20, quack::colour> q{&r};
   static quack::grid_ilayout<10, 10, quack::colour> p{&r};
 
   r.process_event(e);
+  s.process_event(e);
   q.process_event(e);
   p.process_event(e);
 
@@ -18,6 +20,12 @@ extern "C" void casein_handle(const casein::event &e) {
         img[i + 256] = {255, 255, 255, 128};
       }
     });
+
+    s.reset_grid();
+    s.fill_pos([](auto) { return quack::pos{}; });
+    s.fill_colour([](auto) { return quack::colour{0, 0, 0.1, 1}; });
+    s.fill_uv([](auto) { return quack::uv{}; });
+    s.batch()->resize(1, 1, 1, 1);
 
     q.reset_grid();
     q.at(9, 10) = quack::colour{0, 0, 0, 1};

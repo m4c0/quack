@@ -17,13 +17,20 @@ protected:
   virtual void setup() { m_batch = m_r->allocate_batch(N); }
   virtual void resize(unsigned w, unsigned h) {}
 
-  [[nodiscard]] constexpr auto *batch() noexcept { return m_batch; }
-
 public:
   explicit constexpr instance_layout(renderer *r) : m_r{r} {}
 
+  [[nodiscard]] constexpr auto *batch() noexcept { return m_batch; }
+
   void fill_colour(auto &&fn) {
     m_batch->colours().map([&](auto *c) {
+      for (auto i = 0; i < N; i++) {
+        c[i] = fn(at(i));
+      }
+    });
+  }
+  void fill_pos(auto &&fn) {
+    m_batch->positions().map([&](auto *c) {
       for (auto i = 0; i < N; i++) {
         c[i] = fn(at(i));
       }
