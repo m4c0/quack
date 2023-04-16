@@ -72,7 +72,7 @@ public:
     if (m_l0.stg()->resize_image(w, h))
       m_l0.ps()->set_atlas(m_l0.stg()->image_view());
 
-    m_l0.stg()->load_image(traits::move(fn));
+    m_l0.stg()->load_image(traits::fwd<decltype(fn)>(fn));
   }
 
   void reset_l1() noexcept { m_reset_l1 = true; }

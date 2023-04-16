@@ -27,8 +27,8 @@ public:
   explicit constexpr renderer(unsigned max_batches)
       : m_max_batches{max_batches} {}
 
-  template <typename Fn> void load_atlas(unsigned w, unsigned h, Fn &&fn) {
-    m_thread->load_atlas(w, h, traits::move(fn));
+  void load_atlas(unsigned w, unsigned h, auto &&fn) {
+    m_thread->load_atlas(w, h, traits::fwd<decltype(fn)>(fn));
   }
 
   [[nodiscard]] auto allocate_batch(unsigned max_quads) {

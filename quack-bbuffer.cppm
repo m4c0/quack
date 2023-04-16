@@ -1,5 +1,6 @@
 export module quack:bbuffer;
 import :per_device;
+import traits;
 import vee;
 
 namespace quack {
@@ -21,6 +22,8 @@ public:
 
   [[nodiscard]] auto operator*() const noexcept { return *m_buf; }
 
-  void map(auto &&fn) const { vee::map_memory<Tp>(*m_mem, fn); }
+  void map(auto &&fn) const {
+    vee::map_memory<Tp>(*m_mem, traits::fwd<decltype(fn)>(fn));
+  }
 };
 } // namespace quack
