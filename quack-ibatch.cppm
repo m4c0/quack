@@ -2,6 +2,7 @@ export module quack:ibatch;
 import :bbuffer;
 import :objects;
 import missingno;
+import traits;
 import vee;
 
 namespace quack {

@@ -5,6 +5,7 @@ import :ibatch;
 import :per_device;
 import :per_extent;
 import missingno;
+import traits;
 import vee;
 
 namespace quack {
