@@ -81,6 +81,11 @@ public:
       resize(w, h);
       break;
     }
+    case casein::TOUCH_DOWN: {
+      const auto &[x, y] = *e.as<casein::events::touch_down>();
+      mouse_move(x, y);
+      break;
+    }
     default:
       break;
     }
