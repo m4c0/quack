@@ -61,17 +61,9 @@ public:
     case casein::CREATE_WINDOW:
       setup();
       break;
-    case casein::MOUSE_DOWN: {
-      const auto &[x, y, btn] = *e.as<casein::events::mouse_down>();
-      mouse_move(x, y);
-      break;
-    }
+    case casein::MOUSE_DOWN:
+    case casein::MOUSE_MOVE:
     case casein::MOUSE_UP: {
-      const auto &[x, y, btn] = *e.as<casein::events::mouse_up>();
-      mouse_move(x, y);
-      break;
-    }
-    case casein::MOUSE_MOVE: {
       const auto &[x, y] = *e.as<casein::events::mouse_move>();
       mouse_move(x, y);
       break;
