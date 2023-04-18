@@ -30,6 +30,7 @@ auto quack() {
   m->add_part("agg");
   m->add_part("thread");
   m->add_part("renderer");
+  m->add_part("ilayout");
   m->add_part("grid_renderer");
 
   m->add_unit<spirv>("quack.vert");
