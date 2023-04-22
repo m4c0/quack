@@ -48,6 +48,7 @@ public:
       d = {};
   }
 
+  [[nodiscard]] constexpr auto &data() noexcept { return m_data; }
   [[nodiscard]] constexpr auto &at(unsigned idx) noexcept {
     return m_data[idx];
   }
