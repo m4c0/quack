@@ -12,12 +12,11 @@ class grid_ilayout : public instance_layout<Tp, W * H> {
     parent_t::setup();
 
     this->batch()->set_count(cells);
-    this->batch()->positions().map([](pos *is) {
+    this->batch()->positions().map([](rect *is) {
       unsigned i = 0;
-      for (auto y = 0; y < H; y++) {
-        for (auto x = 0; x < W; x++, i++) {
-          is[i].x = x;
-          is[i].y = y;
+      for (float y = 0; y < H; y++) {
+        for (float x = 0; x < W; x++, i++) {
+          is[i] = {x, y, 1, 1};
         }
       }
     });

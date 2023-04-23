@@ -11,6 +11,9 @@ export struct size {
   float w;
   float h;
 };
+export struct rect : pos, size {};
+static_assert(sizeof(rect) == 4 * sizeof(float));
+
 export struct uv {
   struct {
     float u;

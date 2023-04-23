@@ -67,13 +67,13 @@ public:
         },
         {
             vee::vertex_input_bind(sizeof(pos)),
-            vee::vertex_input_bind_per_instance(sizeof(pos)),
+            vee::vertex_input_bind_per_instance(sizeof(rect)),
             vee::vertex_input_bind_per_instance(sizeof(colour)),
             vee::vertex_input_bind_per_instance(sizeof(uv)),
         },
         {
             vee::vertex_attribute_vec2(0, 0),
-            vee::vertex_attribute_vec2(1, 0),
+            vee::vertex_attribute_vec4(1, 0),
             vee::vertex_attribute_vec4(2, 0),
             vee::vertex_attribute_vec4(3, 0),
         });

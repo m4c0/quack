@@ -9,7 +9,7 @@ namespace quack {
 class instance_batch {
   vee::pipeline_layout::type m_pl;
 
-  bound_buffer<pos> m_pos;
+  bound_buffer<rect> m_pos;
   bound_buffer<colour> m_colour;
   bound_buffer<uv> m_uv;
   upc m_pc;

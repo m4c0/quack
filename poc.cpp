@@ -3,7 +3,7 @@ import quack;
 
 extern "C" void casein_handle(const casein::event &e) {
   static quack::renderer r{3};
-  static quack::instance_layout<bool, 1> s{&r};
+  static quack::instance_layout<quack::rect, 2> s{&r};
   static quack::grid_ilayout<30, 20, quack::colour> q{&r};
   static quack::grid_ilayout<10, 10, quack::colour> p{&r};
 
@@ -22,8 +22,10 @@ extern "C" void casein_handle(const casein::event &e) {
     });
 
     s.reset_grid();
-    s.fill_pos([](auto) { return quack::pos{}; });
-    s.fill_colour([](auto) { return quack::colour{0, 0, 0.1, 1}; });
+    s.at(0) = quack::rect{0, 0, 1, 1};
+    s.at(1) = quack::rect{0.25, 0.25, 0.5, 0.5};
+    s.fill_pos([](auto p) { return p; });
+    s.fill_colour([](auto p) { return quack::colour{p.x, 0, 0.1, 1}; });
     s.fill_uv([](auto) { return quack::uv{}; });
     s.batch()->resize(1, 1, 1, 1);
 
