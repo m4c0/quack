@@ -7,6 +7,10 @@ export struct pos {
   float x;
   float y;
 };
+export struct size {
+  float w;
+  float h;
+};
 export struct uv {
   struct {
     float u;
@@ -35,6 +39,6 @@ export template <typename Tp> struct filler {
 
 struct upc {
   pos grid_pos{};
-  pos grid_size{};
+  size grid_size{};
 };
 } // namespace quack

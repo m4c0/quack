@@ -22,8 +22,8 @@ class instance_batch {
 public:
   instance_batch(const per_device *dev, vee::pipeline_layout::type pl,
                  unsigned max_quads)
-      : m_pl{pl}, m_pos{bb_vertex{}, dev, max_quads}, m_colour{bb_vertex{}, dev,
-                                                               max_quads},
+      : m_pl{pl}, m_pos{bb_vertex{}, dev, max_quads},
+        m_colour{bb_vertex{}, dev, max_quads},
         m_uv{bb_vertex{}, dev, max_quads}, m_count{max_quads} {}
 
   constexpr void resize(unsigned grid_w, unsigned grid_h, float sw,
@@ -34,10 +34,10 @@ public:
     float grid_aspect = gw / gh;
     m_pc.grid_pos = pos{gw, gh};
     m_pc.grid_size =
-        grid_aspect < aspect ? pos{aspect * gh, gh} : pos{gw, gw / aspect};
-    m_screen_scale = {2.0f * m_pc.grid_size.x / sw,
-                      2.0f * m_pc.grid_size.y / sh};
-    m_screen_disp = {m_pc.grid_size.x - gw, m_pc.grid_size.y - gh};
+        grid_aspect < aspect ? size{aspect * gh, gh} : size{gw, gw / aspect};
+    m_screen_scale = {2.0f * m_pc.grid_size.w / sw,
+                      2.0f * m_pc.grid_size.h / sh};
+    m_screen_disp = {m_pc.grid_size.w - gw, m_pc.grid_size.h - gh};
   }
 
   constexpr void set_count(unsigned c) noexcept { m_count = c; }
