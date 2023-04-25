@@ -36,5 +36,9 @@ public:
   [[nodiscard]] constexpr auto &at(unsigned x, unsigned y) noexcept {
     return parent_t::at(y * W + x);
   }
+  [[nodiscard]] constexpr const auto &at(unsigned x,
+                                         unsigned y) const noexcept {
+    return parent_t::at(y * W + x);
+  }
 };
 } // namespace quack

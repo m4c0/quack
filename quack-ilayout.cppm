@@ -52,6 +52,9 @@ public:
   [[nodiscard]] constexpr auto &at(unsigned idx) noexcept {
     return m_data[idx];
   }
+  [[nodiscard]] constexpr const auto &at(unsigned idx) const noexcept {
+    return m_data[idx];
+  }
 
   [[nodiscard]] constexpr auto current_hover() noexcept {
     return m_batch->current_hover(m_mouse_pos);
