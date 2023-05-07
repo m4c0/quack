@@ -36,6 +36,13 @@ public:
       }
     });
   }
+  void fill_mult(auto &&fn) {
+    m_batch->multipliers().map([&](auto *c) {
+      for (auto i = 0; i < N; i++) {
+        c[i] = fn(at(i));
+      }
+    });
+  }
   void fill_uv(auto &&fn) {
     m_batch->uvs().map([&](auto *c) {
       for (auto i = 0; i < N; i++) {

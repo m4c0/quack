@@ -11,6 +11,7 @@ class instance_batch {
 
   bound_buffer<rect> m_pos;
   bound_buffer<colour> m_colour;
+  bound_buffer<colour> m_mult;
   bound_buffer<uv> m_uv;
   upc m_pc;
 
@@ -24,7 +25,8 @@ public:
                  unsigned max_quads)
       : m_pl{pl}, m_pos{bb_vertex{}, dev, max_quads},
         m_colour{bb_vertex{}, dev, max_quads},
-        m_uv{bb_vertex{}, dev, max_quads}, m_count{max_quads} {}
+        m_uv{bb_vertex{}, dev, max_quads}, m_mult{bb_vertex{}, dev, max_quads},
+        m_count{max_quads} {}
 
   constexpr void resize(unsigned grid_w, unsigned grid_h, float sw,
                         float sh) noexcept {
@@ -64,6 +66,9 @@ public:
     return res;
   }
 
+  [[nodiscard]] constexpr const auto &multipliers() const noexcept {
+    return m_mult;
+  }
   [[nodiscard]] constexpr const auto &colours() const noexcept {
     return m_colour;
   }
@@ -82,6 +87,7 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 1, *m_pos);
     vee::cmd_bind_vertex_buffers(cb, 2, *m_colour);
     vee::cmd_bind_vertex_buffers(cb, 3, *m_uv);
+    vee::cmd_bind_vertex_buffers(cb, 4, *m_mult);
     vee::cmd_draw(cb, v_count, m_count);
   }
 };
