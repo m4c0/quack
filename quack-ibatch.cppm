@@ -42,6 +42,8 @@ public:
     m_screen_disp = {m_pc.grid_size.w - gw, m_pc.grid_size.h - gh};
   }
 
+  constexpr void center_at(float gx, float gy) { m_pc.grid_pos = pos{gx, gy}; }
+
   constexpr void set_count(unsigned c) noexcept { m_count = c; }
 
   mno::opt<unsigned> current_hover(pos mouse_pos) {
