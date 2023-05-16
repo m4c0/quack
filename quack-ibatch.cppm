@@ -15,8 +15,7 @@ class instance_batch {
   bound_buffer<uv> m_uv;
   upc m_pc;
 
-  pos m_screen_disp{};
-  pos m_screen_scale{};
+  pos m_screen_size{};
 
   unsigned m_count{};
 
@@ -37,9 +36,7 @@ public:
     m_pc.grid_pos = pos{gw, gh};
     m_pc.grid_size =
         grid_aspect < aspect ? size{aspect * gh, gh} : size{gw, gw / aspect};
-    m_screen_scale = {2.0f * m_pc.grid_size.w / sw,
-                      2.0f * m_pc.grid_size.h / sh};
-    m_screen_disp = {m_pc.grid_size.w - gw, m_pc.grid_size.h - gh};
+    m_screen_size = {sw, sh};
   }
 
   constexpr void center_at(float gx, float gy) { m_pc.grid_pos = pos{gx, gy}; }
@@ -47,8 +44,13 @@ public:
   constexpr void set_count(unsigned c) noexcept { m_count = c; }
 
   mno::opt<unsigned> current_hover(pos mouse_pos) {
-    auto mx = mouse_pos.x * m_screen_scale.x - m_screen_disp.x;
-    auto my = mouse_pos.y * m_screen_scale.y - m_screen_disp.y;
+    pos screen_scale = {2.0f * m_pc.grid_size.w / m_screen_size.x,
+                        2.0f * m_pc.grid_size.h / m_screen_size.y};
+    pos screen_disp = {m_pc.grid_size.w - m_pc.grid_pos.x,
+                       m_pc.grid_size.h - m_pc.grid_pos.y};
+
+    auto mx = mouse_pos.x * screen_scale.x - screen_disp.x;
+    auto my = mouse_pos.y * screen_scale.y - screen_disp.y;
 
     mno::opt<unsigned> res{};
     m_pos.map([&](auto *is) {
