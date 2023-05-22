@@ -5,10 +5,11 @@ import :renderer;
 import casein;
 
 namespace quack {
-export template <typename Tp, unsigned N> class instance_layout {
+export template <typename Tp, unsigned N> class instance_layout;
+
+export template <unsigned N> class instance_layout<void, N> {
   renderer *m_r;
   instance_batch *m_batch;
-  Tp m_data[N];
   pos m_mouse_pos{};
 
   void mouse_move(float x, float y) { m_mouse_pos = {x, y}; }
@@ -21,47 +22,6 @@ public:
   explicit constexpr instance_layout(renderer *r) : m_r{r} {}
 
   [[nodiscard]] constexpr auto *batch() noexcept { return m_batch; }
-
-  void fill_colour(auto &&fn) {
-    m_batch->colours().map([&](auto *c) {
-      for (auto i = 0; i < N; i++) {
-        c[i] = fn(at(i));
-      }
-    });
-  }
-  void fill_pos(auto &&fn) {
-    m_batch->positions().map([&](auto *c) {
-      for (auto i = 0; i < N; i++) {
-        c[i] = fn(at(i));
-      }
-    });
-  }
-  void fill_mult(auto &&fn) {
-    m_batch->multipliers().map([&](auto *c) {
-      for (auto i = 0; i < N; i++) {
-        c[i] = fn(at(i));
-      }
-    });
-  }
-  void fill_uv(auto &&fn) {
-    m_batch->uvs().map([&](auto *c) {
-      for (auto i = 0; i < N; i++) {
-        c[i] = fn(at(i));
-      }
-    });
-  }
-  void reset_grid() {
-    for (auto &d : m_data)
-      d = {};
-  }
-
-  [[nodiscard]] constexpr auto &data() noexcept { return m_data; }
-  [[nodiscard]] constexpr auto &at(unsigned idx) noexcept {
-    return m_data[idx];
-  }
-  [[nodiscard]] constexpr const auto &at(unsigned idx) const noexcept {
-    return m_data[idx];
-  }
 
   [[nodiscard]] constexpr auto current_hover() noexcept {
     return m_batch->current_hover(m_mouse_pos);
@@ -94,6 +54,55 @@ public:
     default:
       break;
     }
+  }
+};
+
+export template <typename Tp, unsigned N>
+class instance_layout : public instance_layout<void, N> {
+  Tp m_data[N];
+
+public:
+  using instance_layout<void, N>::instance_layout;
+
+  void fill_colour(auto &&fn) {
+    this->batch()->colours().map([&](auto *c) {
+      for (auto i = 0; i < N; i++) {
+        c[i] = fn(at(i));
+      }
+    });
+  }
+  void fill_pos(auto &&fn) {
+    this->batch()->positions().map([&](auto *c) {
+      for (auto i = 0; i < N; i++) {
+        c[i] = fn(at(i));
+      }
+    });
+  }
+  void fill_mult(auto &&fn) {
+    this->batch()->multipliers().map([&](auto *c) {
+      for (auto i = 0; i < N; i++) {
+        c[i] = fn(at(i));
+      }
+    });
+  }
+  void fill_uv(auto &&fn) {
+    this->batch()->uvs().map([&](auto *c) {
+      for (auto i = 0; i < N; i++) {
+        c[i] = fn(at(i));
+      }
+    });
+  }
+  void reset_grid() {
+    for (auto &d : m_data)
+      d = {};
+  }
+
+  [[nodiscard]] constexpr auto &data() noexcept { return m_data; }
+  [[nodiscard]] constexpr auto &at(unsigned idx) noexcept {
+    return m_data[idx];
+  }
+  [[nodiscard]] constexpr const auto &at(unsigned idx) const noexcept {
+    return m_data[idx];
   }
 };
 } // namespace quack
