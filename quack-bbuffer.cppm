@@ -22,8 +22,8 @@ public:
 
   [[nodiscard]] auto operator*() const noexcept { return *m_buf; }
 
-  void map(auto &&fn) const {
-    vee::map_memory<Tp>(*m_mem, traits::fwd<decltype(fn)>(fn));
+  template <typename Fn> void map(Fn &&fn) const {
+    vee::map_memory<Tp>(*m_mem, traits::fwd<Fn>(fn));
   }
 };
 } // namespace quack
