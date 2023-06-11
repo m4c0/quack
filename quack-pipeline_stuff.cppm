@@ -1,7 +1,6 @@
 export module quack:pipeline_stuff;
-import :objects;
 import :bbuffer;
-import :ibatch;
+import :objects;
 import :per_device;
 import :per_extent;
 import missingno;
