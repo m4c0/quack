@@ -1,6 +1,7 @@
 export module quack:grid_renderer;
 import :objects;
 import :ilayout;
+import :renderer;
 import casein;
 
 namespace quack {
@@ -8,9 +9,8 @@ export template <auto W, auto H, typename Tp>
 class grid_ilayout : public instance_layout<Tp, W * H> {
   using parent_t = instance_layout<Tp, W * H>;
 
-  void setup() override {
-    parent_t::setup();
-
+  void setup() {
+    parent_t::set_grid(W, H);
     this->batch()->set_count(cells);
     this->batch()->positions().map([](rect *is) {
       unsigned i = 0;
@@ -21,9 +21,6 @@ class grid_ilayout : public instance_layout<Tp, W * H> {
       }
     });
   };
-  void resize(unsigned w, unsigned h) override {
-    this->batch()->resize(W, H, w, h);
-  }
 
 public:
   static constexpr const auto width = W;
@@ -39,6 +36,13 @@ public:
   [[nodiscard]] constexpr const auto &at(unsigned x,
                                          unsigned y) const noexcept {
     return parent_t::at(y * W + x);
+  }
+
+  void process_event(const casein::event &e) {
+    parent_t::process_event(e);
+
+    if (e.type() == casein::CREATE_WINDOW)
+      setup();
   }
 };
 } // namespace quack

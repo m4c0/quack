@@ -6,29 +6,30 @@ import :renderer;
 import casein;
 
 namespace quack {
-export template <typename Tp, unsigned N> class instance_layout;
-
-export template <unsigned N> class instance_layout<void, N> {
+export template <unsigned N> class ilayout {
   renderer *m_r;
   instance_batch *m_batch;
-
-protected:
-  virtual void setup() { m_batch = m_r->allocate_batch(N); }
-  virtual void resize(unsigned w, unsigned h) {}
+  unsigned m_gw;
+  unsigned m_gh;
 
 public:
-  explicit constexpr instance_layout(renderer *r) : m_r{r} {}
+  explicit constexpr ilayout(renderer *r) : m_r{r} {}
 
   [[nodiscard]] constexpr auto *batch() noexcept { return m_batch; }
+
+  constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
+    m_gw = gw;
+    m_gh = gh;
+  }
 
   void process_event(const casein::event &e) {
     switch (e.type()) {
     case casein::CREATE_WINDOW:
-      setup();
+      m_batch = m_r->allocate_batch(N);
       break;
     case casein::RESIZE_WINDOW: {
       const auto &[w, h, s, l] = *e.as<casein::events::resize_window>();
-      resize(w, h);
+      m_batch->resize(m_gw, m_gh, w, h);
       break;
     }
     default:
@@ -37,12 +38,19 @@ public:
   }
 };
 
-export template <typename Tp, unsigned N>
-class instance_layout : public instance_layout<void, N> {
+export template <typename Tp, unsigned N> class instance_layout {
+  ilayout<N> m_il;
   Tp m_data[N];
 
 public:
-  using instance_layout<void, N>::instance_layout;
+  explicit constexpr instance_layout(renderer *r) : m_il{r} {}
+
+  [[nodiscard]] constexpr auto *batch() noexcept { return m_il.batch(); }
+  void process_event(const casein::event &e) { m_il.process_event(e); }
+
+  constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
+    m_il.set_grid(gw, gh);
+  }
 
   void fill_colour(auto &&fn) {
     this->batch()->colours().map([&](auto *c) {
