@@ -6,14 +6,16 @@ import :renderer;
 import casein;
 
 namespace quack {
-export template <unsigned N> class ilayout {
+export class ilayout {
   renderer *m_r;
   instance_batch *m_batch;
   unsigned m_gw;
   unsigned m_gh;
+  unsigned m_max_instances;
 
 public:
-  explicit constexpr ilayout(renderer *r) : m_r{r} {}
+  explicit constexpr ilayout(renderer *r, unsigned n)
+      : m_r{r}, m_max_instances{n} {}
 
   [[nodiscard]] constexpr auto *batch() noexcept { return m_batch; }
 
@@ -25,7 +27,7 @@ public:
   void process_event(const casein::event &e) {
     switch (e.type()) {
     case casein::CREATE_WINDOW:
-      m_batch = m_r->allocate_batch(N);
+      m_batch = m_r->allocate_batch(m_max_instances);
       break;
     case casein::RESIZE_WINDOW: {
       const auto &[w, h, s, l] = *e.as<casein::events::resize_window>();
@@ -39,11 +41,11 @@ public:
 };
 
 export template <typename Tp, unsigned N> class instance_layout {
-  ilayout<N> m_il;
+  ilayout m_il;
   Tp m_data[N];
 
 public:
-  explicit constexpr instance_layout(renderer *r) : m_il{r} {}
+  explicit constexpr instance_layout(renderer *r) : m_il{r, N} {}
 
   [[nodiscard]] constexpr auto *batch() noexcept { return m_il.batch(); }
   void process_event(const casein::event &e) { m_il.process_event(e); }
