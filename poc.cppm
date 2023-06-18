@@ -1,3 +1,5 @@
+export module poc;
+
 import casein;
 import quack;
 
