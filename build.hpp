@@ -23,6 +23,7 @@ auto quack() {
   m->add_part("per_inflight");
   m->add_part("bbuffer");
   m->add_part("ibatch");
+  m->add_part("mouse");
   m->add_part("stage");
   m->add_part("pipeline_stuff");
   m->add_part("pipeline");

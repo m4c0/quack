@@ -6,11 +6,13 @@ extern "C" void casein_handle(const casein::event &e) {
   static quack::instance_layout<quack::rect, 2> s{&r};
   static quack::grid_ilayout<30, 20, quack::colour> q{&r};
   static quack::grid_ilayout<10, 10, quack::colour> p{&r};
+  static quack::mouse_tracker mouse{};
 
   r.process_event(e);
   s.process_event(e);
   q.process_event(e);
   p.process_event(e);
+  mouse.process_event(e);
 
   switch (e.type()) {
   case casein::CREATE_WINDOW:
@@ -54,7 +56,7 @@ extern "C" void casein_handle(const casein::event &e) {
     p.fill_mult([](quack::colour qs) { return qs; });
     break;
   case casein::MOUSE_DOWN:
-    q.current_hover().consume([&](auto idx) {
+    mouse.current_hover(q.batch()).consume([&](auto idx) {
       q.at(idx) = quack::colour{1, 1, 1, 1};
     });
     q.fill_colour([](quack::colour qs) { return qs; });
