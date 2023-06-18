@@ -1,13 +1,8 @@
 export module quack:renderer;
-import :agg;
-import :raii;
-import :objects;
 import :thread;
 import casein;
 import hai;
-import missingno;
 import traits;
-import vee;
 
 export namespace quack {
 class renderer {
