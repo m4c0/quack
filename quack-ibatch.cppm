@@ -1,5 +1,6 @@
 export module quack:ibatch;
 import :bbuffer;
+import :per_device;
 import :objects;
 import missingno;
 import traits;

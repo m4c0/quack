@@ -4,10 +4,12 @@
 int main(int argc, char **argv) {
   using namespace ecow;
 
-  auto poc = unit::create<app>("poc");
-  poc->add_requirement(native);
+  auto poc = unit::create<mod>("poc");
   poc->add_wsdep("casein", casein());
-  poc->add_ref(quack());
-  poc->add_unit("poc");
-  return run_main(poc, argc, argv);
+
+  auto all = unit::create<app>("poc");
+  all->add_requirement(native);
+  all->add_ref(quack());
+  all->add_ref(poc);
+  return run_main(all, argc, argv);
 }
