@@ -34,7 +34,6 @@ public:
     float gw = grid_w / 2.0;
     float gh = grid_h / 2.0;
     float grid_aspect = gw / gh;
-    m_pc.grid_pos = pos{gw, gh};
     m_pc.grid_size =
         grid_aspect < aspect ? size{aspect * gh, gh} : size{gw, gw / aspect};
     m_screen_size = {sw, sh};
