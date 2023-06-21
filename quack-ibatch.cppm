@@ -43,7 +43,7 @@ public:
 
   constexpr void set_count(unsigned c) noexcept { m_count = c; }
 
-  mno::opt<unsigned> current_hover(pos mouse_pos) {
+  [[nodiscard]] pos translate_mouse_pos(pos mouse_pos) const noexcept {
     pos screen_scale = {2.0f * m_pc.grid_size.w / m_screen_size.x,
                         2.0f * m_pc.grid_size.h / m_screen_size.y};
     pos screen_disp = {m_pc.grid_size.w - m_pc.grid_pos.x,
@@ -51,6 +51,10 @@ public:
 
     auto mx = mouse_pos.x * screen_scale.x - screen_disp.x;
     auto my = mouse_pos.y * screen_scale.y - screen_disp.y;
+    return {mx, my};
+  }
+  [[nodiscard]] mno::opt<unsigned> current_hover(pos mouse_pos) {
+    auto [mx, my] = translate_mouse_pos(mouse_pos);
 
     mno::opt<unsigned> res{};
     m_pos.map([&](auto *is) {
