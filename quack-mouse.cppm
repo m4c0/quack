@@ -10,7 +10,8 @@ export class mouse_tracker {
   void mouse_move(float x, float y) { m_mouse_pos = {x, y}; }
 
 public:
-  [[nodiscard]] constexpr auto current_mouse_pos(instance_batch *b) noexcept {
+  [[nodiscard]] constexpr auto
+  current_mouse_pos(const instance_batch *b) const noexcept {
     return b->translate_mouse_pos(m_mouse_pos);
   }
   [[nodiscard]] constexpr auto current_hover(instance_batch *b) noexcept {
