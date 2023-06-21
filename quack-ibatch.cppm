@@ -59,9 +59,9 @@ public:
           continue;
         if (my < is[i].y)
           continue;
-        if (mx > is[i].x + 1.0f)
+        if (mx > is[i].x + is[i].w)
           continue;
-        if (my > is[i].y + 1.0f)
+        if (my > is[i].y + is[i].h)
           continue;
         res = i;
         break;
