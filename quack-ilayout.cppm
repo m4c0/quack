@@ -18,6 +18,7 @@ public:
       : m_r{r}, m_max_instances{n} {}
 
   [[nodiscard]] constexpr auto *batch() noexcept { return m_batch; }
+  [[nodiscard]] constexpr const auto *batch() const noexcept { return m_batch; }
 
   constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
     m_gw = gw;
