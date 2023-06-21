@@ -38,6 +38,7 @@ extern "C" void casein_handle(const casein::event &e) {
     s.fill_uv([](auto) { return quack::uv{}; });
     s.fill_mult([](auto p) { return quack::colour{1, 1, 1, 1}; });
     s.batch()->resize(1, 1, 1, 1);
+    s.batch()->center_at(0.5, 0.5);
 
     // Togglable quads
     q.reset_grid();

@@ -11,6 +11,7 @@ class grid_ilayout : public instance_layout<Tp, W * H> {
 
   void setup() {
     parent_t::set_grid(W, H);
+    this->batch()->center_at(W / 2, H / 2);
     this->batch()->set_count(cells);
     this->batch()->positions().map([](rect *is) {
       unsigned i = 0;
