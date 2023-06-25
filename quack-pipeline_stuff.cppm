@@ -30,15 +30,15 @@ class pipeline_stuff {
   bound_buffer<pos> vertices{bb_vertex{}, dev, v_count};
 
   void map_vertices() {
-    vertices.map([](auto *vs) {
-      vs[0] = {0, 0};
-      vs[1] = {1, 1};
-      vs[2] = {1, 0};
+    auto m = vertices.map();
+    auto *vs = m.begin();
+    vs[0] = {0, 0};
+    vs[1] = {1, 1};
+    vs[2] = {1, 0};
 
-      vs[3] = {1, 1};
-      vs[4] = {0, 0};
-      vs[5] = {0, 1};
-    });
+    vs[3] = {1, 1};
+    vs[4] = {0, 0};
+    vs[5] = {0, 1};
   }
 
 public:

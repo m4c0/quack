@@ -57,33 +57,27 @@ public:
     auto [mx, my] = translate_mouse_pos(mouse_pos);
 
     mno::opt<unsigned> res{};
-    m_pos.map([&](auto *is) {
-      for (auto i = 0U; i < m_count; i++) {
-        if (mx < is[i].x)
-          continue;
-        if (my < is[i].y)
-          continue;
-        if (mx > is[i].x + is[i].w)
-          continue;
-        if (my > is[i].y + is[i].h)
-          continue;
-        res = i;
-        break;
-      }
-    });
+    auto m = m_pos.map();
+    auto *is = m.begin();
+    for (auto i = 0U; i < m_count; i++) {
+      if (mx < is[i].x)
+        continue;
+      if (my < is[i].y)
+        continue;
+      if (mx > is[i].x + is[i].w)
+        continue;
+      if (my > is[i].y + is[i].h)
+        continue;
+      res = i;
+      break;
+    }
     return res;
   }
 
-  [[nodiscard]] constexpr const auto &multipliers() const noexcept {
-    return m_mult;
-  }
-  [[nodiscard]] constexpr const auto &colours() const noexcept {
-    return m_colour;
-  }
-  [[nodiscard]] constexpr const auto &positions() const noexcept {
-    return m_pos;
-  }
-  [[nodiscard]] constexpr const auto &uvs() const noexcept { return m_uv; }
+  void map_colours(auto &&fn) const noexcept { fn(m_colour.map().begin()); }
+  void map_multipliers(auto &&fn) const noexcept { fn(m_mult.map().begin()); }
+  void map_positions(auto &&fn) const noexcept { fn(m_pos.map().begin()); }
+  void map_uvs(auto &&fn) const noexcept { fn(m_uv.map().begin()); }
 
   [[nodiscard]] constexpr const auto &count() const noexcept { return m_count; }
   [[nodiscard]] constexpr const auto &push_constants() const noexcept {

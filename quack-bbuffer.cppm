@@ -21,9 +21,6 @@ public:
       : m_dev{d}, m_buf{vee::create_vertex_buffer(sizeof(Tp) * max)} {}
 
   [[nodiscard]] auto operator*() const noexcept { return *m_buf; }
-
-  template <typename Fn> void map(Fn &&fn) const {
-    vee::map_memory<Tp>(*m_mem, traits::fwd<Fn>(fn));
-  }
+  [[nodiscard]] auto map() const { return vee::mapmem<Tp>(*m_mem); }
 };
 } // namespace quack
