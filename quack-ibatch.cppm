@@ -85,6 +85,9 @@ public:
   }
 
   void build_commands(vee::command_buffer cb) const {
+    if (m_count == 0)
+      return;
+
     vee::cmd_push_vert_frag_constants(cb, m_pl, &m_pc);
     vee::cmd_bind_vertex_buffers(cb, 1, *m_pos);
     vee::cmd_bind_vertex_buffers(cb, 2, *m_colour);
