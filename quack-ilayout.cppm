@@ -56,28 +56,28 @@ public:
   }
 
   void fill_colour(auto &&fn) {
-    this->batch()->colours().map([&](auto *c) {
+    this->batch()->map_colours([&](auto *c) {
       for (auto i = 0; i < N; i++) {
         c[i] = fn(at(i));
       }
     });
   }
   void fill_pos(auto &&fn) {
-    this->batch()->positions().map([&](auto *c) {
+    this->batch()->map_positions([&](auto *c) {
       for (auto i = 0; i < N; i++) {
         c[i] = fn(at(i));
       }
     });
   }
   void fill_mult(auto &&fn) {
-    this->batch()->multipliers().map([&](auto *c) {
+    this->batch()->map_multipliers([&](auto *c) {
       for (auto i = 0; i < N; i++) {
         c[i] = fn(at(i));
       }
     });
   }
   void fill_uv(auto &&fn) {
-    this->batch()->uvs().map([&](auto *c) {
+    this->batch()->map_uvs([&](auto *c) {
       for (auto i = 0; i < N; i++) {
         c[i] = fn(at(i));
       }
