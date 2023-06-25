@@ -55,14 +55,13 @@ class level_2 {
   unsigned m_idx;
   const per_frame *m_frm;
   vee::command_buffer m_cb;
-  one_time_submitter m_ots;
 
 public:
   level_2(level_0 *l0, const level_1 *l1)
       : m_l0{l0}, m_l1{l1}, m_inf{&l0->flip()},
         m_idx{vee::acquire_next_image(l1->ext()->swapchain(),
                                       m_inf->image_available_sema())},
-        m_frm{&*l1->frm(m_idx)}, m_cb{m_frm->command_buffer()}, m_ots{m_cb} {}
+        m_frm{&*l1->frm(m_idx)}, m_cb{m_frm->command_buffer()} {}
 
   ~level_2() {
     m_inf->submit(m_l0->dev(), m_cb);
@@ -82,10 +81,12 @@ public:
 };
 
 class level_3 {
+  one_time_submitter m_ots;
   render_passer m_rp;
 
 public:
   level_3(const level_1 *l1, const level_2 *l2)
-      : m_rp{l2->command_buffer(), l2->frame()->framebuffer(), l1->ext()} {}
+      : m_rp{l2->command_buffer(), l2->frame()->framebuffer(), l1->ext()},
+        m_ots{l2->command_buffer()} {}
 };
 } // namespace quack

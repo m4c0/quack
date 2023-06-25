@@ -34,13 +34,13 @@ class thread : public sith::thread {
     m_reset_l1 = false;
     while (!interrupted() && !m_reset_l1) {
       level_2 l2{&m_l0, &l1};
-      const auto cb = l2.command_buffer();
-      m_l0.stg()->build_commands(cb);
-
       level_3 l3{&l1, &l2};
+
+      const auto cb = l2.command_buffer();
       vee::cmd_set_scissor(cb, extent);
       vee::cmd_set_viewport(cb, extent);
 
+      m_l0.stg()->build_commands(cb);
       l1.ppl()->build_commands(cb);
       m_l0.ps()->build_commands(cb);
 
