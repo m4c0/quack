@@ -32,6 +32,7 @@ public:
         .framebuffer = *fb,
         .extent = ext->extent_2d(),
         .clear_color = {0.05, 0.1f, 0.15, 1.0f},
+        .use_secondary_cmd_buf = false,
     });
   }
   ~render_passer() { vee::cmd_end_render_pass(m_cb); }
