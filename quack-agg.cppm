@@ -81,12 +81,10 @@ public:
 };
 
 class level_3 {
-  one_time_submitter m_ots;
   render_passer m_rp;
 
 public:
   level_3(const level_1 *l1, const level_2 *l2)
-      : m_rp{l2->command_buffer(), l2->frame()->framebuffer(), l1->ext()},
-        m_ots{l2->command_buffer()} {}
+      : m_rp{l2->command_buffer(), l2->frame()->framebuffer(), l1->ext()} {}
 };
 } // namespace quack
