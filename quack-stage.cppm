@@ -20,6 +20,11 @@ class stage_image {
   unsigned m_h{};
   bool m_dirty;
 
+  [[nodiscard]] auto map_image() {
+    m_dirty = true;
+    return vee::mapmem<u8_rgba>{*ts_mem};
+  }
+
 public:
   explicit stage_image(const per_device *d) : dev{d} {}
 
@@ -49,7 +54,7 @@ public:
     return true;
   }
   void load_image(auto &&fn) {
-    vee::map_memory<u8_rgba>(*ts_mem, fn);
+    fn(map_image().begin());
     m_dirty = true;
   }
 
