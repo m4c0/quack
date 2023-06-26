@@ -54,7 +54,7 @@ public:
   }
 
   constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
-    m_il.set_grid(gw, gh);
+    m_il.batch()->set_grid(gw, gh);
   }
 
   void fill_colour(auto &&fn) {

@@ -22,6 +22,8 @@ class instance_batch {
 
   pos m_screen_size{};
 
+  unsigned m_gw{1};
+  unsigned m_gh{1};
   unsigned m_count{};
 
 public:
@@ -33,11 +35,15 @@ public:
         m_uv{bb_vertex{}, dev, max_quads}, m_mult{bb_vertex{}, dev, max_quads},
         m_count{max_quads} {}
 
-  constexpr void resize(unsigned grid_w, unsigned grid_h, float sw,
-                        float sh) noexcept {
+  constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
+    m_gw = gw;
+    m_gh = gh;
+  }
+
+  constexpr void resize(float sw, float sh) noexcept {
     float aspect = sw / sh;
-    float gw = grid_w / 2.0;
-    float gh = grid_h / 2.0;
+    float gw = m_gw / 2.0;
+    float gh = m_gh / 2.0;
     float grid_aspect = gw / gh;
     m_pc.grid_size =
         grid_aspect < aspect ? size{aspect * gh, gh} : size{gw, gw / aspect};

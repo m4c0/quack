@@ -46,7 +46,7 @@ extern "C" void casein_handle(const casein::event &e) {
     s.batch()->map_multipliers([](auto *ms) { ms[0] = ms[1] = {1, 1, 1, 1}; });
     s.batch()->center_at(0.5, 0.5);
     s.batch()->set_count(2);
-    s.set_grid(1, 1);
+    s.batch()->set_grid(1, 1);
 
     // Togglable quads
     q.reset_grid();

@@ -9,8 +9,6 @@ namespace quack {
 export class ilayout {
   renderer *m_r;
   instance_batch *m_batch;
-  unsigned m_gw;
-  unsigned m_gh;
   unsigned m_max_instances;
 
 public:
@@ -20,11 +18,6 @@ public:
   [[nodiscard]] constexpr auto *batch() noexcept { return m_batch; }
   [[nodiscard]] constexpr const auto *batch() const noexcept { return m_batch; }
 
-  constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
-    m_gw = gw;
-    m_gh = gh;
-  }
-
   void process_event(const casein::event &e) {
     switch (e.type()) {
     case casein::CREATE_WINDOW:
@@ -32,7 +25,7 @@ public:
       break;
     case casein::RESIZE_WINDOW: {
       const auto &[w, h, s, l] = *e.as<casein::events::resize_window>();
-      m_batch->resize(m_gw, m_gh, w, h);
+      m_batch->resize(w, h);
       break;
     }
     default:
