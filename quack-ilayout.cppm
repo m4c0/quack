@@ -15,6 +15,10 @@ public:
   explicit constexpr ilayout(renderer *r, unsigned n)
       : m_r{r}, m_max_instances{n} {}
 
+  [[nodiscard]] constexpr auto &operator*() noexcept { return *m_batch; }
+  [[nodiscard]] constexpr const auto &operator*() const noexcept {
+    return *m_batch;
+  }
   [[nodiscard]] constexpr auto *operator->() noexcept { return m_batch; }
   [[nodiscard]] constexpr const auto *operator->() const noexcept {
     return m_batch;

@@ -44,7 +44,7 @@ public:
     return at(y * W + x);
   }
 
-  [[nodiscard]] constexpr auto *batch() noexcept { return m_il.operator->(); }
+  [[nodiscard]] constexpr auto *batch() noexcept { return &*m_il; }
 
   void process_event(const casein::event &e) {
     m_il.process_event(e);
