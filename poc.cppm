@@ -5,7 +5,7 @@ import quack;
 
 extern "C" void casein_handle(const casein::event &e) {
   static quack::renderer r{3};
-  static quack::instance_layout<quack::rect, 2> s{&r};
+  static quack::ilayout s{&r, 2};
   static quack::grid_ilayout<30, 20, quack::colour> q{&r};
   static quack::grid_ilayout<10, 10, quack::colour> p{&r};
   static quack::mouse_tracker mouse{};
@@ -30,15 +30,19 @@ extern "C" void casein_handle(const casein::event &e) {
     });
 
     // Background + Pink rect
-    s.reset_grid();
-    s.at(0) = quack::rect{0, 0, 1, 1};
-    s.at(1) = quack::rect{0.25, 0.25, 0.5, 0.5};
-    s.fill_pos([](auto p) { return p; });
-    s.fill_colour([](auto p) { return quack::colour{p.x, 0, 0.1, 1}; });
-    s.fill_uv([](auto) { return quack::uv{}; });
-    s.fill_mult([](auto p) { return quack::colour{1, 1, 1, 1}; });
-    s.batch()->resize(1, 1, 1, 1);
+    s.batch()->map_positions([](auto *ps) {
+      ps[0] = {0, 0, 1, 1};
+      ps[1] = {0.25, 0.25, 0.5, 0.5};
+    });
+    s.batch()->map_colours([](auto *cs) {
+      cs[0] = {0, 0, 0.1, 1.0};
+      cs[1] = {0.25, 0, 0.1, 1.0};
+    });
+    s.batch()->map_uvs([](auto *us) { us[0] = us[1] = {}; });
+    s.batch()->map_multipliers([](auto *ms) { ms[0] = ms[1] = {1, 1, 1, 1}; });
     s.batch()->center_at(0.5, 0.5);
+    s.batch()->set_count(2);
+    s.set_grid(1, 1);
 
     // Togglable quads
     q.reset_grid();
