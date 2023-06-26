@@ -29,24 +29,24 @@ extern "C" void casein_handle(const casein::event &e) {
 
   switch (e.type()) {
   case casein::CREATE_WINDOW:
-    s.batch()->load_atlas(16, 32, atlas_image);
+    s->load_atlas(16, 32, atlas_image);
     q.batch()->load_atlas(16, 32, atlas_image);
     p.batch()->load_atlas(16, 32, atlas_image);
 
     // Background + Pink rect
-    s.batch()->map_positions([](auto *ps) {
+    s->map_positions([](auto *ps) {
       ps[0] = {0, 0, 1, 1};
       ps[1] = {0.25, 0.25, 0.5, 0.5};
     });
-    s.batch()->map_colours([](auto *cs) {
+    s->map_colours([](auto *cs) {
       cs[0] = {0, 0, 0.1, 1.0};
       cs[1] = {0.25, 0, 0.1, 1.0};
     });
-    s.batch()->map_uvs([](auto *us) { us[0] = us[1] = {}; });
-    s.batch()->map_multipliers([](auto *ms) { ms[0] = ms[1] = {1, 1, 1, 1}; });
-    s.batch()->center_at(0.5, 0.5);
-    s.batch()->set_count(2);
-    s.batch()->set_grid(1, 1);
+    s->map_uvs([](auto *us) { us[0] = us[1] = {}; });
+    s->map_multipliers([](auto *ms) { ms[0] = ms[1] = {1, 1, 1, 1}; });
+    s->center_at(0.5, 0.5);
+    s->set_count(2);
+    s->set_grid(1, 1);
 
     // Togglable quads
     q.reset_grid();

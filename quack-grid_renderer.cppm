@@ -44,7 +44,7 @@ public:
     return at(y * W + x);
   }
 
-  [[nodiscard]] constexpr auto *batch() noexcept { return m_il.batch(); }
+  [[nodiscard]] constexpr auto *batch() noexcept { return m_il.operator->(); }
 
   void process_event(const casein::event &e) {
     m_il.process_event(e);
@@ -54,7 +54,7 @@ public:
   }
 
   constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
-    m_il.batch()->set_grid(gw, gh);
+    m_il->set_grid(gw, gh);
   }
 
   void fill_colour(auto &&fn) {
