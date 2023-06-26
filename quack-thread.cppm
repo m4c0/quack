@@ -37,7 +37,9 @@ class thread : public sith::thread {
       const auto cb = l2.command_buffer();
 
       one_time_submitter ots{cb};
-      m_l0.stg()->build_commands(cb);
+      for (auto i = 0; i < m_batch_count; i++) {
+        (*m_batches)[i]->build_atlas_commands(cb);
+      }
 
       level_3 l3{&l1, &l2};
 
@@ -57,7 +59,7 @@ class thread : public sith::thread {
 
 public:
   explicit thread(casein::native_handle_t nptr, unsigned max_batches)
-      : sith::thread{false}, m_l0{nptr},
+      : sith::thread{false}, m_l0{nptr, max_batches},
         m_batches{decltype(m_batches)::make(max_batches)} {}
   ~thread() {
     stop();
@@ -67,18 +69,11 @@ public:
   [[nodiscard]] instance_batch *allocate(unsigned max_quads) noexcept {
     auto &res = (*m_batches)[m_batch_count];
     res = hai::uptr<instance_batch>::make(
-        m_l0.dev(), m_l0.ps()->pipeline_layout(), max_quads);
+        m_l0.dev(), m_l0.ps()->pipeline_layout(),
+        m_l0.ps()->allocate_descriptor_set(), max_quads);
     m_batch_count = m_batch_count + 1;
     return &*res;
   }
-
-  void load_atlas(unsigned w, unsigned h, auto &&fn) {
-    if (m_l0.stg()->resize_image(w, h))
-      m_l0.ps()->set_atlas(m_l0.stg()->image_view());
-
-    m_l0.stg()->load_image(traits::fwd<decltype(fn)>(fn));
-  }
-
   void reset_l1() noexcept { m_reset_l1 = true; }
 };
 } // namespace quack

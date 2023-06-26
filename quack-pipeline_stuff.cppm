@@ -22,10 +22,7 @@ class pipeline_stuff {
   vee::shader_module frag =
       vee::create_shader_module_from_resource("quack.frag.spv");
 
-  vee::descriptor_pool desc_pool =
-      vee::create_descriptor_pool(1, {vee::combined_image_sampler()});
-  vee::descriptor_set desc_set = vee::allocate_descriptor_set(*desc_pool, *dsl);
-  vee::sampler smp = vee::create_sampler(vee::nearest_sampler);
+  vee::descriptor_pool desc_pool;
 
   bound_buffer<pos> vertices{bb_vertex{}, dev, v_count};
 
@@ -42,19 +39,22 @@ class pipeline_stuff {
   }
 
 public:
-  pipeline_stuff(const per_device *d) : dev{d} { map_vertices(); }
+  pipeline_stuff(const per_device *d, unsigned max_desc_sets)
+      : dev{d},
+        desc_pool{vee::create_descriptor_pool(
+            max_desc_sets, {vee::combined_image_sampler(max_desc_sets)})} {
+    map_vertices();
+  }
 
   [[nodiscard]] constexpr const auto pipeline_layout() const noexcept {
     return *pl;
   }
-
-  void set_atlas(const vee::image_view &iv) {
-    vee::update_descriptor_set(desc_set, 0, *iv, *smp);
+  [[nodiscard]] constexpr auto allocate_descriptor_set() const noexcept {
+    return vee::allocate_descriptor_set(*desc_pool, *dsl);
   }
 
   void build_commands(vee::command_buffer cb) const {
     vee::cmd_bind_vertex_buffers(cb, 0, *vertices);
-    vee::cmd_bind_descriptor_set(cb, *pl, 0, desc_set);
   }
 
   [[nodiscard]] auto create_pipeline(const per_extent *ext) const {

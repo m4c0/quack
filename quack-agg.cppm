@@ -7,7 +7,6 @@ import :per_inflight;
 import :pipeline;
 import :pipeline_stuff;
 import :raii;
-import :stage;
 import casein;
 import missingno;
 import vee;
@@ -16,17 +15,15 @@ namespace quack {
 class level_0 {
   per_device m_dev;
   inflight_pair m_inf;
-  stage_image m_stg;
   pipeline_stuff m_ps;
 
 public:
-  level_0(casein::native_handle_t nptr)
-      : m_dev{nptr}, m_inf{}, m_stg{&m_dev}, m_ps{&m_dev} {}
+  level_0(casein::native_handle_t nptr, unsigned max_desc_sets)
+      : m_dev{nptr}, m_inf{}, m_ps{&m_dev, max_desc_sets} {}
 
   [[nodiscard]] constexpr const auto *dev() const noexcept { return &m_dev; }
   [[nodiscard]] constexpr const auto *ps() const noexcept { return &m_ps; }
   [[nodiscard]] constexpr auto *ps() noexcept { return &m_ps; }
-  [[nodiscard]] constexpr auto *stg() noexcept { return &m_stg; }
 
   [[nodiscard]] auto &flip() { return m_inf.flip(); }
 };

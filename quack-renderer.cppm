@@ -2,7 +2,6 @@ export module quack:renderer;
 import :thread;
 import casein;
 import hai;
-import traits;
 
 export namespace quack {
 class renderer {
@@ -22,10 +21,6 @@ class renderer {
 public:
   explicit constexpr renderer(unsigned max_batches)
       : m_max_batches{max_batches} {}
-
-  void load_atlas(unsigned w, unsigned h, auto &&fn) {
-    m_thread->load_atlas(w, h, traits::fwd<decltype(fn)>(fn));
-  }
 
   [[nodiscard]] auto allocate_batch(unsigned max_quads) {
     return m_thread->allocate(max_quads);

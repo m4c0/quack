@@ -3,6 +3,17 @@ export module poc;
 import casein;
 import quack;
 
+void atlas_image(quack::u8_rgba *img) {
+  for (auto i = 0; i < 16 * 16; i++) {
+    auto x = (i / 16) % 2;
+    auto y = (i % 16) % 2;
+    unsigned char b = (x ^ y) == 0 ? 255 : 0;
+
+    img[i] = {255, 255, 255, 0};
+    img[i + 256] = {b, b, b, 128};
+  }
+}
+
 extern "C" void casein_handle(const casein::event &e) {
   static quack::renderer r{3};
   static quack::ilayout s{&r, 2};
@@ -18,16 +29,9 @@ extern "C" void casein_handle(const casein::event &e) {
 
   switch (e.type()) {
   case casein::CREATE_WINDOW:
-    r.load_atlas(16, 32, [](auto *img) {
-      for (auto i = 0; i < 16 * 16; i++) {
-        auto x = (i / 16) % 2;
-        auto y = (i % 16) % 2;
-        unsigned char b = (x ^ y) == 0 ? 255 : 0;
-
-        img[i] = {255, 255, 255, 0};
-        img[i + 256] = {b, b, b, 128};
-      }
-    });
+    s.batch()->load_atlas(16, 32, atlas_image);
+    q.batch()->load_atlas(16, 32, atlas_image);
+    p.batch()->load_atlas(16, 32, atlas_image);
 
     // Background + Pink rect
     s.batch()->map_positions([](auto *ps) {

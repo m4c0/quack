@@ -2,6 +2,7 @@ export module quack:ibatch;
 import :bbuffer;
 import :per_device;
 import :objects;
+import :stage;
 import missingno;
 import traits;
 import vee;
@@ -9,7 +10,10 @@ import vee;
 namespace quack {
 class instance_batch {
   vee::pipeline_layout::type m_pl;
+  vee::descriptor_set m_desc_set;
+  vee::sampler m_smp = vee::create_sampler(vee::nearest_sampler);
 
+  stage_image m_atlas;
   bound_buffer<rect> m_pos;
   bound_buffer<colour> m_colour;
   bound_buffer<colour> m_mult;
@@ -22,8 +26,9 @@ class instance_batch {
 
 public:
   instance_batch(const per_device *dev, vee::pipeline_layout::type pl,
-                 unsigned max_quads)
-      : m_pl{pl}, m_pos{bb_vertex{}, dev, max_quads},
+                 vee::descriptor_set ds, unsigned max_quads)
+      : m_pl{pl}, m_desc_set{ds}, m_atlas{dev},
+        m_pos{bb_vertex{}, dev, max_quads},
         m_colour{bb_vertex{}, dev, max_quads},
         m_uv{bb_vertex{}, dev, max_quads}, m_mult{bb_vertex{}, dev, max_quads},
         m_count{max_quads} {}
@@ -84,6 +89,15 @@ public:
     return m_pc;
   }
 
+  void load_atlas(unsigned w, unsigned h, auto &&fn) {
+    if (m_atlas.resize_image(w, h)) {
+      const auto &iv = m_atlas.image_view();
+      vee::update_descriptor_set(m_desc_set, 0, *iv, *m_smp);
+    }
+
+    m_atlas.load_image(traits::fwd<decltype(fn)>(fn));
+  }
+
   void build_commands(vee::command_buffer cb) const {
     if (m_count == 0)
       return;
@@ -93,7 +107,11 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 2, *m_colour);
     vee::cmd_bind_vertex_buffers(cb, 3, *m_uv);
     vee::cmd_bind_vertex_buffers(cb, 4, *m_mult);
+    vee::cmd_bind_descriptor_set(cb, m_pl, 0, m_desc_set);
     vee::cmd_draw(cb, v_count, m_count);
+  }
+  void build_atlas_commands(vee::command_buffer cb) {
+    m_atlas.build_commands(cb);
   }
 };
 } // namespace quack
