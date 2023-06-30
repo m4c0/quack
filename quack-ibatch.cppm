@@ -69,7 +69,7 @@ public:
 
     mno::opt<unsigned> res{};
     auto m = m_pos.map();
-    auto *is = m.begin();
+    auto *is = static_cast<rect *>(*m);
     for (auto i = 0U; i < m_count; i++) {
       if (mx < is[i].x)
         continue;
@@ -85,10 +85,22 @@ public:
     return res;
   }
 
-  void map_colours(auto &&fn) const noexcept { fn(m_colour.map().begin()); }
-  void map_multipliers(auto &&fn) const noexcept { fn(m_mult.map().begin()); }
-  void map_positions(auto &&fn) const noexcept { fn(m_pos.map().begin()); }
-  void map_uvs(auto &&fn) const noexcept { fn(m_uv.map().begin()); }
+  void map_colours(auto &&fn) const noexcept {
+    auto m = m_colour.map();
+    fn(static_cast<colour *>(*m));
+  }
+  void map_multipliers(auto &&fn) const noexcept {
+    auto m = m_mult.map();
+    fn(static_cast<colour *>(*m));
+  }
+  void map_positions(auto &&fn) const noexcept {
+    auto m = m_pos.map();
+    fn(static_cast<rect *>(*m));
+  }
+  void map_uvs(auto &&fn) const noexcept {
+    auto m = m_uv.map();
+    fn(static_cast<uv *>(*m));
+  }
 
   [[nodiscard]] constexpr const auto &count() const noexcept { return m_count; }
   [[nodiscard]] constexpr const auto &push_constants() const noexcept {

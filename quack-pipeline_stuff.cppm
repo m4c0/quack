@@ -28,7 +28,7 @@ class pipeline_stuff {
 
   void map_vertices() {
     auto m = vertices.map();
-    auto *vs = m.begin();
+    auto *vs = static_cast<pos *>(*m);
     vs[0] = {0, 0};
     vs[1] = {1, 1};
     vs[2] = {1, 0};
