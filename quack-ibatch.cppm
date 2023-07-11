@@ -51,6 +51,7 @@ public:
   }
 
   constexpr void center_at(float gx, float gy) { m_pc.grid_pos = pos{gx, gy}; }
+  constexpr auto center() const noexcept { return m_pc.grid_pos; }
 
   constexpr void set_count(unsigned c) noexcept { m_count = c; }
 
