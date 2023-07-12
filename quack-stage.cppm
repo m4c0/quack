@@ -55,7 +55,7 @@ public:
   }
 
   void build_commands(vee::command_buffer cb) {
-    if (!m_dirty)
+    if (!m_dirty || !*t_img)
       return;
 
     vee::cmd_pipeline_barrier(cb, *t_img, vee::from_host_to_transfer);
