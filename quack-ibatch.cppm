@@ -39,6 +39,7 @@ public:
     m_gw = gw;
     m_gh = gh;
   }
+  constexpr auto grid_size() const noexcept { return m_pc.grid_size; }
 
   constexpr void resize(float sw, float sh) noexcept {
     float aspect = sw / sh;
