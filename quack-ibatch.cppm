@@ -4,6 +4,7 @@ import :per_device;
 import :objects;
 import :stage;
 import missingno;
+import silog;
 import traits;
 import vee;
 
@@ -25,6 +26,7 @@ class instance_batch {
   unsigned m_gw{1};
   unsigned m_gh{1};
   unsigned m_count{};
+  bool m_dset_loaded{};
 
 public:
   instance_batch(const per_device *dev, vee::pipeline_layout::type pl,
@@ -112,14 +114,16 @@ public:
   void load_atlas(unsigned w, unsigned h, auto &&fn) {
     if (m_atlas.resize_image(w, h)) {
       const auto &iv = m_atlas.image_view();
+      silog::log(silog::debug, "update %d %d %p", w, h, this);
       vee::update_descriptor_set(m_desc_set, 0, *iv, *m_smp);
+      m_dset_loaded = true;
     }
 
     m_atlas.load_image(traits::fwd<decltype(fn)>(fn));
   }
 
   void build_commands(vee::command_buffer cb) const {
-    if (m_count == 0)
+    if (m_count == 0 || !m_dset_loaded)
       return;
 
     vee::cmd_push_vert_frag_constants(cb, m_pl, &m_pc);
