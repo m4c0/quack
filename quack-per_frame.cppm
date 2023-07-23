@@ -29,8 +29,7 @@ public:
     auto imgs = vee::get_swapchain_images(ext->swapchain());
     m_data = decltype(m_data)::make(imgs.size());
     for (auto i = 0; i < imgs.size(); i++) {
-      auto img = (imgs.data())[i];
-      (*m_data)[i] = hai::uptr<per_frame>::make(dev, ext, img);
+      (*m_data)[i] = hai::uptr<per_frame>::make(dev, ext, imgs[i]);
     }
   }
 
