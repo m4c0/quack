@@ -105,6 +105,25 @@ public:
     auto m = m_uv.map();
     fn(static_cast<uv *>(*m));
   }
+  void map_all(auto &&fn) const noexcept {
+    struct {
+      colour *colours;
+      colour *multipliers;
+      rect *positions;
+      uv *uvs;
+    } all;
+
+    auto c = m_colour.map();
+    auto m = m_mult.map();
+    auto p = m_pos.map();
+    auto u = m_uv.map();
+    all.colours = static_cast<colour *>(*c);
+    all.multipliers = static_cast<colour *>(*m);
+    all.positions = static_cast<rect *>(*p);
+    all.uvs = static_cast<uv *>(*u);
+
+    fn(all);
+  }
 
   [[nodiscard]] constexpr const auto &count() const noexcept { return m_count; }
   [[nodiscard]] constexpr const auto &push_constants() const noexcept {
