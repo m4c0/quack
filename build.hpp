@@ -1,5 +1,6 @@
 #include "../hai/build.hpp"
 #include "../missingno/build.hpp"
+#include "../silog/build.hpp"
 #include "../sith/build.hpp"
 #include "../traits/build.hpp"
 #include "../vee/build.hpp"
@@ -12,6 +13,7 @@ auto quack() {
   m->add_wsdep("casein", casein());
   m->add_wsdep("hai", hai());
   m->add_wsdep("missingno", missingno());
+  m->add_wsdep("silog", silog());
   m->add_wsdep("sith", sith());
   m->add_wsdep("traits", traits());
   m->add_wsdep("vee", vee());
