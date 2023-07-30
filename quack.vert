@@ -17,8 +17,9 @@ layout(location = 2) out vec4 q_mult;
 
 void main() {
   vec2 f_pos = (pos * i_pos.zw + i_pos.xy - pc.grid_pos) / pc.grid_size; 
+  vec2 f_adj = pos * 0.0001f; // avoid one-pixel gaps
   q_color = i_color;
   q_uv = mix(i_uv.xy, i_uv.zw, pos);
   q_mult = i_mult;
-  gl_Position = vec4(f_pos, 0, 1);
+  gl_Position = vec4(f_pos + f_adj, 0, 1);
 }
