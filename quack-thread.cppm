@@ -59,7 +59,7 @@ class thread : public sith::thread {
 
 public:
   explicit thread(casein::native_handle_t nptr, unsigned max_batches)
-      : sith::thread{false}, m_l0{nptr, max_batches},
+      : sith::thread{}, m_l0{nptr, max_batches},
         m_batches{decltype(m_batches)::make(max_batches)} {}
   ~thread() {
     stop();
