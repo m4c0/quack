@@ -34,7 +34,7 @@ public:
       : m_pl{pl}, m_desc_set{ds}, m_atlas{dev},
         m_pos{bb_vertex{}, dev, max_quads},
         m_colour{bb_vertex{}, dev, max_quads},
-        m_uv{bb_vertex{}, dev, max_quads}, m_mult{bb_vertex{}, dev, max_quads},
+        m_mult{bb_vertex{}, dev, max_quads}, m_uv{bb_vertex{}, dev, max_quads},
         m_count{max_quads} {}
 
   constexpr void set_grid(unsigned gw, unsigned gh) noexcept {

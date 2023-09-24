@@ -24,8 +24,6 @@ class per_extent {
   decltype(nullptr) d_bind = vee::bind_image_memory(*d_img, *d_mem);
   vee::image_view d_iv = vee::create_depth_image_view(*d_img);
 
-  unsigned v_count{};
-
 public:
   per_extent(const per_device *dev) : dev{dev} {}
 
