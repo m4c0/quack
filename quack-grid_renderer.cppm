@@ -17,7 +17,7 @@ export template <auto W, auto H, typename Tp> class grid_ilayout {
       unsigned i = 0;
       for (float y = 0; y < H; y++) {
         for (float x = 0; x < W; x++, i++) {
-          is[i] = {x, y, 1, 1};
+          is[i] = {{x, y}, {1, 1}};
         }
       }
     });
