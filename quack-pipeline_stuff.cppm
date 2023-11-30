@@ -58,26 +58,28 @@ public:
   }
 
   [[nodiscard]] auto create_pipeline(const per_extent *ext) const {
-    return vee::create_graphics_pipeline(
-        *pl, ext->render_pass(),
-        {
+    return vee::create_graphics_pipeline({
+        .pipeline_layout = *pl,
+        .render_pass = ext->render_pass(),
+        .shaders{
             vee::pipeline_vert_stage(*vert, "main"),
             vee::pipeline_frag_stage(*frag, "main"),
         },
-        {
+        .bindings{
             vee::vertex_input_bind(sizeof(pos)),
             vee::vertex_input_bind_per_instance(sizeof(rect)),
             vee::vertex_input_bind_per_instance(sizeof(colour)),
             vee::vertex_input_bind_per_instance(sizeof(uv)),
             vee::vertex_input_bind_per_instance(sizeof(colour)),
         },
-        {
+        .attributes{
             vee::vertex_attribute_vec2(0, 0),
             vee::vertex_attribute_vec4(1, 0),
             vee::vertex_attribute_vec4(2, 0),
             vee::vertex_attribute_vec4(3, 0),
             vee::vertex_attribute_vec4(4, 0),
-        });
+        },
+    });
   }
 };
 } // namespace quack
