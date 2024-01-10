@@ -61,6 +61,7 @@ public:
     return vee::create_graphics_pipeline({
         .pipeline_layout = *pl,
         .render_pass = ext->render_pass(),
+        .depth_test = false,
         .shaders{
             vee::pipeline_vert_stage(*vert, "main"),
             vee::pipeline_frag_stage(*frag, "main"),
