@@ -3,7 +3,6 @@ import :bbuffer;
 import :per_device;
 import :objects;
 import :stage;
-import missingno;
 import silog;
 import traits;
 import vee;
@@ -67,26 +66,6 @@ public:
     auto mx = mouse_pos.x * screen_scale.x - screen_disp.x;
     auto my = mouse_pos.y * screen_scale.y - screen_disp.y;
     return {mx, my};
-  }
-  [[nodiscard]] mno::opt<unsigned> current_hover(pos mouse_pos) {
-    auto [mx, my] = translate_mouse_pos(mouse_pos);
-
-    mno::opt<unsigned> res{};
-    auto m = m_pos.map();
-    auto *is = static_cast<rect *>(*m);
-    for (auto i = 0U; i < m_count; i++) {
-      if (mx < is[i].x)
-        continue;
-      if (my < is[i].y)
-        continue;
-      if (mx > is[i].x + is[i].w)
-        continue;
-      if (my > is[i].y + is[i].h)
-        continue;
-      res = i;
-      break;
-    }
-    return res;
   }
 
   void map_colours(auto &&fn) const noexcept {
