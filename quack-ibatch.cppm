@@ -2,18 +2,19 @@ export module quack:ibatch;
 import :bbuffer;
 import :per_device;
 import :objects;
-import :stage;
 import silog;
 import traits;
 import vee;
+import voo;
 
 namespace quack {
 class instance_batch {
+  const per_device *m_dev;
   vee::pipeline_layout::type m_pl;
   vee::descriptor_set m_desc_set;
   vee::sampler m_smp = vee::create_sampler(vee::nearest_sampler);
 
-  stage_image m_atlas;
+  voo::h2l_image m_atlas{};
   bound_buffer<rect> m_pos;
   bound_buffer<colour> m_colour;
   bound_buffer<colour> m_mult;
@@ -30,7 +31,7 @@ class instance_batch {
 public:
   instance_batch(const per_device *dev, vee::pipeline_layout::type pl,
                  vee::descriptor_set ds, unsigned max_quads)
-      : m_pl{pl}, m_desc_set{ds}, m_atlas{dev},
+      : m_dev{dev}, m_pl{pl}, m_desc_set{ds},
         m_pos{bb_vertex{}, dev, max_quads},
         m_colour{bb_vertex{}, dev, max_quads},
         m_mult{bb_vertex{}, dev, max_quads}, m_uv{bb_vertex{}, dev, max_quads},
@@ -110,13 +111,20 @@ public:
   }
 
   void load_atlas(unsigned w, unsigned h, auto &&fn) {
-    if (m_atlas.resize_image(w, h)) {
-      const auto &iv = m_atlas.image_view();
-      vee::update_descriptor_set(m_desc_set, 0, *iv, *m_smp);
-      m_dset_loaded = true;
+    auto a =
+        voo::h2l_image(m_dev->physical_device(), m_dev->command_pool(), w, h);
+    {
+      auto m = a.mapmem();
+      fn(static_cast<u8_rgba *>(*m));
     }
 
-    m_atlas.load_image(traits::fwd<decltype(fn)>(fn));
+    load_atlas(traits::move(a));
+  }
+  void load_atlas(voo::h2l_image &&img) {
+    m_atlas = traits::move(img);
+
+    vee::update_descriptor_set(m_desc_set, 0, m_atlas.iv(), *m_smp);
+    m_dset_loaded = true;
   }
 
   void build_commands(vee::command_buffer cb) const {
@@ -132,8 +140,6 @@ public:
       vee::cmd_bind_descriptor_set(cb, m_pl, 0, m_desc_set);
     vee::cmd_draw(cb, v_count, m_count);
   }
-  void build_atlas_commands(vee::command_buffer cb) {
-    m_atlas.build_commands(cb);
-  }
+  void build_atlas_commands(vee::queue q) { m_atlas.submit(q); }
 };
 } // namespace quack

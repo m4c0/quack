@@ -16,9 +16,12 @@ class per_device {
 
   vee::queue q = vee::get_queue_for_family(pdqf.queue_family);
 
+  vee::command_pool cp = vee::create_command_pool(pdqf.queue_family);
+
 public:
   explicit per_device(casein::native_handle_t nptr) : nptr{nptr} {}
 
+  [[nodiscard]] constexpr auto command_pool() const noexcept { return *cp; }
   [[nodiscard]] constexpr auto physical_device() const noexcept {
     return pdqf.physical_device;
   }

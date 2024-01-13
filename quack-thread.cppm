@@ -36,11 +36,11 @@ class thread : public sith::thread {
       level_2 l2{&m_l0, &l1};
       const auto cb = l2.command_buffer();
 
-      one_time_submitter ots{cb};
       for (auto i = 0; i < m_batch_count; i++) {
-        (*m_batches)[i]->build_atlas_commands(cb);
+        (*m_batches)[i]->build_atlas_commands(m_l0.dev()->queue());
       }
 
+      one_time_submitter ots{cb};
       level_3 l3{&l1, &l2};
 
       vee::cmd_set_scissor(cb, extent);
