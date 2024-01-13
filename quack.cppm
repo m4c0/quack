@@ -1,4 +1,5 @@
 export module quack;
+export import :extent;
 export import :ilayout;
 export import :mouse;
 export import :objects;

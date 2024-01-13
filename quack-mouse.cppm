@@ -1,4 +1,5 @@
 export module quack:mouse;
+import :extent;
 import casein;
 import dotz;
 
@@ -12,8 +13,13 @@ public:
   [[nodiscard]] constexpr auto mouse_pos() const noexcept {
     return m_mouse_pos;
   }
+  [[nodiscard]] auto mouse_pos_rel() const noexcept {
+    return m_mouse_pos / extent_tracker::instance().screen_size();
+  }
 
   void handle(const casein::event &e) {
+    extent_tracker::instance().handle(e);
+
     switch (e.type()) {
     case casein::MOUSE_DOWN:
     case casein::MOUSE_MOVE:
