@@ -33,5 +33,10 @@ public:
       break;
     }
   }
+
+  static auto &instance() {
+    static mouse_tracker i{};
+    return i;
+  }
 };
 } // namespace quack
