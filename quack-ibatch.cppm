@@ -127,9 +127,9 @@ public:
     m_dset_loaded = true;
   }
 
-  void build_commands(vee::command_buffer cb) const {
+  [[nodiscard]] int build_commands(vee::command_buffer cb) const {
     if (m_count == 0)
-      return;
+      return 0;
 
     vee::cmd_push_vert_frag_constants(cb, m_pl, &m_pc);
     vee::cmd_bind_vertex_buffers(cb, 1, *m_pos);
@@ -138,7 +138,8 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 4, *m_mult);
     if (m_dset_loaded)
       vee::cmd_bind_descriptor_set(cb, m_pl, 0, m_desc_set);
-    vee::cmd_draw(cb, v_count, m_count);
+
+    return m_count;
   }
   void build_atlas_commands(vee::queue q) { m_atlas.submit(q); }
 };

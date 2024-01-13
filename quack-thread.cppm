@@ -47,10 +47,11 @@ class thread : public sith::thread {
       vee::cmd_set_viewport(cb, extent);
 
       l1.ppl()->build_commands(cb);
-      m_l0.ps()->build_commands(cb);
 
       for (auto i = 0; i < m_batch_count; i++) {
-        (*m_batches)[i]->build_commands(cb);
+        int n = (*m_batches)[i]->build_commands(cb);
+        if (n > 0)
+          m_l0.ps()->run(cb, n);
       }
     }
 
