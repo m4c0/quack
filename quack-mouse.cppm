@@ -1,5 +1,4 @@
 export module quack:mouse;
-import :ibatch;
 import :objects;
 import casein;
 
@@ -10,12 +9,8 @@ export class mouse_tracker {
   void mouse_move(float x, float y) { m_mouse_pos = {x, y}; }
 
 public:
-  [[nodiscard]] constexpr auto
-  current_mouse_pos(const instance_batch *b) const noexcept {
-    return b->translate_mouse_pos(m_mouse_pos);
-  }
-  [[nodiscard]] constexpr auto current_hover(instance_batch *b) noexcept {
-    return b->current_hover(m_mouse_pos);
+  [[nodiscard]] constexpr auto mouse_pos() const noexcept {
+    return m_mouse_pos;
   }
 
   void process_event(const casein::event &e) {
