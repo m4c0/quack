@@ -1,10 +1,10 @@
 export module quack:mouse;
-import :objects;
 import casein;
+import dotz;
 
 namespace quack {
 export class mouse_tracker {
-  pos m_mouse_pos{};
+  dotz::vec2 m_mouse_pos{};
 
   void mouse_move(float x, float y) { m_mouse_pos = {x, y}; }
 
@@ -13,7 +13,7 @@ public:
     return m_mouse_pos;
   }
 
-  void process_event(const casein::event &e) {
+  void handle(const casein::event &e) {
     switch (e.type()) {
     case casein::MOUSE_DOWN:
     case casein::MOUSE_MOVE:
