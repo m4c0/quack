@@ -1,5 +1,4 @@
 export module quack:ibatch;
-import :bbuffer;
 import :per_device;
 import :objects;
 import silog;
@@ -15,10 +14,10 @@ class instance_batch {
   vee::sampler m_smp = vee::create_sampler(vee::nearest_sampler);
 
   voo::h2l_image m_atlas{};
-  bound_buffer<rect> m_pos;
-  bound_buffer<colour> m_colour;
-  bound_buffer<colour> m_mult;
-  bound_buffer<uv> m_uv;
+  voo::h2l_buffer m_pos;
+  voo::h2l_buffer m_colour;
+  voo::h2l_buffer m_mult;
+  voo::h2l_buffer m_uv;
   upc m_pc;
 
   pos m_screen_size{};
@@ -28,14 +27,20 @@ class instance_batch {
   unsigned m_count{};
   bool m_dset_loaded{};
 
+  template <typename Tp>
+  static auto create_buf(const per_device *dev, unsigned max_quads) {
+    return voo::h2l_buffer{dev->physical_device(), dev->command_pool(),
+                           static_cast<unsigned>(max_quads * sizeof(Tp))};
+  }
+
 public:
   instance_batch(const per_device *dev, vee::pipeline_layout::type pl,
                  vee::descriptor_set ds, unsigned max_quads)
       : m_dev{dev}, m_pl{pl}, m_desc_set{ds},
-        m_pos{bb_vertex{}, dev, max_quads},
-        m_colour{bb_vertex{}, dev, max_quads},
-        m_mult{bb_vertex{}, dev, max_quads}, m_uv{bb_vertex{}, dev, max_quads},
-        m_count{max_quads} {}
+        m_pos{create_buf<rect>(dev, max_quads)},
+        m_colour{create_buf<colour>(dev, max_quads)},
+        m_mult{create_buf<colour>(dev, max_quads)},
+        m_uv{create_buf<uv>(dev, max_quads)}, m_count{max_quads} {}
 
   constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
     m_gw = gw;
@@ -69,23 +74,23 @@ public:
     return {mx, my};
   }
 
-  void map_colours(auto &&fn) const noexcept {
-    auto m = m_colour.map();
+  void map_colours(auto &&fn) noexcept {
+    auto m = m_colour.mapmem();
     fn(static_cast<colour *>(*m));
   }
-  void map_multipliers(auto &&fn) const noexcept {
-    auto m = m_mult.map();
+  void map_multipliers(auto &&fn) noexcept {
+    auto m = m_mult.mapmem();
     fn(static_cast<colour *>(*m));
   }
-  void map_positions(auto &&fn) const noexcept {
-    auto m = m_pos.map();
+  void map_positions(auto &&fn) noexcept {
+    auto m = m_pos.mapmem();
     fn(static_cast<rect *>(*m));
   }
-  void map_uvs(auto &&fn) const noexcept {
-    auto m = m_uv.map();
+  void map_uvs(auto &&fn) noexcept {
+    auto m = m_uv.mapmem();
     fn(static_cast<uv *>(*m));
   }
-  void map_all(auto &&fn) const noexcept {
+  void map_all(auto &&fn) noexcept {
     struct {
       colour *colours;
       colour *multipliers;
@@ -93,10 +98,10 @@ public:
       uv *uvs;
     } all;
 
-    auto c = m_colour.map();
-    auto m = m_mult.map();
-    auto p = m_pos.map();
-    auto u = m_uv.map();
+    auto c = m_colour.mapmem();
+    auto m = m_mult.mapmem();
+    auto p = m_pos.mapmem();
+    auto u = m_uv.mapmem();
     all.colours = static_cast<colour *>(*c);
     all.multipliers = static_cast<colour *>(*m);
     all.positions = static_cast<rect *>(*p);
@@ -132,15 +137,21 @@ public:
       return 0;
 
     vee::cmd_push_vert_frag_constants(cb, m_pl, &m_pc);
-    vee::cmd_bind_vertex_buffers(cb, 1, *m_pos);
-    vee::cmd_bind_vertex_buffers(cb, 2, *m_colour);
-    vee::cmd_bind_vertex_buffers(cb, 3, *m_uv);
-    vee::cmd_bind_vertex_buffers(cb, 4, *m_mult);
+    vee::cmd_bind_vertex_buffers(cb, 1, m_pos.buffer());
+    vee::cmd_bind_vertex_buffers(cb, 2, m_colour.buffer());
+    vee::cmd_bind_vertex_buffers(cb, 3, m_uv.buffer());
+    vee::cmd_bind_vertex_buffers(cb, 4, m_mult.buffer());
     if (m_dset_loaded)
       vee::cmd_bind_descriptor_set(cb, m_pl, 0, m_desc_set);
 
     return m_count;
   }
-  void build_atlas_commands(vee::queue q) { m_atlas.submit(q); }
+  void build_atlas_commands(vee::queue q) {
+    m_atlas.submit(q);
+    m_pos.submit(q);
+    m_colour.submit(q);
+    m_uv.submit(q);
+    m_mult.submit(q);
+  }
 };
 } // namespace quack
