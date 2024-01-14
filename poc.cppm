@@ -50,12 +50,9 @@ public:
     while (!interrupted()) {
       voo::swapchain_and_stuff sw{dq};
 
-      quack::pipeline_stuff ps{dq.physical_device(), max_batches};
-      quack::instance_batch ib{dq.physical_device(), dq.command_pool(),
-                               ps.pipeline_layout(),
-                               ps.allocate_descriptor_set(), 2};
-
-      auto ppl = ps.create_pipeline(sw.render_pass());
+      quack::pipeline_stuff ps{dq.physical_device(), dq.command_pool(),
+                               sw.render_pass(), max_batches};
+      auto ib = ps.create_batch(2);
 
       m_ib = &ib;
       release_init_lock();
@@ -66,12 +63,7 @@ public:
 
         sw.one_time_submit(dq, [&](auto &pcb) {
           auto scb = sw.cmd_render_pass(pcb);
-
-          vee::cmd_bind_gr_pipeline(*scb, *ppl);
-
-          int n = ib.build_commands(*scb);
-          if (n > 0)
-            ps.run(*scb, n);
+          ps.run(*scb, ib);
         });
 
         sw.queue_present(dq);
