@@ -28,6 +28,10 @@ export class pipeline_stuff {
   }
 
 public:
+  pipeline_stuff(const voo::device_and_queue &dq,
+                 const voo::swapchain_and_stuff &sw, unsigned max_batches)
+      : pipeline_stuff(dq.physical_device(), dq.command_pool(),
+                       sw.render_pass(), max_batches) {}
   pipeline_stuff(vee::physical_device pd, vee::command_pool::type cp,
                  vee::render_pass::type rp, unsigned max_batches)
       : m_pd{pd}, m_cp{cp}, desc_pool{create_dset_pool(max_batches)},

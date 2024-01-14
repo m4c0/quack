@@ -50,8 +50,7 @@ public:
     while (!interrupted()) {
       voo::swapchain_and_stuff sw{dq};
 
-      quack::pipeline_stuff ps{dq.physical_device(), dq.command_pool(),
-                               sw.render_pass(), max_batches};
+      quack::pipeline_stuff ps{dq, sw, max_batches};
       auto ib = ps.create_batch(2);
 
       m_ib = &ib;
