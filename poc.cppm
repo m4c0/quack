@@ -26,12 +26,6 @@ public:
   void setup_batch() {
     auto lck = wait_init();
 
-    m_ib->load_atlas(16, 32, atlas_image);
-
-    m_ib->map_positions([](auto *ps) { ps[0] = {{0, 0}, {1, 1}}; });
-    m_ib->map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
-    m_ib->map_uvs([](auto *us) { us[0] = {}; });
-    m_ib->map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
     m_ib->map_all([](auto p) {
       auto &[cs, ms, ps, us] = p;
       ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
@@ -39,9 +33,6 @@ public:
       us[1] = {};
       ms[1] = {1, 1, 1, 1};
     });
-    m_ib->center_at(0.5, 0.5);
-    m_ib->set_count(2);
-    m_ib->set_grid(1, 1);
   }
 
   void run() override {
@@ -52,6 +43,15 @@ public:
 
       quack::pipeline_stuff ps{dq, sw, max_batches};
       auto ib = ps.create_batch(2);
+
+      ib.load_atlas(16, 32, atlas_image);
+      ib.map_positions([](auto *ps) { ps[0] = {{0, 0}, {1, 1}}; });
+      ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
+      ib.map_uvs([](auto *us) { us[0] = {}; });
+      ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
+      ib.center_at(0.5, 0.5);
+      ib.set_count(2);
+      ib.set_grid(1, 1);
 
       m_ib = &ib;
       release_init_lock();
