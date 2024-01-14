@@ -29,11 +29,6 @@ public:
     case casein::CREATE_WINDOW:
       m_batch = m_r->allocate_batch(m_max_instances);
       break;
-    case casein::RESIZE_WINDOW: {
-      const auto &[w, h, s, l] = *e.as<casein::events::resize_window>();
-      m_batch->resize(w, h);
-      break;
-    }
     default:
       break;
     }

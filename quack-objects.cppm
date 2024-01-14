@@ -1,4 +1,5 @@
 export module quack:objects;
+import dotz;
 
 namespace quack {
 export struct pos {
@@ -39,7 +40,7 @@ export template <typename Tp> struct filler {
 };
 
 struct upc {
-  pos grid_pos{};
-  size grid_size{};
+  dotz::vec2 grid_pos{};
+  dotz::vec2 grid_size{};
 };
 } // namespace quack

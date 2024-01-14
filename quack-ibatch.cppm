@@ -1,6 +1,9 @@
 export module quack:ibatch;
+import :extent;
+import :mouse;
 import :per_device;
 import :objects;
+import dotz;
 import silog;
 import traits;
 import vee;
@@ -18,12 +21,9 @@ class instance_batch {
   voo::h2l_buffer m_colour;
   voo::h2l_buffer m_mult;
   voo::h2l_buffer m_uv;
-  upc m_pc;
 
-  pos m_screen_size{};
-
-  unsigned m_gw{1};
-  unsigned m_gh{1};
+  dotz::vec2 m_gp{};
+  dotz::vec2 m_gs{1, 1};
   unsigned m_count{};
   bool m_dset_loaded{};
 
@@ -43,35 +43,27 @@ public:
         m_uv{create_buf<uv>(dev, max_quads)}, m_count{max_quads} {}
 
   constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
-    m_gw = gw;
-    m_gh = gh;
+    m_gs = dotz::vec2{gw, gh};
   }
-  constexpr auto grid_size() const noexcept { return m_pc.grid_size; }
-
-  constexpr void resize(float sw, float sh) noexcept {
-    float aspect = sw / sh;
-    float gw = m_gw / 2.0;
-    float gh = m_gh / 2.0;
+  auto grid_size() const noexcept {
+    float aspect = extent_tracker::instance().screen_aspect();
+    float gw = m_gs.x / 2.0;
+    float gh = m_gs.y / 2.0;
     float grid_aspect = gw / gh;
-    m_pc.grid_size =
-        grid_aspect < aspect ? size{aspect * gh, gh} : size{gw, gw / aspect};
-    m_screen_size = {sw, sh};
+    return grid_aspect < aspect ? dotz::vec2{aspect * gh, gh}
+                                : dotz::vec2{gw, gw / aspect};
   }
 
-  constexpr void center_at(float gx, float gy) { m_pc.grid_pos = pos{gx, gy}; }
-  constexpr auto center() const noexcept { return m_pc.grid_pos; }
+  constexpr void center_at(float gx, float gy) { m_gp = {gx, gy}; }
+  constexpr auto center() const noexcept { return m_gp; }
 
   constexpr void set_count(unsigned c) noexcept { m_count = c; }
 
-  [[nodiscard]] pos translate_mouse_pos(pos mouse_pos) const noexcept {
-    pos screen_scale = {2.0f * m_pc.grid_size.w / m_screen_size.x,
-                        2.0f * m_pc.grid_size.h / m_screen_size.y};
-    pos screen_disp = {m_pc.grid_size.w - m_pc.grid_pos.x,
-                       m_pc.grid_size.h - m_pc.grid_pos.y};
-
-    auto mx = mouse_pos.x * screen_scale.x - screen_disp.x;
-    auto my = mouse_pos.y * screen_scale.y - screen_disp.y;
-    return {mx, my};
+  [[nodiscard]] auto mouse_pos() const noexcept {
+    auto screen_scale = m_gs * 2.0f / extent_tracker::instance().screen_size();
+    auto screen_disp = m_gs - m_gp;
+    auto mouse_pos = mouse_tracker::instance().mouse_pos();
+    return mouse_pos * screen_scale / screen_disp;
   }
 
   void map_colours(auto &&fn) noexcept {
@@ -111,9 +103,6 @@ public:
   }
 
   [[nodiscard]] constexpr const auto &count() const noexcept { return m_count; }
-  [[nodiscard]] constexpr const auto &push_constants() const noexcept {
-    return m_pc;
-  }
 
   void load_atlas(unsigned w, unsigned h, auto &&fn) {
     auto a =
@@ -136,7 +125,9 @@ public:
     if (m_count == 0)
       return 0;
 
-    vee::cmd_push_vert_frag_constants(cb, m_pl, &m_pc);
+    upc pc{.grid_pos = m_gp, .grid_size = grid_size()};
+
+    vee::cmd_push_vert_frag_constants(cb, m_pl, &pc);
     vee::cmd_bind_vertex_buffers(cb, 1, m_pos.buffer());
     vee::cmd_bind_vertex_buffers(cb, 2, m_colour.buffer());
     vee::cmd_bind_vertex_buffers(cb, 3, m_uv.buffer());
