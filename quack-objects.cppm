@@ -35,9 +35,6 @@ export struct u8_rgba {
   unsigned char b;
   unsigned char a;
 };
-export template <typename Tp> struct filler {
-  virtual void operator()(Tp *) const noexcept = 0;
-};
 
 struct upc {
   dotz::vec2 grid_pos{};
