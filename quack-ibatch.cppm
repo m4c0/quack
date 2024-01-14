@@ -9,7 +9,7 @@ import vee;
 import voo;
 
 namespace quack {
-class instance_batch {
+export class instance_batch {
   vee::physical_device m_pd;
   vee::command_pool::type m_cp;
 

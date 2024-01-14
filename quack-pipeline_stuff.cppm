@@ -6,7 +6,7 @@ import vee;
 import voo;
 
 namespace quack {
-class pipeline_stuff {
+export class pipeline_stuff {
   vee::descriptor_set_layout dsl =
       vee::create_descriptor_set_layout({vee::dsl_fragment_sampler()});
 
