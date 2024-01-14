@@ -19,10 +19,9 @@ public:
 
   void wait_and_reset_fence() const { vee::wait_and_reset_fence(*f); }
 
-  void submit(const per_device *dev,
-              const vee::command_buffer primary_cb) const {
+  void submit(vee::queue q, vee::command_buffer primary_cb) const {
     vee::queue_submit({
-        .queue = dev->queue(),
+        .queue = q,
         .fence = *f,
         .command_buffer = primary_cb,
         .wait_semaphore = *img_available_sema,

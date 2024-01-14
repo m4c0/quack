@@ -1,6 +1,5 @@
 export module quack:pipeline_stuff;
 import :objects;
-import :per_device;
 import :per_extent;
 import missingno;
 import traits;
@@ -9,8 +8,6 @@ import voo;
 
 namespace quack {
 class pipeline_stuff {
-  const per_device *dev;
-
   vee::descriptor_set_layout dsl =
       vee::create_descriptor_set_layout({vee::dsl_fragment_sampler()});
 
@@ -24,13 +21,13 @@ class pipeline_stuff {
 
   vee::descriptor_pool desc_pool;
 
-  voo::one_quad m_quad{dev->physical_device()};
+  voo::one_quad m_quad;
 
 public:
-  pipeline_stuff(const per_device *d, unsigned max_desc_sets)
-      : dev{d},
-        desc_pool{vee::create_descriptor_pool(
-            max_desc_sets, {vee::combined_image_sampler(max_desc_sets)})} {}
+  pipeline_stuff(vee::physical_device pd, unsigned max_desc_sets)
+      : desc_pool{vee::create_descriptor_pool(
+            max_desc_sets, {vee::combined_image_sampler(max_desc_sets)})},
+        m_quad{pd} {}
 
   [[nodiscard]] constexpr const auto pipeline_layout() const noexcept {
     return *pl;

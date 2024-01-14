@@ -1,7 +1,6 @@
 export module quack:ibatch;
 import :extent;
 import :mouse;
-import :per_device;
 import :objects;
 import dotz;
 import silog;
@@ -11,7 +10,9 @@ import voo;
 
 namespace quack {
 class instance_batch {
-  const per_device *m_dev;
+  vee::physical_device m_pd;
+  vee::command_pool::type m_cp;
+
   vee::pipeline_layout::type m_pl;
   vee::descriptor_set m_desc_set;
   vee::sampler m_smp;
@@ -28,21 +29,23 @@ class instance_batch {
   bool m_dset_loaded{};
 
   template <typename Tp>
-  static auto create_buf(const per_device *dev, unsigned max_quads) {
-    return voo::h2l_buffer{dev->physical_device(), dev->command_pool(),
-                           static_cast<unsigned>(max_quads * sizeof(Tp))};
+  static auto create_buf(vee::physical_device pd, vee::command_pool::type cp,
+                         unsigned max_quads) {
+    auto sz = static_cast<unsigned>(max_quads * sizeof(Tp));
+    return voo::h2l_buffer{pd, cp, sz};
   }
 
 public:
   instance_batch() = default;
-  instance_batch(const per_device *dev, vee::pipeline_layout::type pl,
-                 vee::descriptor_set ds, unsigned max_quads)
-      : m_dev{dev}, m_pl{pl}, m_desc_set{ds},
+  instance_batch(vee::physical_device pd, vee::command_pool::type cp,
+                 vee::pipeline_layout::type pl, vee::descriptor_set ds,
+                 unsigned max_quads)
+      : m_pd{pd}, m_cp{cp}, m_pl{pl}, m_desc_set{ds},
         m_smp{vee::create_sampler(vee::nearest_sampler)},
-        m_pos{create_buf<rect>(dev, max_quads)},
-        m_colour{create_buf<colour>(dev, max_quads)},
-        m_mult{create_buf<colour>(dev, max_quads)},
-        m_uv{create_buf<uv>(dev, max_quads)}, m_count{max_quads} {}
+        m_pos{create_buf<rect>(pd, cp, max_quads)},
+        m_colour{create_buf<colour>(pd, cp, max_quads)},
+        m_mult{create_buf<colour>(pd, cp, max_quads)},
+        m_uv{create_buf<uv>(pd, cp, max_quads)}, m_count{max_quads} {}
 
   constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
     m_gs = dotz::vec2{gw, gh};
@@ -107,8 +110,7 @@ public:
   [[nodiscard]] constexpr const auto &count() const noexcept { return m_count; }
 
   void load_atlas(unsigned w, unsigned h, auto &&fn) {
-    auto a =
-        voo::h2l_image(m_dev->physical_device(), m_dev->command_pool(), w, h);
+    auto a = voo::h2l_image(m_pd, m_cp, w, h);
     {
       auto m = a.mapmem();
       fn(static_cast<u8_rgba *>(*m));
