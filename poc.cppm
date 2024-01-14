@@ -16,10 +16,10 @@ void atlas_image(quack::u8_rgba *img) {
 }
 
 extern "C" void casein_handle(const casein::event &e) {
-  static quack::renderer r{3};
+  static quack::renderer r{};
   static quack::ilayout s{&r, 2};
 
-  r.process_event(e);
+  r.handle(e);
   s.process_event(e);
   quack::mouse_tracker::instance().handle(e);
 

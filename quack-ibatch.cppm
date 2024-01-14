@@ -14,7 +14,7 @@ class instance_batch {
   const per_device *m_dev;
   vee::pipeline_layout::type m_pl;
   vee::descriptor_set m_desc_set;
-  vee::sampler m_smp = vee::create_sampler(vee::nearest_sampler);
+  vee::sampler m_smp;
 
   voo::h2l_image m_atlas{};
   voo::h2l_buffer m_pos;
@@ -34,9 +34,11 @@ class instance_batch {
   }
 
 public:
+  instance_batch() = default;
   instance_batch(const per_device *dev, vee::pipeline_layout::type pl,
                  vee::descriptor_set ds, unsigned max_quads)
       : m_dev{dev}, m_pl{pl}, m_desc_set{ds},
+        m_smp{vee::create_sampler(vee::nearest_sampler)},
         m_pos{create_buf<rect>(dev, max_quads)},
         m_colour{create_buf<colour>(dev, max_quads)},
         m_mult{create_buf<colour>(dev, max_quads)},
