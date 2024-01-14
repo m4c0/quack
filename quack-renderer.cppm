@@ -1,11 +1,6 @@
 export module quack:renderer;
 import :ibatch;
-import :per_extent;
-import :per_frame;
-import :per_inflight;
-import :pipeline;
 import :pipeline_stuff;
-import :raii;
 import hai;
 import traits;
 import vee;
@@ -32,56 +27,37 @@ public:
 
   void run() override {
     voo::device_and_queue dq{"quack", native_ptr()};
-    inflight_pair ip{};
     pipeline_stuff ps{dq.physical_device(), max_batches};
 
     m_dq = &dq;
     m_ps = &ps;
     release_init_lock();
 
-    auto pd = dq.physical_device();
-    auto s = dq.surface();
-
     while (!interrupted()) {
-      per_extent ext{pd, s};
-      pipeline ppl{&ext, &ps};
-      frames frms{pd, s, dq.command_pool(), &ext};
+      voo::swapchain_and_stuff sw{dq};
+
+      auto ppl = ps.create_pipeline(sw.render_pass());
 
       extent_loop([&] {
-        auto &inf = ip.flip();
-        auto idx = vee::acquire_next_image(ext.swapchain(),
-                                           inf.image_available_sema());
-        auto &frm = frms[idx];
-        auto cb = frm->command_buffer();
+        sw.acquire_next_image();
 
         for (auto &b : m_batches) {
           b.build_atlas_commands(dq.queue());
         }
 
-        auto extent = ext.extent_2d();
-        {
-          one_time_submitter ots{cb};
-          render_passer rp{cb, frm->framebuffer(), &ext};
-          vee::cmd_set_scissor(cb, extent);
-          vee::cmd_set_viewport(cb, extent);
+        sw.one_time_submit(dq, [&](auto &pcb) {
+          auto scb = sw.cmd_render_pass(pcb);
 
-          ppl.build_commands(cb);
+          vee::cmd_bind_gr_pipeline(*scb, *ppl);
 
           for (auto &b : m_batches) {
-            int n = b.build_commands(cb);
+            int n = b.build_commands(*scb);
             if (n > 0)
-              ps.run(cb, n);
+              ps.run(*scb, n);
           }
-        }
-
-        inf.submit(dq.queue(), cb);
-
-        vee::queue_present({
-            .queue = dq.queue(),
-            .swapchain = ext.swapchain(),
-            .wait_semaphore = inf.render_finished_sema(),
-            .image_index = idx,
         });
+
+        sw.queue_present(dq);
       });
     }
   }

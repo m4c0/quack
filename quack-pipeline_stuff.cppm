@@ -1,6 +1,5 @@
 export module quack:pipeline_stuff;
 import :objects;
-import :per_extent;
 import missingno;
 import traits;
 import vee;
@@ -40,10 +39,10 @@ public:
     m_quad.run(cb, 0, inst);
   }
 
-  [[nodiscard]] auto create_pipeline(const per_extent *ext) const {
+  [[nodiscard]] auto create_pipeline(vee::render_pass::type rp) const {
     return vee::create_graphics_pipeline({
         .pipeline_layout = *pl,
-        .render_pass = ext->render_pass(),
+        .render_pass = rp,
         .depth_test = false,
         .shaders{
             vee::pipeline_vert_stage(*vert, "main"),
