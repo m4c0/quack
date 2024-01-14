@@ -7,7 +7,6 @@ export namespace quack {
 class renderer {
   unsigned m_max_batches;
   hai::uptr<thread> m_thread{};
-  unsigned m_ticks{};
 
   void setup(casein::native_handle_t nptr) {
     m_thread = hai::uptr<thread>::make(nptr, m_max_batches);
@@ -26,15 +25,10 @@ public:
     return m_thread->allocate(max_quads);
   }
 
-  [[nodiscard]] constexpr auto ticks() const noexcept { return m_ticks; }
-
   void process_event(const casein::event &e) {
     switch (e.type()) {
     case casein::CREATE_WINDOW:
       setup(*e.as<casein::events::create_window>());
-      break;
-    case casein::REPAINT:
-      m_ticks++;
       break;
     case casein::RESIZE_WINDOW: {
       resize();
