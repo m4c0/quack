@@ -141,7 +141,7 @@ public:
 
     return m_count;
   }
-  void build_atlas_commands(vee::queue q) {
+  void submit_buffers(vee::queue q) {
     m_atlas.submit(q);
     m_pos.submit(q);
     m_colour.submit(q);

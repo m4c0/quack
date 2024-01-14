@@ -58,7 +58,7 @@ public:
       extent_loop([&] {
         sw.acquire_next_image();
 
-        ib.build_atlas_commands(dq.queue());
+        ib.submit_buffers(dq.queue());
 
         sw.one_time_submit(dq, [&](auto &pcb) {
           auto scb = sw.cmd_render_pass(pcb);
