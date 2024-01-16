@@ -55,17 +55,13 @@ public:
 
       m_ib = &ib;
       release_init_lock();
-      extent_loop([&] {
-        sw.acquire_next_image();
-
+      extent_loop(dq, sw, [&] {
         ib.submit_buffers(dq.queue());
 
         sw.one_time_submit(dq, [&](auto &pcb) {
           auto scb = sw.cmd_render_pass(pcb);
           ps.run(*scb, ib);
         });
-
-        sw.queue_present(dq);
       });
     }
   }
