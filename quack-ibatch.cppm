@@ -4,7 +4,6 @@ import :mouse;
 import :objects;
 import dotz;
 import jute;
-import silog;
 import traits;
 import vee;
 import voo;
