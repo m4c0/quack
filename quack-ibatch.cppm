@@ -3,6 +3,7 @@ import :extent;
 import :mouse;
 import :objects;
 import dotz;
+import jute;
 import silog;
 import traits;
 import vee;
@@ -117,6 +118,9 @@ public:
     }
 
     load_atlas(traits::move(a));
+  }
+  void load_atlas(jute::view file) {
+    load_atlas(voo::load_sires_image(file, m_pd, m_cp));
   }
   void load_atlas(voo::h2l_image &&img) {
     m_atlas = traits::move(img);
