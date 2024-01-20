@@ -151,5 +151,8 @@ public:
     m_uv.submit(q);
     m_mult.submit(q);
   }
+  void submit_buffers(const voo::device_and_queue &dq) {
+    submit_buffers(dq.queue());
+  }
 };
 } // namespace quack
