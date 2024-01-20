@@ -108,6 +108,9 @@ public:
   }
 
   [[nodiscard]] constexpr const auto &count() const noexcept { return m_count; }
+  [[nodiscard]] constexpr auto atlas_size() const noexcept {
+    return dotz::vec2{m_atlas.width(), m_atlas.height()};
+  }
 
   void load_atlas(unsigned w, unsigned h, auto &&fn) {
     auto a = voo::h2l_image(m_pd, m_cp, w, h);
