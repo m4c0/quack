@@ -24,7 +24,7 @@ class renderer : public voo::casein_thread {
 
 public:
   void setup_batch() {
-    auto lck = wait_init();
+    wait_init();
 
     m_ib->map_all([](auto p) {
       auto &[cs, ms, ps, us] = p;

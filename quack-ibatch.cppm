@@ -4,6 +4,7 @@ import :mouse;
 import :objects;
 import dotz;
 import jute;
+import silog;
 import traits;
 import vee;
 import voo;
@@ -72,20 +73,32 @@ public:
   }
 
   void map_colours(auto &&fn) noexcept {
-    auto m = m_colour.mapmem();
-    fn(static_cast<colour *>(*m));
+    m_colour.mapmem()
+        .map([&](auto &&m) { fn(static_cast<colour *>(*m)); })
+        .take([](auto msg) {
+          silog::log(silog::warning, "Failed to load colours: %s", msg);
+        });
   }
   void map_multipliers(auto &&fn) noexcept {
-    auto m = m_mult.mapmem();
-    fn(static_cast<colour *>(*m));
+    m_mult.mapmem()
+        .map([&](auto &&m) { fn(static_cast<colour *>(*m)); })
+        .take([](auto msg) {
+          silog::log(silog::warning, "Failed to load multipliers: %s", msg);
+        });
   }
   void map_positions(auto &&fn) noexcept {
-    auto m = m_pos.mapmem();
-    fn(static_cast<rect *>(*m));
+    m_pos.mapmem()
+        .map([&](auto &&m) { fn(static_cast<rect *>(*m)); })
+        .take([](auto msg) {
+          silog::log(silog::warning, "Failed to load positions: %s", msg);
+        });
   }
   void map_uvs(auto &&fn) noexcept {
-    auto m = m_uv.mapmem();
-    fn(static_cast<uv *>(*m));
+    m_uv.mapmem()
+        .map([&](auto &&m) { fn(static_cast<uv *>(*m)); })
+        .take([](auto msg) {
+          silog::log(silog::warning, "Failed to load uvs: %s", msg);
+        });
   }
   void map_all(auto &&fn) noexcept {
     struct {
@@ -99,10 +112,16 @@ public:
     auto m = m_mult.mapmem();
     auto p = m_pos.mapmem();
     auto u = m_uv.mapmem();
-    all.colours = static_cast<colour *>(*c);
-    all.multipliers = static_cast<colour *>(*m);
-    all.positions = static_cast<rect *>(*p);
-    all.uvs = static_cast<uv *>(*u);
+    all.colours = c.map([](auto &c) {
+                     return static_cast<colour *>(*c);
+                   }).unwrap(nullptr);
+    all.multipliers = m.map([](auto &m) {
+                         return static_cast<colour *>(*m);
+                       }).unwrap(nullptr);
+    all.positions =
+        p.map([](auto &p) { return static_cast<rect *>(*p); }).unwrap(nullptr);
+    all.uvs =
+        u.map([](auto &u) { return static_cast<uv *>(*u); }).unwrap(nullptr);
 
     fn(all);
   }
@@ -114,15 +133,20 @@ public:
 
   void load_atlas(unsigned w, unsigned h, auto &&fn) {
     auto a = voo::h2l_image(m_pd, m_cp, w, h);
-    {
-      auto m = a.mapmem();
-      fn(static_cast<u8_rgba *>(*m));
-    }
+    a.mapmem()
+        .map([&](auto &&m) { fn(static_cast<u8_rgba *>(*m)); })
+        .take([](auto err) {
+          silog::log(silog::warning, "Failed to load atlas: %s", err);
+        });
 
     load_atlas(traits::move(a));
   }
   void load_atlas(jute::view file) {
-    load_atlas(voo::load_sires_image(file, m_pd, m_cp));
+    voo::load_sires_image(file, m_pd, m_cp)
+        .map([this](auto &&img) { load_atlas(traits::move(img)); })
+        .take([](auto err) {
+          silog::log(silog::warning, "Failed to load atlas: %s", err);
+        });
   }
   void load_atlas(voo::h2l_image &&img) {
     m_atlas = traits::move(img);
