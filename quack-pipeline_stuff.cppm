@@ -16,8 +16,6 @@ export class pipeline_stuff {
   vee::pipeline_layout pl = vee::create_pipeline_layout(
       {*dsl}, {vee::vert_frag_push_constant_range<upc>()});
 
-  vee::command_pool::type m_cp;
-
   vee::descriptor_pool desc_pool;
   voo::one_quad m_quad;
   vee::gr_pipeline m_gp;
@@ -30,12 +28,10 @@ export class pipeline_stuff {
 public:
   pipeline_stuff(const voo::device_and_queue &dq,
                  const voo::swapchain_and_stuff &sw, unsigned max_batches)
-      : pipeline_stuff(dq.physical_device(), dq.command_pool(),
-                       sw.render_pass(), max_batches) {}
-  pipeline_stuff(vee::physical_device pd, vee::command_pool::type cp,
-                 vee::render_pass::type rp, unsigned max_batches)
-      : m_pd{pd}, m_cp{cp}, desc_pool{create_dset_pool(max_batches)},
-        m_quad{pd} {
+      : pipeline_stuff(dq.physical_device(), sw.render_pass(), max_batches) {}
+  pipeline_stuff(vee::physical_device pd, vee::render_pass::type rp,
+                 unsigned max_batches)
+      : m_pd{pd}, desc_pool{create_dset_pool(max_batches)}, m_quad{pd} {
     m_gp = vee::create_graphics_pipeline({
         .pipeline_layout = *pl,
         .render_pass = rp,
@@ -63,15 +59,17 @@ public:
 
   [[nodiscard]] auto create_batch(unsigned max_insts) {
     auto ds = vee::allocate_descriptor_set(*desc_pool, *dsl);
-    return quack::instance_batch{m_pd, m_cp, *pl, ds, max_insts};
+    return quack::instance_batch{m_pd, *pl, ds, max_insts};
   }
 
   void run(vee::command_buffer cb, const instance_batch &ib) const {
-    int n = ib.build_commands(cb);
-    if (n > 0) {
-      vee::cmd_bind_gr_pipeline(cb, *m_gp);
-      m_quad.run(cb, 0, n);
-    }
+    auto n = ib.count();
+    if (n == 0)
+      return;
+
+    ib.build_commands(cb);
+    vee::cmd_bind_gr_pipeline(cb, *m_gp);
+    m_quad.run(cb, 0, n);
   }
 };
 } // namespace quack

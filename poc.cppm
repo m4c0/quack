@@ -7,7 +7,9 @@ import quack;
 import vee;
 import voo;
 
-void atlas_image(quack::u8_rgba *img) {
+void atlas_image(voo::h2l_image &atlas) {
+  voo::mapmem m{atlas.host_memory()};
+  auto *img = static_cast<quack::u8_rgba *>(*m);
   for (auto i = 0; i < 16 * 16; i++) {
     auto x = (i / 16) % 2;
     auto y = (i % 16) % 2;
@@ -38,13 +40,15 @@ public:
   void run() override {
     voo::device_and_queue dq{"quack", native_ptr()};
 
+    voo::h2l_image atlas{dq.physical_device(), 16, 32};
+
     while (!interrupted()) {
       voo::swapchain_and_stuff sw{dq};
 
       quack::pipeline_stuff ps{dq, sw, max_batches};
       auto ib = ps.create_batch(2);
 
-      ib.load_atlas(16, 32, atlas_image);
+      ib.set_atlas(atlas.iv());
       ib.map_positions([](auto *ps) { ps[0] = {{0, 0}, {1, 1}}; });
       ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
       ib.map_uvs([](auto *us) { us[0] = {}; });
@@ -53,13 +57,17 @@ public:
       ib.set_count(2);
       ib.set_grid(1, 1);
 
+      atlas_image(atlas);
+
       m_ib = &ib;
       release_init_lock();
       extent_loop(dq, sw, [&] {
-        ib.submit_buffers(dq.queue());
-
         sw.one_time_submit(dq, [&](auto &pcb) {
+          atlas.setup_copy(*pcb);
+          ib.setup_copy(*pcb);
+
           auto scb = sw.cmd_render_pass(pcb);
+          ib.build_commands(*pcb);
           ps.run(*scb, ib);
         });
       });
