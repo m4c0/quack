@@ -61,10 +61,15 @@ public:
 
       m_ib = &ib;
       release_init_lock();
+
+      bool dirty = true;
       extent_loop(dq, sw, [&] {
         sw.one_time_submit(dq, [&](auto &pcb) {
-          atlas.setup_copy(*pcb);
-          ib.setup_copy(*pcb);
+          if (dirty) {
+            atlas.setup_copy(*pcb);
+            ib.setup_copy(*pcb);
+            dirty = false;
+          }
 
           auto scb = sw.cmd_render_pass(pcb);
           ib.build_commands(*pcb);
