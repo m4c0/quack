@@ -28,14 +28,18 @@ class renderer : public voo::casein_thread {
 
   void setup_batch(sith::thread *) {
     wait_init();
+    while (!interrupted()) {
+      if (!m_ib)
+        continue;
 
-    m_ib->map_all([](auto p) {
-      auto &[cs, ms, ps, us] = p;
-      ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
-      cs[1] = {0.25, 0, 0.1, 1.0};
-      us[1] = {{0, 0}, {1, 1}};
-      ms[1] = {1, 1, 1, 1};
-    });
+      m_ib->map_all([](auto p) {
+        auto &[cs, ms, ps, us] = p;
+        ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
+        cs[1] = {0.25, 0, 0.1, 1.0};
+        us[1] = {{0, 0}, {1, 1}};
+        ms[1] = {1, 1, 1, 1};
+      });
+    }
   }
 
   renderer() { m_update_thread.start(); }
@@ -80,6 +84,8 @@ public:
           ps.run(*scb, ib);
         });
       });
+
+      m_ib = nullptr;
     }
   }
 
