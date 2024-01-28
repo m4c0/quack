@@ -9,7 +9,7 @@ import sitime;
 import vee;
 import voo;
 
-void atlas_image(voo::h2l_image &atlas) {
+static void build_atlas_image(voo::h2l_image &atlas) {
   voo::mapmem m{atlas.host_memory()};
   auto *img = static_cast<quack::u8_rgba *>(*m);
   for (auto i = 0; i < 16 * 16; i++) {
@@ -70,18 +70,21 @@ public:
       ib.set_count(2);
       ib.set_grid(1, 1);
 
-      atlas_image(atlas);
+      build_atlas_image(atlas);
+      {
+        voo::cmd_buf_one_time_submit pcb{sw.command_buffer()};
+        atlas.setup_copy(*pcb);
+      }
+      vee::queue_submit({
+          .queue = dq.queue(),
+          .command_buffer = sw.command_buffer(),
+      });
 
       m_ib = &ib;
       release_init_lock();
 
-      bool dirty = true;
       extent_loop(dq, sw, [&] {
         sw.one_time_submit(dq, [&](auto &pcb) {
-          if (dirty) {
-            atlas.setup_copy(*pcb);
-            dirty = false;
-          }
           // TODO: this is prone to "tearing" if dataset is larger
           ib.setup_copy(*pcb);
 
