@@ -5,6 +5,7 @@ import casein;
 import silog;
 import quack;
 import sith;
+import sitime;
 import vee;
 import voo;
 
@@ -21,21 +22,25 @@ void atlas_image(voo::h2l_image &atlas) {
   }
 }
 
+extern "C" float sinf(float);
 constexpr const auto max_batches = 100;
 class renderer : public voo::casein_thread {
   quack::instance_batch *m_ib;
   sith::memfn_thread<renderer> m_update_thread{this, &renderer::setup_batch};
 
   void setup_batch(sith::thread *) {
+    sitime::stopwatch time{};
+
     wait_init();
     while (!interrupted()) {
       if (!m_ib)
         continue;
 
-      m_ib->map_all([](auto p) {
+      float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
+      m_ib->map_all([a](auto p) {
         auto &[cs, ms, ps, us] = p;
         ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
-        cs[1] = {0.25, 0, 0.1, 1.0};
+        cs[1] = {0.25, 0, 0.1, a};
         us[1] = {{0, 0}, {1, 1}};
         ms[1] = {1, 1, 1, 1};
       });
@@ -75,9 +80,10 @@ public:
         sw.one_time_submit(dq, [&](auto &pcb) {
           if (dirty) {
             atlas.setup_copy(*pcb);
-            ib.setup_copy(*pcb);
             dirty = false;
           }
+          // TODO: this is prone to "tearing" if dataset is larger
+          ib.setup_copy(*pcb);
 
           auto scb = sw.cmd_render_pass(pcb);
           ib.build_commands(*pcb);
