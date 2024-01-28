@@ -4,6 +4,7 @@ export module poc;
 import casein;
 import silog;
 import quack;
+import sith;
 import vee;
 import voo;
 
@@ -23,9 +24,9 @@ void atlas_image(voo::h2l_image &atlas) {
 constexpr const auto max_batches = 100;
 class renderer : public voo::casein_thread {
   quack::instance_batch *m_ib;
+  sith::memfn_thread<renderer> m_update_thread{this, &renderer::setup_batch};
 
-public:
-  void setup_batch() {
+  void setup_batch(sith::thread *) {
     wait_init();
 
     m_ib->map_all([](auto p) {
@@ -37,6 +38,9 @@ public:
     });
   }
 
+  renderer() { m_update_thread.start(); }
+
+public:
   void run() override {
     voo::device_and_queue dq{"quack", native_ptr()};
 
@@ -85,18 +89,7 @@ public:
   }
 };
 
-class updater : public voo::casein_thread {
-public:
-  void run() override { renderer::instance().setup_batch(); }
-
-  static auto &instance() {
-    static updater r{};
-    return r;
-  }
-};
-
 extern "C" void casein_handle(const casein::event &e) {
-  updater::instance().handle(e);
   renderer::instance().handle(e);
   quack::mouse_tracker::instance().handle(e);
 }
