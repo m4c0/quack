@@ -9,18 +9,33 @@ import sitime;
 import vee;
 import voo;
 
-static void build_atlas_image(voo::h2l_image &atlas) {
-  voo::mapmem m{atlas.host_memory()};
-  auto *img = static_cast<quack::u8_rgba *>(*m);
-  for (auto i = 0; i < 16 * 16; i++) {
-    auto x = (i / 16) % 2;
-    auto y = (i % 16) % 2;
-    unsigned char b = (x ^ y) == 0 ? 255 : 0;
+class atlas : public voo::update_thread {
+  voo::h2l_image m_img;
 
-    img[i] = {255, 255, 255, 0};
-    img[i + 256] = {b, b, b, 128};
+  void build_cmd_buf(vee::command_buffer cb) override {
+    voo::cmd_buf_one_time_submit pcb{cb};
+    m_img.setup_copy(cb);
   }
-}
+
+public:
+  atlas(voo::device_and_queue *dq)
+      : update_thread{dq}, m_img{dq->physical_device(), 16, 32} {
+    voo::mapmem m{m_img.host_memory()};
+    auto *img = static_cast<quack::u8_rgba *>(*m);
+    for (auto i = 0; i < 16 * 16; i++) {
+      auto x = (i / 16) % 2;
+      auto y = (i % 16) % 2;
+      unsigned char b = (x ^ y) == 0 ? 255 : 0;
+
+      img[i] = {255, 255, 255, 0};
+      img[i + 256] = {b, b, b, 128};
+    }
+  }
+
+  [[nodiscard]] constexpr auto iv() const noexcept { return m_img.iv(); }
+
+  using update_thread::run_once;
+};
 
 extern "C" float sinf(float);
 class updater : public voo::update_thread {
@@ -65,8 +80,6 @@ public:
   void run() override {
     voo::device_and_queue dq{"quack", native_ptr()};
 
-    voo::h2l_image atlas{dq.physical_device(), 16, 32};
-
     while (!interrupted()) {
       voo::swapchain_and_stuff sw{dq};
 
@@ -76,15 +89,14 @@ public:
       sith::memfn_thread<updater> ut{&u, &updater::run};
       ut.start();
 
-      build_atlas_image(atlas);
-      u.batch().set_atlas(atlas.iv());
+      atlas a{&dq};
+      a.run_once();
+
+      u.batch().set_atlas(a.iv());
 
       extent_loop(dq, sw, [&] {
         {
-          // TODO: this is prone to "tearing" if atlas is larger
           voo::cmd_buf_one_time_submit pcb{sw.command_buffer()};
-          atlas.setup_copy(*pcb);
-
           auto scb = sw.cmd_render_pass(pcb);
           auto &ib = u.batch();
           ib.build_commands(*pcb);
