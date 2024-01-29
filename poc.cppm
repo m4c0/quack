@@ -71,27 +71,22 @@ public:
       ib.set_grid(1, 1);
 
       build_atlas_image(atlas);
-      {
-        voo::cmd_buf_one_time_submit pcb{sw.command_buffer()};
-        atlas.setup_copy(*pcb);
-      }
-      vee::queue_submit({
-          .queue = dq.queue(),
-          .command_buffer = sw.command_buffer(),
-      });
 
       m_ib = &ib;
       release_init_lock();
 
       extent_loop(dq, sw, [&] {
-        sw.one_time_submit(dq, [&](auto &pcb) {
+        {
           // TODO: this is prone to "tearing" if dataset is larger
+          voo::cmd_buf_one_time_submit pcb{sw.command_buffer()};
+          atlas.setup_copy(*pcb);
           ib.setup_copy(*pcb);
 
           auto scb = sw.cmd_render_pass(pcb);
           ib.build_commands(*pcb);
           ps.run(*scb, ib);
-        });
+        }
+        sw.queue_submit(dq);
       });
 
       m_ib = nullptr;
