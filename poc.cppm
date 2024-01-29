@@ -23,31 +23,43 @@ static void build_atlas_image(voo::h2l_image &atlas) {
 }
 
 extern "C" float sinf(float);
-constexpr const auto max_batches = 100;
-class renderer : public voo::casein_thread {
-  quack::instance_batch *m_ib;
-  sith::memfn_thread<renderer> m_update_thread{this, &renderer::setup_batch};
+class updater : public voo::update_thread {
+  quack::instance_batch m_ib;
+  sitime::stopwatch time{};
 
-  void setup_batch(sith::thread *) {
-    sitime::stopwatch time{};
+  void build_cmd_buf(vee::command_buffer cb) override {
+    float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
+    m_ib.map_all([a](auto p) {
+      auto &[cs, ms, ps, us] = p;
+      ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
+      cs[1] = {0.25, 0, 0.1, a};
+      us[1] = {{0, 0}, {1, 1}};
+      ms[1] = {1, 1, 1, 1};
+    });
 
-    wait_init();
-    while (!interrupted()) {
-      if (!m_ib)
-        continue;
-
-      float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
-      m_ib->map_all([a](auto p) {
-        auto &[cs, ms, ps, us] = p;
-        ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
-        cs[1] = {0.25, 0, 0.1, a};
-        us[1] = {{0, 0}, {1, 1}};
-        ms[1] = {1, 1, 1, 1};
-      });
-    }
+    voo::cmd_buf_one_time_submit pcb{cb};
+    m_ib.setup_copy(cb);
   }
 
-  renderer() { m_update_thread.start(); }
+public:
+  explicit updater(voo::device_and_queue *dq, quack::pipeline_stuff &ps)
+      : update_thread{dq}, m_ib{ps.create_batch(2)} {
+    m_ib.map_positions([](auto *ps) { ps[0] = {{0, 0}, {1, 1}}; });
+    m_ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
+    m_ib.map_uvs([](auto *us) { us[0] = {}; });
+    m_ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
+    m_ib.center_at(0.5, 0.5);
+    m_ib.set_count(2);
+    m_ib.set_grid(1, 1);
+  }
+
+  [[nodiscard]] constexpr auto &batch() noexcept { return m_ib; }
+
+  using update_thread::run;
+};
+
+constexpr const auto max_batches = 100;
+class renderer : public voo::casein_thread {
 
 public:
   void run() override {
@@ -59,37 +71,27 @@ public:
       voo::swapchain_and_stuff sw{dq};
 
       quack::pipeline_stuff ps{dq, sw, max_batches};
-      auto ib = ps.create_batch(2);
+      updater u{&dq, ps};
 
-      ib.set_atlas(atlas.iv());
-      ib.map_positions([](auto *ps) { ps[0] = {{0, 0}, {1, 1}}; });
-      ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
-      ib.map_uvs([](auto *us) { us[0] = {}; });
-      ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
-      ib.center_at(0.5, 0.5);
-      ib.set_count(2);
-      ib.set_grid(1, 1);
+      sith::memfn_thread<updater> ut{&u, &updater::run};
+      ut.start();
 
       build_atlas_image(atlas);
-
-      m_ib = &ib;
-      release_init_lock();
+      u.batch().set_atlas(atlas.iv());
 
       extent_loop(dq, sw, [&] {
         {
-          // TODO: this is prone to "tearing" if dataset is larger
+          // TODO: this is prone to "tearing" if atlas is larger
           voo::cmd_buf_one_time_submit pcb{sw.command_buffer()};
           atlas.setup_copy(*pcb);
-          ib.setup_copy(*pcb);
 
           auto scb = sw.cmd_render_pass(pcb);
+          auto &ib = u.batch();
           ib.build_commands(*pcb);
           ps.run(*scb, ib);
         }
         sw.queue_submit(dq);
       });
-
-      m_ib = nullptr;
     }
   }
 
