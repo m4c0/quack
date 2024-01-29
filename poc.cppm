@@ -70,7 +70,7 @@ public:
 
   [[nodiscard]] constexpr auto &batch() noexcept { return m_ib; }
 
-  using update_thread::run;
+  using update_thread::start;
 };
 
 constexpr const auto max_batches = 100;
@@ -86,8 +86,7 @@ public:
       quack::pipeline_stuff ps{dq, sw, max_batches};
       updater u{&dq, ps};
 
-      sith::memfn_thread<updater> ut{&u, &updater::run};
-      ut.start();
+      auto ut = u.start();
 
       atlas a{&dq};
       a.run_once();
