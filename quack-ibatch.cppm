@@ -20,7 +20,6 @@ export class instance_batch {
 
   dotz::vec2 m_gp{};
   dotz::vec2 m_gs{1, 1};
-  unsigned m_count{};
 
   template <typename Tp>
   static auto create_buf(vee::physical_device pd, unsigned max_quads) {
@@ -35,7 +34,7 @@ public:
       : m_pl{pl}, m_pos{create_buf<rect>(pd, max_quads)},
         m_colour{create_buf<colour>(pd, max_quads)},
         m_mult{create_buf<colour>(pd, max_quads)},
-        m_uv{create_buf<uv>(pd, max_quads)}, m_count{max_quads} {}
+        m_uv{create_buf<uv>(pd, max_quads)} {}
 
   constexpr void set_grid(unsigned gw, unsigned gh) noexcept {
     m_gs = dotz::vec2{gw, gh};
@@ -51,8 +50,6 @@ public:
 
   constexpr void center_at(float gx, float gy) { m_gp = {gx, gy}; }
   constexpr auto center() const noexcept { return m_gp; }
-
-  constexpr void set_count(unsigned c) noexcept { m_count = c; }
 
   [[nodiscard]] auto mouse_pos() const noexcept {
     auto screen_scale = m_gs * 2.0f / extent_tracker::instance().screen_size();
@@ -97,8 +94,6 @@ public:
     fn(all);
   }
 
-  [[nodiscard]] constexpr const auto &count() const noexcept { return m_count; }
-
   void setup_copy(vee::command_buffer cb) const {
     m_colour.setup_copy(cb);
     m_mult.setup_copy(cb);
@@ -107,9 +102,6 @@ public:
   }
 
   void build_commands(vee::command_buffer cb) const {
-    if (m_count == 0)
-      return;
-
     upc pc{.grid_pos = m_gp, .grid_size = grid_size()};
 
     vee::cmd_push_vert_frag_constants(cb, m_pl, &pc);

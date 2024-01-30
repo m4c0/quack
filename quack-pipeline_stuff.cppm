@@ -75,14 +75,9 @@ public:
     return quack::instance_batch{m_pd, *pl, max_insts};
   }
 
-  void run(vee::command_buffer cb, const instance_batch &ib) const {
-    auto n = ib.count();
-    if (n == 0)
-      return;
-
-    ib.build_commands(cb);
+  void run(vee::command_buffer cb, unsigned count) const {
     vee::cmd_bind_gr_pipeline(cb, *m_gp);
-    m_quad.run(cb, 0, n);
+    m_quad.run(cb, 0, count);
   }
 };
 } // namespace quack

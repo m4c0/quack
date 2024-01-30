@@ -64,7 +64,6 @@ public:
     m_ib.map_uvs([](auto *us) { us[0] = {}; });
     m_ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
     m_ib.center_at(0.5, 0.5);
-    m_ib.set_count(2);
     m_ib.set_grid(1, 1);
   }
 
@@ -101,7 +100,7 @@ public:
           auto &ib = u.batch();
           ib.build_commands(*pcb);
           ps.cmd_bind_descriptor_set(*scb, dset);
-          ps.run(*scb, ib);
+          ps.run(*scb, 2);
         }
         sw.queue_submit(dq);
       });
