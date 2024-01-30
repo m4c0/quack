@@ -91,7 +91,9 @@ public:
       atlas a{&dq};
       a.run_once();
 
-      u.batch().set_atlas(a.iv());
+      auto smp = vee::create_sampler(vee::nearest_sampler);
+      auto dset = ps.allocate_descriptor_set();
+      vee::update_descriptor_set(dset, 0, a.iv(), *smp);
 
       extent_loop(dq, sw, [&] {
         {
@@ -99,6 +101,7 @@ public:
           auto scb = sw.cmd_render_pass(pcb);
           auto &ib = u.batch();
           ib.build_commands(*pcb);
+          ps.cmd_bind_descriptor_set(*scb, dset);
           ps.run(*scb, ib);
         }
         sw.queue_submit(dq);

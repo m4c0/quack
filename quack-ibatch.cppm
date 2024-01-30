@@ -12,8 +12,6 @@ import voo;
 namespace quack {
 export class instance_batch {
   vee::pipeline_layout::type m_pl;
-  vee::descriptor_set m_desc_set;
-  vee::sampler m_smp;
 
   voo::h2l_buffer m_pos;
   voo::h2l_buffer m_colour;
@@ -23,7 +21,6 @@ export class instance_batch {
   dotz::vec2 m_gp{};
   dotz::vec2 m_gs{1, 1};
   unsigned m_count{};
-  bool m_dset_loaded{};
 
   template <typename Tp>
   static auto create_buf(vee::physical_device pd, unsigned max_quads) {
@@ -35,9 +32,7 @@ public:
   instance_batch() = default;
   instance_batch(vee::physical_device pd, vee::pipeline_layout::type pl,
                  vee::descriptor_set ds, unsigned max_quads)
-      : m_pl{pl}, m_desc_set{ds},
-        m_smp{vee::create_sampler(vee::nearest_sampler)},
-        m_pos{create_buf<rect>(pd, max_quads)},
+      : m_pl{pl}, m_pos{create_buf<rect>(pd, max_quads)},
         m_colour{create_buf<colour>(pd, max_quads)},
         m_mult{create_buf<colour>(pd, max_quads)},
         m_uv{create_buf<uv>(pd, max_quads)}, m_count{max_quads} {}
@@ -104,10 +99,6 @@ public:
 
   [[nodiscard]] constexpr const auto &count() const noexcept { return m_count; }
 
-  void set_atlas(const vee::image_view::type iv) {
-    vee::update_descriptor_set(m_desc_set, 0, iv, *m_smp);
-    m_dset_loaded = true;
-  }
   void setup_copy(vee::command_buffer cb) const {
     m_colour.setup_copy(cb);
     m_mult.setup_copy(cb);
@@ -126,8 +117,6 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 2, m_colour.local_buffer());
     vee::cmd_bind_vertex_buffers(cb, 3, m_uv.local_buffer());
     vee::cmd_bind_vertex_buffers(cb, 4, m_mult.local_buffer());
-    if (m_dset_loaded)
-      vee::cmd_bind_descriptor_set(cb, m_pl, 0, m_desc_set);
   }
 };
 } // namespace quack

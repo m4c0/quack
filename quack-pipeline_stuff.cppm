@@ -57,6 +57,13 @@ public:
     });
   }
 
+  [[nodiscard]] auto allocate_descriptor_set() {
+    return vee::allocate_descriptor_set(*desc_pool, *dsl);
+  }
+  void cmd_bind_descriptor_set(vee::command_buffer cb, vee::descriptor_set ds) {
+    vee::cmd_bind_descriptor_set(cb, *pl, 0, ds);
+  }
+
   [[nodiscard]] auto create_batch(unsigned max_insts) {
     auto ds = vee::allocate_descriptor_set(*desc_pool, *dsl);
     return quack::instance_batch{m_pd, *pl, ds, max_insts};
