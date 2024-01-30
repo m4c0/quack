@@ -111,14 +111,9 @@ public:
       });
     }
   }
-
-  static auto &instance() {
-    static renderer r{};
-    return r;
-  }
 };
 
 extern "C" void casein_handle(const casein::event &e) {
-  renderer::instance().handle(e);
-  quack::mouse_tracker::instance().handle(e);
+  static renderer r{};
+  r.handle(e);
 }
