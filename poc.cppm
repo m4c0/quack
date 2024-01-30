@@ -92,8 +92,7 @@ public:
       a.run_once();
 
       auto smp = vee::create_sampler(vee::nearest_sampler);
-      auto dset = ps.allocate_descriptor_set();
-      vee::update_descriptor_set(dset, 0, a.iv(), *smp);
+      auto dset = ps.allocate_descriptor_set(a.iv(), *smp);
 
       extent_loop(dq, sw, [&] {
         {

@@ -60,6 +60,13 @@ public:
   [[nodiscard]] auto allocate_descriptor_set() {
     return vee::allocate_descriptor_set(*desc_pool, *dsl);
   }
+  [[nodiscard]] auto allocate_descriptor_set(vee::image_view::type iv,
+                                             vee::sampler::type smp) {
+    auto dset = allocate_descriptor_set();
+    vee::update_descriptor_set(dset, 0, iv, smp);
+    return dset;
+  }
+
   void cmd_bind_descriptor_set(vee::command_buffer cb, vee::descriptor_set ds) {
     vee::cmd_bind_descriptor_set(cb, *pl, 0, ds);
   }
