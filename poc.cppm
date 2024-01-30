@@ -63,8 +63,6 @@ public:
     m_ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
     m_ib.map_uvs([](auto *us) { us[0] = {}; });
     m_ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
-    m_ib.center_at(0.5, 0.5);
-    m_ib.set_grid(1, 1);
   }
 
   [[nodiscard]] constexpr auto &batch() noexcept { return m_ib; }
@@ -93,13 +91,20 @@ public:
       auto smp = vee::create_sampler(vee::nearest_sampler);
       auto dset = ps.allocate_descriptor_set(a.iv(), *smp);
 
+      quack::upc rpc{
+          .grid_pos = {0.5f, 0.5f},
+          .grid_size = {1.0f, 1.0f},
+      };
+
       extent_loop(dq, sw, [&] {
+        auto upc = quack::adjust_aspect(rpc, sw.aspect());
         {
           voo::cmd_buf_one_time_submit pcb{sw.command_buffer()};
           auto scb = sw.cmd_render_pass(pcb);
           auto &ib = u.batch();
           ib.build_commands(*pcb);
           ps.cmd_bind_descriptor_set(*scb, dset);
+          ps.cmd_push_vert_frag_constants(*scb, upc);
           ps.run(*scb, 2);
         }
         sw.queue_submit(dq);

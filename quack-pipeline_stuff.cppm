@@ -71,6 +71,9 @@ public:
   void cmd_bind_descriptor_set(vee::command_buffer cb, vee::descriptor_set ds) {
     vee::cmd_bind_descriptor_set(cb, *pl, 0, ds);
   }
+  void cmd_push_vert_frag_constants(vee::command_buffer cb, const upc &pc) {
+    vee::cmd_push_vert_frag_constants(cb, *pl, &pc);
+  }
 
   [[nodiscard]] auto create_batch(unsigned max_insts) {
     return quack::instance_batch{m_pd, *pl, max_insts};
