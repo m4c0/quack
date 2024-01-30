@@ -35,9 +35,4 @@ export struct u8_rgba {
   unsigned char b;
   unsigned char a;
 };
-
-struct upc {
-  dotz::vec2 grid_pos{};
-  dotz::vec2 grid_size{};
-};
 } // namespace quack
