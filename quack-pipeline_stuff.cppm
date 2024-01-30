@@ -72,8 +72,7 @@ public:
   }
 
   [[nodiscard]] auto create_batch(unsigned max_insts) {
-    auto ds = vee::allocate_descriptor_set(*desc_pool, *dsl);
-    return quack::instance_batch{m_pd, *pl, ds, max_insts};
+    return quack::instance_batch{m_pd, *pl, max_insts};
   }
 
   void run(vee::command_buffer cb, const instance_batch &ib) const {

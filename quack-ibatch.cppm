@@ -31,7 +31,7 @@ export class instance_batch {
 public:
   instance_batch() = default;
   instance_batch(vee::physical_device pd, vee::pipeline_layout::type pl,
-                 vee::descriptor_set ds, unsigned max_quads)
+                 unsigned max_quads)
       : m_pl{pl}, m_pos{create_buf<rect>(pd, max_quads)},
         m_colour{create_buf<colour>(pd, max_quads)},
         m_mult{create_buf<colour>(pd, max_quads)},
