@@ -98,16 +98,14 @@ public:
 
       extent_loop(dq, sw, [&] {
         auto upc = quack::adjust_aspect(rpc, sw.aspect());
-        {
-          voo::cmd_buf_one_time_submit pcb{sw.command_buffer()};
+        sw.queue_one_time_submit(dq, [&](auto pcb) {
           auto scb = sw.cmd_render_pass(pcb);
           auto &ib = u.batch();
           ib.build_commands(*pcb);
           ps.cmd_bind_descriptor_set(*scb, dset);
           ps.cmd_push_vert_frag_constants(*scb, upc);
           ps.run(*scb, 2);
-        }
-        sw.queue_submit(dq);
+        });
       });
     }
   }
