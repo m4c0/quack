@@ -64,10 +64,12 @@ public:
     m_ib.map_uvs([](auto *us) { us[0] = {}; });
     m_ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
   }
+  // We need to stop the thread before our resources are destructed
+  virtual ~updater() { stop(); }
 
   [[nodiscard]] constexpr auto &batch() noexcept { return m_ib; }
 
-  using update_thread::start;
+  using update_thread::run;
 };
 
 constexpr const auto max_batches = 100;
@@ -77,13 +79,13 @@ public:
   void run() override {
     voo::device_and_queue dq{"quack", native_ptr()};
 
+    quack::pipeline_stuff ps{dq, max_batches};
+    updater u{&dq, ps};
+
     while (!interrupted()) {
       voo::swapchain_and_stuff sw{dq};
 
-      quack::pipeline_stuff ps{dq, sw, max_batches};
-      updater u{&dq, ps};
-
-      auto ut = u.start();
+      u.start();
 
       atlas a{&dq};
       a.run_once();
