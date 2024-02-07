@@ -80,9 +80,9 @@ public:
     return quack::instance_batch{m_pd, *pl, max_insts};
   }
 
-  void run(vee::command_buffer cb, unsigned count) const {
+  void run(vee::command_buffer cb, unsigned count, unsigned first = 0) const {
     vee::cmd_bind_gr_pipeline(cb, *m_gp);
-    m_quad.run(cb, 0, count);
+    m_quad.run(cb, 0, count, first);
   }
 };
 } // namespace quack
