@@ -19,7 +19,8 @@ class atlas : public voo::update_thread {
 
 public:
   atlas(voo::device_and_queue *dq)
-      : update_thread{dq}, m_img{dq->physical_device(), 16, 32} {
+      : update_thread{dq->queue()}
+      , m_img{dq->physical_device(), 16, 32} {
     voo::mapmem m{m_img.host_memory()};
     auto *img = static_cast<quack::u8_rgba *>(*m);
     for (auto i = 0; i < 16 * 16; i++) {
@@ -58,14 +59,13 @@ class updater : public voo::update_thread {
 
 public:
   explicit updater(voo::device_and_queue *dq, quack::pipeline_stuff &ps)
-      : update_thread{dq}, m_ib{ps.create_batch(2)} {
+      : update_thread{dq->queue()}
+      , m_ib{ps.create_batch(2)} {
     m_ib.map_positions([](auto *ps) { ps[0] = {{0, 0}, {1, 1}}; });
     m_ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
     m_ib.map_uvs([](auto *us) { us[0] = {}; });
     m_ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
   }
-  // We need to stop the thread before our resources are destructed
-  virtual ~updater() { stop(); }
 
   [[nodiscard]] constexpr auto &batch() noexcept { return m_ib; }
 
@@ -84,8 +84,7 @@ public:
 
     while (!interrupted()) {
       voo::swapchain_and_stuff sw{dq};
-
-      u.start();
+      sith::run_guard ru{&u};
 
       atlas a{&dq};
       a.run_once();
@@ -98,10 +97,12 @@ public:
           .grid_size = {1.0f, 1.0f},
       };
 
-      extent_loop(dq, sw, [&] {
+      extent_loop(dq.queue(), sw, [&] {
         auto upc = quack::adjust_aspect(rpc, sw.aspect());
-        sw.queue_one_time_submit(dq, [&](auto pcb) {
+        sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
           auto scb = sw.cmd_render_pass(pcb);
+          vee::cmd_set_viewport(*scb, sw.extent());
+          vee::cmd_set_scissor(*scb, sw.extent());
           auto &ib = u.batch();
           ib.build_commands(*pcb);
           ps.cmd_bind_descriptor_set(*scb, dset);
