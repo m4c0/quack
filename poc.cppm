@@ -35,7 +35,7 @@ extern "C" float sinf(float);
 class updater : public quack::instance_batch_thread {
   sitime::stopwatch time{};
 
-  void map_all(all p) override {
+  void update_data(all p) override {
     float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
     auto &[cs, ms, ps, us] = p;
     ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
@@ -47,7 +47,7 @@ class updater : public quack::instance_batch_thread {
 public:
   updater(voo::device_and_queue *dq, quack::pipeline_stuff &ps)
       : instance_batch_thread{dq->queue(), ps.create_batch(2)} {
-    auto &ib = batch();
+    auto &ib = data();
     ib.map_positions([](auto *ps) { ps[0] = {{0, 0}, {1, 1}}; });
     ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
     ib.map_uvs([](auto *us) { us[0] = {}; });
@@ -84,8 +84,7 @@ public:
           auto scb = sw.cmd_render_pass(pcb);
           vee::cmd_set_viewport(*scb, sw.extent());
           vee::cmd_set_scissor(*scb, sw.extent());
-          auto &ib = u.batch();
-          ib.build_commands(*pcb);
+          u.data().build_commands(*pcb);
           ps.cmd_bind_descriptor_set(*scb, dset);
           ps.cmd_push_vert_frag_constants(*scb, upc);
           ps.run(*scb, 2);

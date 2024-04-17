@@ -83,31 +83,20 @@ public:
   }
 };
 
-export class instance_batch_thread : public voo::update_thread {
-  instance_batch m_ib;
-
+export class instance_batch_thread
+    : public voo::updater_thread<instance_batch> {
 protected:
   using all = instance_batch::all_mapped_buffers;
 
   instance_batch_thread(voo::queue *q, instance_batch ib)
-      : update_thread{q}
-      , m_ib{traits::move(ib)} {}
+      : updater_thread{q, traits::move(ib)} {}
 
-  void build_cmd_buf(vee::command_buffer cb) override {
-    map_data(&m_ib);
-
-    voo::cmd_buf_one_time_submit pcb{cb};
-    m_ib.setup_copy(cb);
-  }
-
-  virtual void map_all(all) {}
-  virtual void map_data(instance_batch *ib) {
-    ib->map_all([this](auto a) { map_all(a); });
+  virtual void update_data(all) {}
+  virtual void update_data(instance_batch *ib) override {
+    ib->map_all([this](auto a) { update_data(a); });
   }
 
 public:
-  [[nodiscard]] constexpr auto &batch() noexcept { return m_ib; }
-
   using update_thread::run_once;
 };
 } // namespace quack
