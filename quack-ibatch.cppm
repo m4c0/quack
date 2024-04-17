@@ -81,4 +81,25 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 4, m_mult.local_buffer());
   }
 };
+
+export class instance_batch_thread : public voo::update_thread {
+  instance_batch m_ib;
+
+protected:
+  instance_batch_thread(voo::queue *q, instance_batch ib)
+      : update_thread{q}
+      , m_ib{traits::move(ib)} {}
+
+  void build_cmd_buf(vee::command_buffer cb) override {
+    map_data(&m_ib);
+
+    voo::cmd_buf_one_time_submit pcb{cb};
+    m_ib.setup_copy(cb);
+  }
+
+  virtual void map_data(instance_batch *ib) = 0;
+
+public:
+  [[nodiscard]] constexpr auto &batch() noexcept { return m_ib; }
+};
 } // namespace quack

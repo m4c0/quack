@@ -39,42 +39,33 @@ public:
 };
 
 extern "C" float sinf(float);
-class updater : public voo::update_thread {
-  quack::instance_batch m_ib;
+class updater : public quack::instance_batch_thread {
   sitime::stopwatch time{};
 
-  void build_cmd_buf(vee::command_buffer cb) override {
+  void map_data(quack::instance_batch *ib) override {
     float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
-    m_ib.map_all([a](auto p) {
+    ib->map_all([a](auto p) {
       auto &[cs, ms, ps, us] = p;
       ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
       cs[1] = {0.25, 0, 0.1, a};
       us[1] = {{0, 0}, {1, 1}};
       ms[1] = {1, 1, 1, 1};
     });
-
-    voo::cmd_buf_one_time_submit pcb{cb};
-    m_ib.setup_copy(cb);
   }
 
 public:
-  explicit updater(voo::device_and_queue *dq, quack::pipeline_stuff &ps)
-      : update_thread{dq->queue()}
-      , m_ib{ps.create_batch(2)} {
-    m_ib.map_positions([](auto *ps) { ps[0] = {{0, 0}, {1, 1}}; });
-    m_ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
-    m_ib.map_uvs([](auto *us) { us[0] = {}; });
-    m_ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
+  updater(voo::device_and_queue *dq, quack::pipeline_stuff &ps)
+      : instance_batch_thread{dq->queue(), ps.create_batch(2)} {
+    auto &ib = batch();
+    ib.map_positions([](auto *ps) { ps[0] = {{0, 0}, {1, 1}}; });
+    ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
+    ib.map_uvs([](auto *us) { us[0] = {}; });
+    ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
   }
-
-  [[nodiscard]] constexpr auto &batch() noexcept { return m_ib; }
-
-  using update_thread::run;
 };
 
 constexpr const auto max_batches = 100;
 class renderer : public voo::casein_thread {
-
 public:
   void run() override {
     voo::device_and_queue dq{"quack", native_ptr()};
