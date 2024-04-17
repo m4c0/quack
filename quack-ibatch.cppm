@@ -31,15 +31,6 @@ public:
         m_mult{create_buf<colour>(pd, max_quads)},
         m_uv{create_buf<uv>(pd, max_quads)} {}
 
-  /*
-  [[nodiscard]] auto mouse_pos() const noexcept {
-    auto screen_scale = m_gs * 2.0f / extent_tracker::instance().screen_size();
-    auto screen_disp = m_gs - m_gp;
-    auto mouse_pos = mouse_tracker::instance().mouse_pos();
-    return mouse_pos * screen_scale / screen_disp;
-  }
-  */
-
   void map_colours(auto &&fn) noexcept {
     voo::mapmem m{m_colour.host_memory()};
     fn(static_cast<colour *>(*m));
