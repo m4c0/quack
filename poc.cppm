@@ -9,27 +9,18 @@ import sitime;
 import vee;
 import voo;
 
-class atlas : public voo::updater_thread<voo::h2l_image> {
-  void update_data(voo::h2l_image *i) override {
-    voo::mapmem m{i->host_memory()};
-    auto *img = static_cast<quack::u8_rgba *>(*m);
-    for (auto i = 0; i < 16 * 16; i++) {
-      auto x = (i / 16) % 2;
-      auto y = (i % 16) % 2;
-      unsigned char b = (x ^ y) == 0 ? 255 : 0;
+static void gen_atlas(voo::h2l_image *i) {
+  voo::mapmem m{i->host_memory()};
+  auto *img = static_cast<quack::u8_rgba *>(*m);
+  for (auto i = 0; i < 16 * 16; i++) {
+    auto x = (i / 16) % 2;
+    auto y = (i % 16) % 2;
+    unsigned char b = (x ^ y) == 0 ? 255 : 0;
 
-      img[i] = {255, 255, 255, 0};
-      img[i + 256] = {b, b, b, 128};
-    }
+    img[i] = {255, 255, 255, 0};
+    img[i + 256] = {b, b, b, 128};
   }
-
-public:
-  atlas(voo::device_and_queue *dq)
-      : updater_thread{dq->queue(),
-                       voo::h2l_image{dq->physical_device(), 16, 32}} {
-    run_once();
-  }
-};
+}
 
 extern "C" float sinf(float);
 class updater : public quack::instance_batch_thread {
@@ -68,7 +59,9 @@ public:
       voo::swapchain_and_stuff sw{dq};
       sith::run_guard ru{&u};
 
-      atlas a{&dq};
+      auto a = voo::updater_thread{dq.queue(), &gen_atlas, dq.physical_device(),
+                                   16U, 32U};
+      a.run_once();
 
       auto smp = vee::create_sampler(vee::nearest_sampler);
       auto dset = ps.allocate_descriptor_set(a.data().iv(), *smp);
