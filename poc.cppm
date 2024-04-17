@@ -9,19 +9,9 @@ import sitime;
 import vee;
 import voo;
 
-class atlas : public voo::update_thread {
-  voo::h2l_image m_img;
-
-  void build_cmd_buf(vee::command_buffer cb) override {
-    voo::cmd_buf_one_time_submit pcb{cb};
-    m_img.setup_copy(cb);
-  }
-
-public:
-  atlas(voo::device_and_queue *dq)
-      : update_thread{dq->queue()}
-      , m_img{dq->physical_device(), 16, 32} {
-    voo::mapmem m{m_img.host_memory()};
+class atlas : public voo::updater_thread<voo::h2l_image> {
+  void update_data(voo::h2l_image *i) override {
+    voo::mapmem m{i->host_memory()};
     auto *img = static_cast<quack::u8_rgba *>(*m);
     for (auto i = 0; i < 16 * 16; i++) {
       auto x = (i / 16) % 2;
@@ -33,9 +23,12 @@ public:
     }
   }
 
-  [[nodiscard]] constexpr auto iv() const noexcept { return m_img.iv(); }
-
-  using update_thread::run_once;
+public:
+  atlas(voo::device_and_queue *dq)
+      : updater_thread{dq->queue(),
+                       voo::h2l_image{dq->physical_device(), 16, 32}} {
+    run_once();
+  }
 };
 
 extern "C" float sinf(float);
@@ -76,10 +69,9 @@ public:
       sith::run_guard ru{&u};
 
       atlas a{&dq};
-      a.run_once();
 
       auto smp = vee::create_sampler(vee::nearest_sampler);
-      auto dset = ps.allocate_descriptor_set(a.iv(), *smp);
+      auto dset = ps.allocate_descriptor_set(a.data().iv(), *smp);
 
       quack::upc rpc{
           .grid_pos = {0.5f, 0.5f},
