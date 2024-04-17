@@ -107,5 +107,7 @@ protected:
 
 public:
   [[nodiscard]] constexpr auto &batch() noexcept { return m_ib; }
+
+  using update_thread::run_once;
 };
 } // namespace quack
