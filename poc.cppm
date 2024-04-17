@@ -26,7 +26,7 @@ extern "C" float sinf(float);
 class updater : public quack::instance_batch_thread {
   sitime::stopwatch time{};
 
-  void update_data(all p) override {
+  void update_data(quack::mapped_buffers p) override {
     float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
     auto &[cs, ms, ps, us] = p;
     ps[1] = {{0.25, 0.25}, {0.5, 0.5}};

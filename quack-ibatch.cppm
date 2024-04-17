@@ -10,6 +10,13 @@ import vee;
 import voo;
 
 namespace quack {
+export struct mapped_buffers {
+  colour *colours;
+  colour *multipliers;
+  rect *positions;
+  uv *uvs;
+};
+
 export class instance_batch {
   voo::h2l_buffer m_pos;
   voo::h2l_buffer m_colour;
@@ -23,13 +30,6 @@ export class instance_batch {
   }
 
 public:
-  struct all_mapped_buffers {
-    colour *colours;
-    colour *multipliers;
-    rect *positions;
-    uv *uvs;
-  };
-
   instance_batch() = default;
   instance_batch(vee::physical_device pd, vee::pipeline_layout::type pl,
                  unsigned max_quads)
@@ -55,7 +55,7 @@ public:
     fn(static_cast<uv *>(*m));
   }
   void map_all(auto &&fn) noexcept {
-    all_mapped_buffers all{};
+    mapped_buffers all{};
     voo::mapmem c{m_colour.host_memory()};
     voo::mapmem m{m_mult.host_memory()};
     voo::mapmem p{m_pos.host_memory()};
@@ -85,18 +85,22 @@ public:
 
 export class instance_batch_thread
     : public voo::updater_thread<instance_batch> {
+  void (*m_fn)(mapped_buffers){};
+
 protected:
-  using all = instance_batch::all_mapped_buffers;
-
-  instance_batch_thread(voo::queue *q, instance_batch ib)
-      : updater_thread{q, traits::move(ib)} {}
-
-  virtual void update_data(all) {}
+  virtual void update_data(mapped_buffers a) { m_fn(a); }
   virtual void update_data(instance_batch *ib) override {
     ib->map_all([this](auto a) { update_data(a); });
   }
 
 public:
+  instance_batch_thread(voo::queue *q, instance_batch ib)
+      : updater_thread{q, traits::move(ib)} {}
+  instance_batch_thread(voo::queue *q, instance_batch ib,
+                        void (*fn)(mapped_buffers))
+      : updater_thread{q, traits::move(ib)}
+      , m_fn{fn} {}
+
   using update_thread::run_once;
 };
 } // namespace quack
