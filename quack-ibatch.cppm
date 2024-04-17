@@ -23,6 +23,13 @@ export class instance_batch {
   }
 
 public:
+  struct all_mapped_buffers {
+    colour *colours;
+    colour *multipliers;
+    rect *positions;
+    uv *uvs;
+  };
+
   instance_batch() = default;
   instance_batch(vee::physical_device pd, vee::pipeline_layout::type pl,
                  unsigned max_quads)
@@ -48,13 +55,7 @@ public:
     fn(static_cast<uv *>(*m));
   }
   void map_all(auto &&fn) noexcept {
-    struct {
-      colour *colours;
-      colour *multipliers;
-      rect *positions;
-      uv *uvs;
-    } all;
-
+    all_mapped_buffers all{};
     voo::mapmem c{m_colour.host_memory()};
     voo::mapmem m{m_mult.host_memory()};
     voo::mapmem p{m_pos.host_memory()};
@@ -86,6 +87,8 @@ export class instance_batch_thread : public voo::update_thread {
   instance_batch m_ib;
 
 protected:
+  using all = instance_batch::all_mapped_buffers;
+
   instance_batch_thread(voo::queue *q, instance_batch ib)
       : update_thread{q}
       , m_ib{traits::move(ib)} {}
@@ -97,7 +100,10 @@ protected:
     m_ib.setup_copy(cb);
   }
 
-  virtual void map_data(instance_batch *ib) = 0;
+  virtual void map_all(all) {}
+  virtual void map_data(instance_batch *ib) {
+    ib->map_all([this](auto a) { map_all(a); });
+  }
 
 public:
   [[nodiscard]] constexpr auto &batch() noexcept { return m_ib; }

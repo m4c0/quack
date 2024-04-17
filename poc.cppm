@@ -42,15 +42,13 @@ extern "C" float sinf(float);
 class updater : public quack::instance_batch_thread {
   sitime::stopwatch time{};
 
-  void map_data(quack::instance_batch *ib) override {
+  void map_all(all p) override {
     float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
-    ib->map_all([a](auto p) {
-      auto &[cs, ms, ps, us] = p;
-      ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
-      cs[1] = {0.25, 0, 0.1, a};
-      us[1] = {{0, 0}, {1, 1}};
-      ms[1] = {1, 1, 1, 1};
-    });
+    auto &[cs, ms, ps, us] = p;
+    ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
+    cs[1] = {0.25, 0, 0.1, a};
+    us[1] = {{0, 0}, {1, 1}};
+    ms[1] = {1, 1, 1, 1};
   }
 
 public:
