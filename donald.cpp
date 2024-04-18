@@ -13,12 +13,15 @@ void quack::donald::run() {
 
   auto atlas = create_atlas(&dq);
   atlas->run_once();
+  m_atlas = &*atlas;
 
   donald_ibt ib{dq.queue(), ps, max_quads(), this};
+  m_batch = &ib;
+
+  release_init_lock();
 
   while (!interrupted()) {
     voo::swapchain_and_stuff sw{dq};
-    sith::run_guard ibr{&ib};
 
     auto smp = create_sampler();
     auto dset = ps.allocate_descriptor_set(atlas->data().iv(), *smp);

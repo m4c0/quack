@@ -10,6 +10,8 @@ namespace quack {
 /// Single-batch single-atlas render thread
 export class donald : public voo::casein_thread {
   friend class donald_ibt;
+  voo::updater<voo::h2l_image> *m_atlas;
+  instance_batch_thread *m_batch;
 
 protected:
   using atlas = hai::uptr<voo::updater<voo::h2l_image>>;
@@ -28,6 +30,15 @@ protected:
 
 public:
   void run() override;
+
+  void refresh_atlas() {
+    wait_init();
+    m_atlas->run_once();
+  }
+  void refresh_batch() {
+    wait_init();
+    m_batch->run_once();
+  }
 };
 
 class donald_ibt : public instance_batch_thread {
