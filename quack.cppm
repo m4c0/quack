@@ -1,4 +1,5 @@
 export module quack;
+import :donald;
 export import :extent;
 export import :ibatch;
 export import :mouse;
