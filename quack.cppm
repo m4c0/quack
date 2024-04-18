@@ -1,5 +1,5 @@
 export module quack;
-import :donald;
+export import :donald;
 export import :extent;
 export import :ibatch;
 export import :mouse;
@@ -9,3 +9,4 @@ export import :upc;
 
 #pragma leco add_shader "quack.frag"
 #pragma leco add_shader "quack.vert"
+#pragma leco add_impl donald
