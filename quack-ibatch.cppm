@@ -1,6 +1,4 @@
 export module quack:ibatch;
-import :extent;
-import :mouse;
 import :objects;
 import dotz;
 import jute;

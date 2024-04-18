@@ -1,8 +1,6 @@
 export module quack;
 export import :donald;
-export import :extent;
 export import :ibatch;
-export import :mouse;
 export import :objects;
 export import :pipeline_stuff;
 export import :upc;
