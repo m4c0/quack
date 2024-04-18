@@ -59,8 +59,8 @@ public:
       voo::swapchain_and_stuff sw{dq};
       sith::run_guard ru{&u};
 
-      auto a = voo::updater_thread{dq.queue(), &gen_atlas, dq.physical_device(),
-                                   16U, 32U};
+      auto a =
+          voo::updater{dq.queue(), &gen_atlas, dq.physical_device(), 16U, 32U};
       a.run_once();
 
       auto smp = vee::create_sampler(vee::nearest_sampler);

@@ -83,8 +83,7 @@ public:
   }
 };
 
-export class instance_batch_thread
-    : public voo::updater_thread<instance_batch> {
+export class instance_batch_thread : public voo::updater<instance_batch> {
   void (*m_fn)(mapped_buffers){};
 
 protected:
@@ -95,10 +94,10 @@ protected:
 
 public:
   instance_batch_thread(voo::queue *q, instance_batch ib)
-      : updater_thread{q, traits::move(ib)} {}
+      : updater{q, traits::move(ib)} {}
   instance_batch_thread(voo::queue *q, instance_batch ib,
                         void (*fn)(mapped_buffers))
-      : updater_thread{q, traits::move(ib)}
+      : updater{q, traits::move(ib)}
       , m_fn{fn} {}
 
   using update_thread::run_once;
