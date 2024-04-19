@@ -8,7 +8,7 @@ import vee;
 import voo;
 
 void quack::donald::run() {
-  voo::device_and_queue dq{app_name(), native_ptr()};
+  voo::device_and_queue dq{app_name()};
   pipeline_stuff ps{dq, 1};
 
   auto atlas = create_atlas(&dq);
