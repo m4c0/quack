@@ -16,6 +16,7 @@ void quack::donald::run() {
   m_atlas = &*atlas;
 
   donald_ibt ib{dq.queue(), ps, max_quads(), this};
+  ib.run_once();
   m_batch = &ib;
 
   release_init_lock();
