@@ -33,5 +33,3 @@ struct : public quack::donald {
     return atlas{new voo::sires_image{"nasa-jupiter.png", dq}};
   }
 } d;
-
-extern "C" void casein_handle(const casein::event &e) { d.handle(e); }

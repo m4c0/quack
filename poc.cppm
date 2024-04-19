@@ -47,10 +47,10 @@ public:
 };
 
 constexpr const auto max_batches = 100;
-class renderer : public voo::casein_thread {
+static class renderer : public voo::casein_thread {
 public:
   void run() override {
-    voo::device_and_queue dq{"quack", native_ptr()};
+    voo::device_and_queue dq{"quack"};
 
     quack::pipeline_stuff ps{dq, max_batches};
     updater u{&dq, ps};
@@ -85,9 +85,4 @@ public:
       });
     }
   }
-};
-
-extern "C" void casein_handle(const casein::event &e) {
-  static renderer r{};
-  r.handle(e);
-}
+} r;
