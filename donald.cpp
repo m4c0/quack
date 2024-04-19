@@ -19,13 +19,13 @@ void quack::donald::run() {
   ib.run_once();
   m_batch = &ib;
 
+  auto smp = create_sampler();
+  auto dset = ps.allocate_descriptor_set(atlas->data().iv(), *smp);
+
   release_init_lock();
 
   while (!interrupted()) {
     voo::swapchain_and_stuff sw{dq};
-
-    auto smp = create_sampler();
-    auto dset = ps.allocate_descriptor_set(atlas->data().iv(), *smp);
 
     extent_loop(dq.queue(), sw, [&] {
       auto upc = quack::adjust_aspect(push_constants(), sw.aspect());
