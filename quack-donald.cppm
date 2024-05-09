@@ -6,38 +6,16 @@ import hai;
 import vee;
 import voo;
 
-namespace quack {
 /// Single-batch single-atlas render thread
-export class donald : public voo::casein_thread {
-  friend class donald_ibt;
-  voo::updater<voo::h2l_image> *m_atlas;
-  instance_batch_thread *m_batch;
+export namespace quack::donald {
+using atlas_t = voo::updater<voo::h2l_image>;
+using atlas_fn = atlas_t *(*)(voo::device_and_queue *);
+using data_fn = unsigned (*)(mapped_buffers);
 
-protected:
-  using atlas = hai::uptr<voo::updater<voo::h2l_image>>;
+void app_name(const char *);
+void max_quads(unsigned);
 
-  virtual const char *app_name() const noexcept = 0;
-  virtual unsigned max_quads() const noexcept = 0;
-  virtual void update_data(mapped_buffers p) = 0;
-  virtual quack::upc push_constants() const noexcept = 0;
-
-  virtual atlas create_atlas(voo::device_and_queue *) = 0;
-
-  virtual unsigned quad_count() const noexcept { return max_quads(); }
-  virtual vee::sampler create_sampler() {
-    return vee::create_sampler(vee::nearest_sampler);
-  }
-
-public:
-  void run() override;
-
-  void refresh_atlas() {
-    wait_init();
-    m_atlas->run_once();
-  }
-  void refresh_batch() {
-    wait_init();
-    m_batch->run_once();
-  }
-};
-} // namespace quack
+void push_constants(quack::upc);
+void atlas(atlas_fn);
+void data(data_fn);
+} // namespace quack::donald

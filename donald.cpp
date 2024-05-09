@@ -7,32 +7,54 @@ import sith;
 import vee;
 import voo;
 
-namespace quack {
-class donald_ibt : public instance_batch_thread {
-  donald *m_d;
+static const char *g_app_name = "app";
+static unsigned g_max_quads = 0;
+static quack::upc g_upc{};
+static quack::donald::atlas_fn g_atlas{};
+static quack::donald::data_fn g_data{};
 
-  void update_data(mapped_buffers p) override { m_d->update_data(p); }
+// TODO: sync count change with data change
+static unsigned g_quads = 0;
+
+static void update(quack::mapped_buffers all) { g_quads = g_data(all); }
+
+namespace {
+class thread : public voo::casein_thread {
+  friend class ibt;
+  quack::donald::atlas_t *m_atlas;
+  quack::instance_batch_thread *m_batch;
+
+protected:
+  using atlas = hai::uptr<voo::updater<voo::h2l_image>>;
 
 public:
-  donald_ibt(voo::queue *q, pipeline_stuff &ps, unsigned max_quads, donald *d)
-      : instance_batch_thread{q, ps.create_batch(max_quads)}
-      , m_d{d} {}
+  void run() override;
+
+  void refresh_atlas() {
+    wait_init();
+    m_atlas->run_once();
+  }
+  void refresh_batch() {
+    wait_init();
+    m_batch->run_once();
+  }
 };
-} // namespace quack
+} // namespace
 
-void quack::donald::run() {
-  voo::device_and_queue dq{app_name()};
-  pipeline_stuff ps{dq, 1};
+void thread::run() {
+  voo::device_and_queue dq{g_app_name};
+  quack::pipeline_stuff ps{dq, 1};
 
-  auto atlas = create_atlas(&dq);
+  hai::uptr atlas{g_atlas(&dq)};
   atlas->run_once();
   m_atlas = &*atlas;
 
-  donald_ibt ib{dq.queue(), ps, max_quads(), this};
+  quack::instance_batch_thread ib{dq.queue(), ps.create_batch(g_max_quads),
+                                  update};
   ib.run_once();
   m_batch = &ib;
 
-  auto smp = create_sampler();
+  auto smp = vee::create_sampler(vee::nearest_sampler);
   auto dset = ps.allocate_descriptor_set(atlas->data().iv(), *smp);
 
   release_init_lock();
@@ -41,7 +63,7 @@ void quack::donald::run() {
     voo::swapchain_and_stuff sw{dq};
 
     extent_loop(dq.queue(), sw, [&] {
-      auto upc = quack::adjust_aspect(push_constants(), sw.aspect());
+      auto upc = quack::adjust_aspect(g_upc, sw.aspect());
       sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
         auto scb = sw.cmd_render_pass(pcb);
         vee::cmd_set_viewport(*scb, sw.extent());
@@ -49,8 +71,17 @@ void quack::donald::run() {
         ib.data().build_commands(*pcb);
         ps.cmd_bind_descriptor_set(*scb, dset);
         ps.cmd_push_vert_frag_constants(*scb, upc);
-        ps.run(*scb, quad_count());
+        ps.run(*scb, g_quads);
       });
     });
   }
 }
+
+namespace quack::donald {
+void app_name(const char *n) { g_app_name = n; }
+void max_quads(unsigned q) { g_max_quads = q; }
+
+void push_constants(quack::upc u) { g_upc = u; }
+void atlas(atlas_fn a) { g_atlas = a; }
+void data(data_fn d) { g_data = d; }
+} // namespace quack::donald
