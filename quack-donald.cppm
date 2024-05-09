@@ -40,16 +40,4 @@ public:
     m_batch->run_once();
   }
 };
-
-class donald_ibt : public instance_batch_thread {
-  donald *m_d;
-
-  void update_data(quack::mapped_buffers p) override { m_d->update_data(p); }
-
-public:
-  donald_ibt(voo::queue *q, quack::pipeline_stuff &ps, unsigned max_quads,
-             donald *d)
-      : instance_batch_thread{q, ps.create_batch(max_quads)}
-      , m_d{d} {}
-};
 } // namespace quack

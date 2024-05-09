@@ -7,6 +7,19 @@ import sith;
 import vee;
 import voo;
 
+namespace quack {
+class donald_ibt : public instance_batch_thread {
+  donald *m_d;
+
+  void update_data(mapped_buffers p) override { m_d->update_data(p); }
+
+public:
+  donald_ibt(voo::queue *q, pipeline_stuff &ps, unsigned max_quads, donald *d)
+      : instance_batch_thread{q, ps.create_batch(max_quads)}
+      , m_d{d} {}
+};
+} // namespace quack
+
 void quack::donald::run() {
   voo::device_and_queue dq{app_name()};
   pipeline_stuff ps{dq, 1};
