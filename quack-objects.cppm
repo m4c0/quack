@@ -14,14 +14,8 @@ export struct rect : pos, size {};
 static_assert(sizeof(rect) == 4 * sizeof(float));
 
 export struct uv {
-  struct {
-    float u;
-    float v;
-  } start;
-  struct {
-    float u;
-    float v;
-  } end;
+  dotz::vec2 start;
+  dotz::vec2 end;
 };
 export struct colour {
   float r;
