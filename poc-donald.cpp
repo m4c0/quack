@@ -30,6 +30,7 @@ struct init {
     app_name("quack-donald-poc");
     max_quads(16);
 
+    clear_colour({0.1, 0.15, 0.1, 1});
     push_constants({
         .grid_pos = {2, 2},
         .grid_size = {4, 4},

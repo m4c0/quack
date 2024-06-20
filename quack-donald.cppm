@@ -1,5 +1,6 @@
 export module quack:donald;
 import :ibatch;
+import :objects;
 import :pipeline_stuff;
 import :upc;
 import hai;
@@ -15,6 +16,7 @@ using data_fn = unsigned (*)(mapped_buffers);
 void app_name(const char *);
 void max_quads(unsigned);
 
+void clear_colour(quack::colour);
 void push_constants(quack::upc);
 void atlas(atlas_fn);
 void data(data_fn);
