@@ -2,6 +2,7 @@
 #pragma leco add_resource "nasa-jupiter.png"
 import casein;
 import quack;
+import sitime;
 import voo;
 
 static quack::donald::atlas_t *jupiter(voo::device_and_queue *dq) {
@@ -9,6 +10,10 @@ static quack::donald::atlas_t *jupiter(voo::device_and_queue *dq) {
 }
 
 static unsigned quads_4x4(quack::mapped_buffers all) {
+  static sitime::stopwatch t{};
+
+  auto angle = 360.f * t.millis() / 1000.f;
+
   auto [c, m, p, u, r] = all;
   for (auto y = 0, i = 0; y < 4; y++) {
     for (auto x = 0; x < 4; x++, i++) {
@@ -18,11 +23,13 @@ static unsigned quads_4x4(quack::mapped_buffers all) {
       m[i] = {1, 1, 1, 1};
       p[i] = {{xf, yf}, {0.9, 0.9}};
       u[i] = {{0, 0}, {1, 1}};
-      r[i] = {};
+      r[i] = {angle};
     }
   }
   return 16;
 }
+
+static void repaint() { quack::donald::data(quads_4x4); }
 
 struct init {
   init() {
@@ -38,5 +45,7 @@ struct init {
     });
     atlas(jupiter);
     data(quads_4x4);
+
+    casein::handle(casein::REPAINT, repaint);
   }
 } i;
