@@ -23,6 +23,12 @@ export struct colour {
   float b;
   float a; // Currently unused
 };
+export struct rotation {
+  float angle;
+  float rel_x;
+  float rel_y;
+  float pad; // Currently unused
+};
 export struct u8_rgba {
   unsigned char r;
   unsigned char g;

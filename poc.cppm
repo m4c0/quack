@@ -28,11 +28,12 @@ class updater : public quack::instance_batch_thread {
 
   void update_data(quack::mapped_buffers p) override {
     float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
-    auto &[cs, ms, ps, us] = p;
+    auto &[cs, ms, ps, us, rs] = p;
     ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
     cs[1] = {0.25, 0, 0.1, a};
     us[1] = {{0, 0}, {1, 1}};
     ms[1] = {1, 1, 1, 1};
+    rs[1] = {};
   }
 
 public:
@@ -43,6 +44,7 @@ public:
     ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
     ib.map_uvs([](auto *us) { us[0] = {}; });
     ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
+    ib.map_rotations([](auto *rs) { rs[0] = {}; });
   }
 };
 

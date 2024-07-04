@@ -13,6 +13,7 @@ export struct mapped_buffers {
   colour *multipliers;
   rect *positions;
   uv *uvs;
+  rotation *rotations;
 };
 
 export class instance_batch {
@@ -20,6 +21,7 @@ export class instance_batch {
   voo::h2l_buffer m_colour;
   voo::h2l_buffer m_mult;
   voo::h2l_buffer m_uv;
+  voo::h2l_buffer m_rot;
 
   template <typename Tp>
   static auto create_buf(vee::physical_device pd, unsigned max_quads) {
@@ -31,10 +33,11 @@ public:
   instance_batch() = default;
   instance_batch(vee::physical_device pd, vee::pipeline_layout::type pl,
                  unsigned max_quads)
-      : m_pos{create_buf<rect>(pd, max_quads)},
-        m_colour{create_buf<colour>(pd, max_quads)},
-        m_mult{create_buf<colour>(pd, max_quads)},
-        m_uv{create_buf<uv>(pd, max_quads)} {}
+      : m_pos{create_buf<rect>(pd, max_quads)}
+      , m_colour{create_buf<colour>(pd, max_quads)}
+      , m_mult{create_buf<colour>(pd, max_quads)}
+      , m_uv{create_buf<uv>(pd, max_quads)}
+      , m_rot{create_buf<uv>(pd, max_quads)} {}
 
   void map_colours(auto &&fn) noexcept {
     voo::mapmem m{m_colour.host_memory()};
@@ -52,16 +55,22 @@ public:
     voo::mapmem m{m_uv.host_memory()};
     fn(static_cast<uv *>(*m));
   }
+  void map_rotations(auto &&fn) noexcept {
+    voo::mapmem m{m_rot.host_memory()};
+    fn(static_cast<rotation *>(*m));
+  }
   void map_all(auto &&fn) noexcept {
     mapped_buffers all{};
     voo::mapmem c{m_colour.host_memory()};
     voo::mapmem m{m_mult.host_memory()};
     voo::mapmem p{m_pos.host_memory()};
     voo::mapmem u{m_uv.host_memory()};
+    voo::mapmem r{m_rot.host_memory()};
     all.colours = static_cast<colour *>(*c);
     all.multipliers = static_cast<colour *>(*m);
     all.positions = static_cast<rect *>(*p);
     all.uvs = static_cast<uv *>(*u);
+    all.rotations = static_cast<rotation *>(*u);
 
     fn(all);
   }
@@ -71,6 +80,7 @@ public:
     m_mult.setup_copy(cb);
     m_pos.setup_copy(cb);
     m_uv.setup_copy(cb);
+    m_rot.setup_copy(cb);
   }
 
   void build_commands(vee::command_buffer cb) const {
@@ -78,6 +88,7 @@ public:
     vee::cmd_bind_vertex_buffers(cb, 2, m_colour.local_buffer());
     vee::cmd_bind_vertex_buffers(cb, 3, m_uv.local_buffer());
     vee::cmd_bind_vertex_buffers(cb, 4, m_mult.local_buffer());
+    vee::cmd_bind_vertex_buffers(cb, 5, m_rot.local_buffer());
   }
 };
 

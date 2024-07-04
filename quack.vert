@@ -10,6 +10,7 @@ layout(location = 1) in vec4 i_pos;
 layout(location = 2) in vec4 i_color;
 layout(location = 3) in vec4 i_uv;
 layout(location = 4) in vec4 i_mult;
+layout(location = 5) in vec4 i_rot;
 
 layout(location = 0) out vec4 q_color;
 layout(location = 1) out vec2 q_uv;

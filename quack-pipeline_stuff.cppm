@@ -48,6 +48,7 @@ public:
             vee::vertex_input_bind_per_instance(sizeof(colour)),
             vee::vertex_input_bind_per_instance(sizeof(uv)),
             vee::vertex_input_bind_per_instance(sizeof(colour)),
+            vee::vertex_input_bind_per_instance(sizeof(rotation)),
         },
         .attributes{
             m_quad.vertex_attribute(0),
@@ -55,6 +56,7 @@ public:
             vee::vertex_attribute_vec4(2, 0),
             vee::vertex_attribute_vec4(3, 0),
             vee::vertex_attribute_vec4(4, 0),
+            vee::vertex_attribute_vec4(5, 0),
         },
     });
   }
