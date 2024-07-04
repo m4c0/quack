@@ -26,15 +26,16 @@ void main() {
   vec2 f_adj = pos * 0.0001f; // avoid one-pixel gaps
 
   float theta = i_rot.x * pi / 180.0f;
-  const mat3 rot = mat3(
-    cos(theta), -sin(theta), 0,
-    sin(theta), cos(theta), 0,
-    0, 0, 1
+  const mat2 rot = mat2(
+    cos(theta), -sin(theta),
+    sin(theta), cos(theta)
   );
 
-  vec3 pp = rot * vec3(pos * i_pos.zw, 1);
+  vec2 p = pos * i_pos.zw;
+  p -= i_rot.yz;
+  p = rot * p;
+  p += i_rot.yz;
 
-  vec2 f_pos = (pp.xy + i_pos.xy - pc.grid_pos) / pc.grid_size; 
-  vec3 f_pos3 = rot * vec3(f_pos, 1);
+  vec2 f_pos = (p + i_pos.xy - pc.grid_pos) / pc.grid_size; 
   gl_Position = vec4(f_pos + f_adj, 0, 1);
 }

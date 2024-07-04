@@ -23,7 +23,7 @@ static unsigned quads_4x4(quack::mapped_buffers all) {
       m[i] = {1, 1, 1, 1};
       p[i] = {{xf, yf}, {0.9, 0.9}};
       u[i] = {{0, 0}, {1, 1}};
-      r[i] = {angle};
+      r[i] = {angle, 0.5, 0.5};
     }
   }
   return 16;
