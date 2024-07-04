@@ -37,7 +37,7 @@ public:
       , m_colour{create_buf<colour>(pd, max_quads)}
       , m_mult{create_buf<colour>(pd, max_quads)}
       , m_uv{create_buf<uv>(pd, max_quads)}
-      , m_rot{create_buf<uv>(pd, max_quads)} {}
+      , m_rot{create_buf<rotation>(pd, max_quads)} {}
 
   void map_colours(auto &&fn) noexcept {
     voo::mapmem m{m_colour.host_memory()};
@@ -70,7 +70,7 @@ public:
     all.multipliers = static_cast<colour *>(*m);
     all.positions = static_cast<rect *>(*p);
     all.uvs = static_cast<uv *>(*u);
-    all.rotations = static_cast<rotation *>(*u);
+    all.rotations = static_cast<rotation *>(*r);
 
     fn(all);
   }
