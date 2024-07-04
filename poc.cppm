@@ -49,7 +49,7 @@ public:
 };
 
 constexpr const auto max_batches = 100;
-static class renderer : public voo::casein_thread {
+class renderer : public voo::casein_thread {
 public:
   void run() override {
     voo::device_and_queue dq{"quack"};
