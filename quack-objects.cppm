@@ -2,33 +2,24 @@ export module quack:objects;
 import dotz;
 
 namespace quack {
-export struct pos {
-  float x;
-  float y;
-};
-export struct size {
-  float w;
-  float h;
-};
-export struct rect : pos, size {};
-static_assert(sizeof(rect) == 4 * sizeof(float));
-
-export struct uv {
-  dotz::vec2 start;
-  dotz::vec2 end;
-};
-export struct colour {
-  float r;
-  float g;
-  float b;
-  float a; // Currently unused
-};
 export struct rotation {
   float angle;
   float rel_x;
   float rel_y;
   float pad; // Currently unused
 };
+
+export struct instance {
+  dotz::vec2 position;
+  dotz::vec2 size;
+  dotz::vec2 uv0;
+  dotz::vec2 uv1;
+  dotz::vec4 colour;
+  dotz::vec4 multiplier;
+  rotation rotation;
+};
+static_assert(sizeof(instance) == 20 * sizeof(float));
+
 export struct u8_rgba {
   unsigned char r;
   unsigned char g;

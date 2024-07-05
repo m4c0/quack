@@ -44,19 +44,15 @@ public:
         },
         .bindings{
             m_quad.vertex_input_bind(),
-            vee::vertex_input_bind_per_instance(sizeof(rect)),
-            vee::vertex_input_bind_per_instance(sizeof(colour)),
-            vee::vertex_input_bind_per_instance(sizeof(uv)),
-            vee::vertex_input_bind_per_instance(sizeof(colour)),
-            vee::vertex_input_bind_per_instance(sizeof(rotation)),
+            vee::vertex_input_bind_per_instance(sizeof(instance)),
         },
         .attributes{
             m_quad.vertex_attribute(0),
             vee::vertex_attribute_vec4(1, 0),
-            vee::vertex_attribute_vec4(2, 0),
-            vee::vertex_attribute_vec4(3, 0),
-            vee::vertex_attribute_vec4(4, 0),
-            vee::vertex_attribute_vec4(5, 0),
+            vee::vertex_attribute_vec4(1, 8 * sizeof(float)),
+            vee::vertex_attribute_vec4(1, 4 * sizeof(float)),
+            vee::vertex_attribute_vec4(1, 12 * sizeof(float)),
+            vee::vertex_attribute_vec4(1, 16 * sizeof(float)),
         },
     });
   }

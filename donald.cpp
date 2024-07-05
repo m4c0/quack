@@ -2,6 +2,7 @@ module quack;
 import :ibatch;
 import :pipeline_stuff;
 import :upc;
+import dotz;
 import hai;
 import sith;
 import vee;
@@ -12,14 +13,14 @@ static unsigned g_max_quads = 0;
 static quack::upc g_upc{};
 static quack::donald::atlas_fn g_atlas_fn{};
 static quack::donald::data_fn g_data_fn{};
-static quack::colour g_clear_colour{0.1, 0.2, 0.3, 1.0};
+static dotz::vec4 g_clear_colour{0.1f, 0.2f, 0.3f, 1.0f};
 
 // TODO: sync count change with data change
 static unsigned g_quads = 0;
 static quack::donald::atlas_t *g_atlas;
 static quack::instance_batch_thread *g_batch;
 
-static void update(quack::mapped_buffers all) { g_quads = g_data_fn(all); }
+static void update(quack::instance *all) { g_quads = g_data_fn(all); }
 
 namespace {
 class thread : public voo::casein_thread {
@@ -54,8 +55,8 @@ void thread::run() {
       sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
         auto scb = sw.cmd_render_pass(vee::render_pass_begin{
             .command_buffer = *pcb,
-            .clear_color = {{g_clear_colour.r, g_clear_colour.g,
-                             g_clear_colour.b, g_clear_colour.a}},
+            .clear_color = {{g_clear_colour.x, g_clear_colour.y,
+                             g_clear_colour.z, g_clear_colour.w}},
         });
         vee::cmd_set_viewport(*scb, sw.extent());
         vee::cmd_set_scissor(*scb, sw.extent());
@@ -77,7 +78,7 @@ namespace quack::donald {
 void app_name(const char *n) { g_app_name = n; }
 void max_quads(unsigned q) { g_max_quads = q; }
 
-void clear_colour(quack::colour c) { g_clear_colour = c; }
+void clear_colour(dotz::vec4 c) { g_clear_colour = c; }
 void push_constants(quack::upc u) { g_upc = u; }
 void atlas(atlas_fn a) {
   g_atlas_fn = a;

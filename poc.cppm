@@ -26,25 +26,31 @@ extern "C" float sinf(float);
 class updater : public quack::instance_batch_thread {
   sitime::stopwatch time{};
 
-  void update_data(quack::mapped_buffers p) override {
+  void update_data(quack::instance *i) override {
     float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
-    auto &[cs, ms, ps, us, rs] = p;
-    ps[1] = {{0.25, 0.25}, {0.5, 0.5}};
-    cs[1] = {0.25, 0, 0.1, a};
-    us[1] = {{0, 0}, {1, 1}};
-    ms[1] = {1, 1, 1, 1};
-    rs[1] = {};
+    i[1] = (quack::instance){
+        .position{0.25f, 0.25f},
+        .size{0.5f, 0.5f},
+        .uv0{0, 0},
+        .uv1{1, 1},
+        .colour{0.25f, 0.0f, 0.1f, a},
+        .multiplier{1, 1, 1, 1},
+        .rotation{5, 0.5, 0.5},
+    };
   }
 
 public:
   updater(voo::device_and_queue *dq, quack::pipeline_stuff &ps)
       : instance_batch_thread{dq->queue(), ps.create_batch(2)} {
     auto &ib = data();
-    ib.map_positions([](auto *ps) { ps[0] = {{0, 0}, {1, 1}}; });
-    ib.map_colours([](auto *cs) { cs[0] = {0, 0, 0.1, 1.0}; });
-    ib.map_uvs([](auto *us) { us[0] = {}; });
-    ib.map_multipliers([](auto *ms) { ms[0] = {1, 1, 1, 1}; });
-    ib.map_rotations([](auto *rs) { rs[0] = {}; });
+    ib.map([](auto *i) {
+      i[0] = (quack::instance){
+          .position{0, 0},
+          .size{1, 1},
+          .colour{0.0f, 0.0f, 0.1f, 1.0f},
+          .multiplier{1, 1, 1, 1},
+      };
+    });
   }
 };
 

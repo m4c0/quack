@@ -9,21 +9,22 @@ static quack::donald::atlas_t *jupiter(voo::device_and_queue *dq) {
   return new voo::sires_image{"nasa-jupiter.png", dq};
 }
 
-static unsigned quads_4x4(quack::mapped_buffers all) {
+static unsigned quads_4x4(quack::instance *i) {
   static sitime::stopwatch t{};
 
   auto angle = 360.f * t.millis() / 1000.f;
 
-  auto [c, m, p, u, r] = all;
-  for (auto y = 0, i = 0; y < 4; y++) {
+  for (auto y = 0; y < 4; y++) {
     for (auto x = 0; x < 4; x++, i++) {
       float xf = x + 0.05;
       float yf = y + 0.05;
-      c[i] = {1, 1, 1, 1};
-      m[i] = {1, 1, 1, 1};
-      p[i] = {{xf, yf}, {0.9, 0.9}};
-      u[i] = {{0, 0}, {1, 1}};
-      r[i] = {angle, 0.5, 0.5};
+      i->colour = {1, 1, 1, 1};
+      i->multiplier = {1, 1, 1, 1};
+      i->position = {xf, yf};
+      i->size = {0.9f, 0.9f};
+      i->uv0 = {0, 0};
+      i->uv1 = {1, 1};
+      i->rotation = {angle, 0.5, 0.5};
     }
   }
   return 16;
@@ -38,7 +39,7 @@ struct init {
     app_name("quack-donald-poc");
     max_quads(16);
 
-    clear_colour({0.1, 0.15, 0.1, 1});
+    clear_colour({0.1f, 0.15f, 0.1f, 1.f});
     push_constants({
         .grid_pos = {2, 2},
         .grid_size = {4, 4},
