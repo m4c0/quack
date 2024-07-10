@@ -5,6 +5,7 @@ import :upc;
 import dotz;
 import hai;
 import sith;
+import traits;
 import vee;
 import voo;
 
@@ -19,13 +20,19 @@ class atlas_updater : public voo::updater<voo::h2l_image> {
   vee::physical_device m_pd;
   vee::descriptor_set m_dset;
 
+  voo::h2l_image m_old{};
+  vee::descriptor_set m_dset_old;
+
   void update_data(voo::h2l_image *img) override;
 
 public:
-  atlas_updater(voo::device_and_queue *dq, vee::descriptor_set dset)
+  atlas_updater(voo::device_and_queue *dq, quack::pipeline_stuff *ps)
       : updater{dq->queue(), {}}
       , m_pd{dq->physical_device()}
-      , m_dset{dset} {}
+      , m_dset{ps->allocate_descriptor_set()}
+      , m_dset_old{ps->allocate_descriptor_set()} {}
+
+  [[nodiscard]] constexpr auto dset() const { return m_dset; }
 };
 } // namespace
 
@@ -44,22 +51,27 @@ static quack::instance_batch_thread *g_batch;
 static void update(quack::instance *all) { g_quads = g_data_fn(all); }
 
 void atlas_updater::update_data(voo::h2l_image *img) {
+  m_old = traits::move(*img);
+
   *img = g_atlas_fn(m_pd);
+
+  auto tmp = m_dset_old;
+  m_dset_old = m_dset;
+  m_dset = tmp;
+
   vee::update_descriptor_set(m_dset, 0, img->iv(), *m_smp);
 }
 
 void thread::run() {
   voo::device_and_queue dq{g_app_name};
-  quack::pipeline_stuff ps{dq, 1};
-
-  auto dset = ps.allocate_descriptor_set();
+  quack::pipeline_stuff ps{dq, 2};
 
   quack::instance_batch_thread ib{dq.queue(), ps.create_batch(g_max_quads),
                                   update};
   ib.run_once();
   g_batch = &ib;
 
-  atlas_updater atlas{&dq, dset};
+  atlas_updater atlas{&dq, &ps};
   atlas.run_once();
   g_atlas = &atlas;
 
@@ -79,7 +91,7 @@ void thread::run() {
         vee::cmd_set_viewport(*scb, sw.extent());
         vee::cmd_set_scissor(*scb, sw.extent());
         ib.data().build_commands(*pcb);
-        ps.cmd_bind_descriptor_set(*scb, dset);
+        ps.cmd_bind_descriptor_set(*scb, atlas.dset());
         ps.cmd_push_vert_frag_constants(*scb, upc);
         ps.run(*scb, g_quads);
       });
