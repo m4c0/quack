@@ -8,6 +8,27 @@ import sith;
 import vee;
 import voo;
 
+namespace {
+class thread : public voo::casein_thread {
+public:
+  void run() override;
+};
+
+class atlas_updater : public voo::updater<voo::h2l_image> {
+  vee::sampler m_smp = vee::create_sampler(vee::nearest_sampler);
+  vee::physical_device m_pd;
+  vee::descriptor_set m_dset;
+
+  void update_data(voo::h2l_image *img) override;
+
+public:
+  atlas_updater(voo::device_and_queue *dq, vee::descriptor_set dset)
+      : updater{dq->queue(), {}}
+      , m_pd{dq->physical_device()}
+      , m_dset{dset} {}
+};
+} // namespace
+
 static const char *g_app_name = "app";
 static unsigned g_max_quads = 0;
 static quack::upc g_upc{};
@@ -17,36 +38,30 @@ static dotz::vec4 g_clear_colour{0.1f, 0.2f, 0.3f, 1.0f};
 
 // TODO: sync count change with data change
 static unsigned g_quads = 0;
-static voo::image_updater *g_atlas;
+static atlas_updater *g_atlas;
 static quack::instance_batch_thread *g_batch;
 
 static void update(quack::instance *all) { g_quads = g_data_fn(all); }
-static void update_atlas(voo::h2l_image *img, vee::physical_device pd) {
-  g_atlas_fn(img, pd);
-}
 
-namespace {
-class thread : public voo::casein_thread {
-public:
-  void run() override;
-};
-} // namespace
+void atlas_updater::update_data(voo::h2l_image *img) {
+  *img = g_atlas_fn(m_pd);
+  vee::update_descriptor_set(m_dset, 0, img->iv(), *m_smp);
+}
 
 void thread::run() {
   voo::device_and_queue dq{g_app_name};
   quack::pipeline_stuff ps{dq, 1};
 
-  voo::image_updater atlas{&dq, update_atlas};
-  atlas.run_once();
-  g_atlas = &atlas;
+  auto dset = ps.allocate_descriptor_set();
 
   quack::instance_batch_thread ib{dq.queue(), ps.create_batch(g_max_quads),
                                   update};
   ib.run_once();
   g_batch = &ib;
 
-  auto smp = vee::create_sampler(vee::nearest_sampler);
-  auto dset = ps.allocate_descriptor_set(atlas.data().iv(), *smp);
+  atlas_updater atlas{&dq, dset};
+  atlas.run_once();
+  g_atlas = &atlas;
 
   release_init_lock();
 

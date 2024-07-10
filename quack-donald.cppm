@@ -10,7 +10,7 @@ import voo;
 /// Single-batch single-atlas render thread
 export namespace quack::donald {
 using atlas_t = voo::h2l_image;
-using atlas_fn = void (*)(atlas_t *, vee::physical_device);
+using atlas_fn = atlas_t (*)(vee::physical_device);
 using data_fn = unsigned (*)(instance *);
 
 void app_name(const char *);
