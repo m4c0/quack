@@ -17,10 +17,13 @@ static dotz::vec4 g_clear_colour{0.1f, 0.2f, 0.3f, 1.0f};
 
 // TODO: sync count change with data change
 static unsigned g_quads = 0;
-static quack::donald::atlas_t *g_atlas;
+static voo::image_updater *g_atlas;
 static quack::instance_batch_thread *g_batch;
 
 static void update(quack::instance *all) { g_quads = g_data_fn(all); }
+static void update_atlas(voo::h2l_image *img, vee::physical_device pd) {
+  g_atlas_fn(img, pd);
+}
 
 namespace {
 class thread : public voo::casein_thread {
@@ -33,9 +36,9 @@ void thread::run() {
   voo::device_and_queue dq{g_app_name};
   quack::pipeline_stuff ps{dq, 1};
 
-  hai::uptr atlas{g_atlas_fn(&dq)};
-  atlas->run_once();
-  g_atlas = &*atlas;
+  voo::image_updater atlas{&dq, update_atlas};
+  atlas.run_once();
+  g_atlas = &atlas;
 
   quack::instance_batch_thread ib{dq.queue(), ps.create_batch(g_max_quads),
                                   update};
@@ -43,7 +46,7 @@ void thread::run() {
   g_batch = &ib;
 
   auto smp = vee::create_sampler(vee::nearest_sampler);
-  auto dset = ps.allocate_descriptor_set(atlas->data().iv(), *smp);
+  auto dset = ps.allocate_descriptor_set(atlas.data().iv(), *smp);
 
   release_init_lock();
 
@@ -81,6 +84,8 @@ void max_quads(unsigned q) { g_max_quads = q; }
 void clear_colour(dotz::vec4 c) { g_clear_colour = c; }
 void push_constants(quack::upc u) { g_upc = u; }
 void atlas(atlas_fn a) {
+  // TODO: the function is wrong. It creates the updater, but it should instead
+  // create the image
   g_atlas_fn = a;
   if (g_atlas) {
     g_atlas->run_once();

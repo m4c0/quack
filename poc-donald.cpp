@@ -5,8 +5,8 @@ import quack;
 import sitime;
 import voo;
 
-static quack::donald::atlas_t *jupiter(voo::device_and_queue *dq) {
-  return new voo::sires_image{"nasa-jupiter.png", dq};
+static void jupiter(quack::donald::atlas_t *img, auto pd) {
+  *img = voo::load_sires_image("nasa-jupiter.png", pd);
 }
 
 static unsigned quads_4x4(quack::instance *i) {

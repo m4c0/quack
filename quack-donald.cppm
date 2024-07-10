@@ -4,12 +4,13 @@ import :objects;
 import :pipeline_stuff;
 import :upc;
 import dotz;
+import vee;
 import voo;
 
 /// Single-batch single-atlas render thread
 export namespace quack::donald {
-using atlas_t = voo::updater<voo::h2l_image>;
-using atlas_fn = atlas_t *(*)(voo::device_and_queue *);
+using atlas_t = voo::h2l_image;
+using atlas_fn = void (*)(atlas_t *, vee::physical_device);
 using data_fn = unsigned (*)(instance *);
 
 void app_name(const char *);
