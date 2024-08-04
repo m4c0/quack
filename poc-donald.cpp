@@ -3,7 +3,6 @@
 import casein;
 import quack;
 import sitime;
-import voo;
 
 static unsigned quads_4x4(quack::instance *i) {
   static sitime::stopwatch t{};
