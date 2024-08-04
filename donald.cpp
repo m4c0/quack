@@ -4,6 +4,7 @@ import :pipeline_stuff;
 import :upc;
 import dotz;
 import hai;
+import jute;
 import silog;
 import sith;
 import traits;
@@ -11,6 +12,9 @@ import vee;
 import voo;
 
 namespace {
+using atlas_t = voo::h2l_image;
+using atlas_fn = atlas_t (*)(vee::physical_device);
+
 class thread : public voo::casein_thread {
 public:
   void run() override;
@@ -40,7 +44,7 @@ public:
 static const char *g_app_name = "app";
 static unsigned g_max_quads = 0;
 static quack::upc g_upc{};
-static quack::donald::atlas_fn g_atlas_fn{};
+static atlas_fn g_atlas_fn{};
 static quack::donald::data_fn g_data_fn{};
 static dotz::vec4 g_clear_colour{0.1f, 0.2f, 0.3f, 1.0f};
 
@@ -132,6 +136,30 @@ void atlas(atlas_fn a) {
   } else if (!g_batch) {
     t();
   }
+}
+void atlas(jute::view res_name) {
+  static jute::view name;
+  name = res_name;
+  atlas([](auto pd) { return voo::load_sires_image(name, pd); });
+}
+void atlas(const void *ptr, unsigned width, unsigned height) {
+  static const void *p;
+  static unsigned w;
+  static unsigned h;
+  p = ptr;
+  w = width;
+  h = height;
+  atlas([](auto pd) {
+    voo::h2l_image img{pd, w, h};
+
+    voo::mapmem m{img.host_memory()};
+    auto *c = static_cast<unsigned *>(*m);
+    auto *o = static_cast<const unsigned *>(p);
+    for (auto i = 0; i < w * h; i++)
+      *c++ = *o++;
+
+    return img;
+  });
 }
 void data(data_fn d) {
   g_data_fn = d;

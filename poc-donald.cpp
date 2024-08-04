@@ -5,10 +5,6 @@ import quack;
 import sitime;
 import voo;
 
-static auto jupiter(auto pd) {
-  return voo::load_sires_image("nasa-jupiter.png", pd);
-}
-
 static unsigned quads_4x4(quack::instance *i) {
   static sitime::stopwatch t{};
 
@@ -44,7 +40,7 @@ struct init {
         .grid_pos = {2, 2},
         .grid_size = {4, 4},
     });
-    atlas(jupiter);
+    atlas("nasa-jupiter.png");
     data(quads_4x4);
 
     casein::handle(casein::REPAINT, repaint);
