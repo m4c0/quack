@@ -9,9 +9,15 @@ import sitime;
 import vee;
 import voo;
 
+struct u8_rgba {
+  unsigned char r;
+  unsigned char g;
+  unsigned char b;
+  unsigned char a;
+};
 static void gen_atlas(voo::h2l_image *i) {
   voo::mapmem m{i->host_memory()};
-  auto *img = static_cast<quack::u8_rgba *>(*m);
+  auto *img = static_cast<u8_rgba *>(*m);
   for (auto i = 0; i < 16 * 16; i++) {
     auto x = (i / 16) % 2;
     auto y = (i % 16) % 2;

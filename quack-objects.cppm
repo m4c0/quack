@@ -19,11 +19,4 @@ export struct instance {
   rotation rotation;
 };
 static_assert(sizeof(instance) == 20 * sizeof(float));
-
-export struct u8_rgba {
-  unsigned char r;
-  unsigned char g;
-  unsigned char b;
-  unsigned char a;
-};
 } // namespace quack
