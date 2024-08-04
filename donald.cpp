@@ -4,6 +4,7 @@ import :pipeline_stuff;
 import :upc;
 import dotz;
 import hai;
+import silog;
 import sith;
 import traits;
 import vee;
@@ -48,12 +49,24 @@ static unsigned g_quads = 0;
 static atlas_updater *g_atlas;
 static quack::instance_batch_thread *g_batch;
 
-static void update(quack::instance *all) { g_quads = g_data_fn(all); }
+static void update(quack::instance *all) {
+  if (g_data_fn) {
+    g_quads = g_data_fn(all);
+  } else {
+    g_quads = 0;
+    silog::log(silog::warning, "No sprite data defined");
+  }
+}
 
 void atlas_updater::update_data(voo::h2l_image *img) {
   m_old = traits::move(*img);
 
-  *img = g_atlas_fn(m_pd);
+  if (g_atlas_fn) {
+    *img = g_atlas_fn(m_pd);
+  } else {
+    *img = voo::h2l_image{m_pd, 16, 16};
+    silog::log(silog::warning, "No atlas defined");
+  }
 
   auto tmp = m_dset_old;
   m_dset_old = m_dset;
