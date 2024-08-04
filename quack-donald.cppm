@@ -1,7 +1,5 @@
 export module quack:donald;
-import :ibatch;
 import :objects;
-import :pipeline_stuff;
 import :upc;
 import dotz;
 import vee;
