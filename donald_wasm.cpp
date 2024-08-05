@@ -4,7 +4,7 @@ import hai;
 import jute;
 import vaselin;
 
-#define IMPORT(R, N)                                                        \
+#define IMPORT(R, N)                                                           \
   extern "C" [[clang::import_module("quack"), clang::import_name(#N)]] R N
 
 IMPORT(void, clear_colour)(int r, int g, int b, int a);
@@ -23,7 +23,7 @@ namespace quack::donald {
 void app_name(const char *n) { g_app_name = n; }
 void max_quads(unsigned q) { g_quads.set_capacity(q); }
 
-void clear_colour(dotz::vec4 c) { 
+void clear_colour(dotz::vec4 c) {
   c = c * 256;
   ::clear_colour(c.x, c.y, c.z, c.w);
 }
@@ -43,7 +43,7 @@ void data(data_fn d) {
   translate(-1 + g_upc.grid_pos.x, -2 + g_upc.grid_pos.y);
 
   for (auto n = 0; n < qty; n++, i++) {
-    fill_colour( i->colour.x, i->colour.y, i->colour.z, i->colour.w);
+    fill_colour(i->colour.x, i->colour.y, i->colour.z, i->colour.w);
 
     fill_rect(i->position.x, i->position.y, i->size.x, i->size.y);
   }
