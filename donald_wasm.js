@@ -14,6 +14,10 @@
     fill_colour : (r, g, b, a) => {
       ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
     },
-    fill_rect : ctx.fillRect,
+    fill_rect : (x, y, w, h) => ctx.fillRect(x, y, w, h),
+    restore : () => ctx.restore(),
+    save : () => ctx.save(),
+    scale : (x, y) => ctx.scale(x, y),
+    translate : (x, y) => ctx.translate(x, y),
   };
 }());
