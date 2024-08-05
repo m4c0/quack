@@ -1,4 +1,7 @@
+#ifndef LECO_TARGET_WASM
 #pragma leco app
+#endif
+
 export module poc;
 
 import casein;
