@@ -4,9 +4,12 @@ import hai;
 import jute;
 import vaselin;
 
-extern "C" 
-[[clang::import_module("quack"), clang::import_name("clear_colour")]]
-void clear_colour(int r, int g, int b, int a);
+#define IMPORT(R, N)                                                        \
+  extern "C" [[clang::import_module("quack"), clang::import_name(#N)]] R N
+
+IMPORT(void, clear_colour)(int r, int g, int b, int a);
+IMPORT(void, fill_colour)(int r, int g, int b, int a);
+IMPORT(void, fill_rect)(float, float, float, float);
 
 static const char *g_app_name = "app";
 static hai::array<quack::instance> g_quads{};
@@ -26,6 +29,10 @@ void atlas(jute::view res_name) {}
 void atlas(const void *ptr, unsigned width, unsigned height) {}
 
 void data(data_fn d) {
-  auto n = d(g_quads.begin());
+  auto i = g_quads.begin();
+  auto qty = d(i);
+  for (auto n = 0; n < qty; n++, i++) {
+
+  }
 }
 } // namespace quack::donald
