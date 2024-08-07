@@ -4,8 +4,8 @@ import casein;
 import quack;
 import sitime;
 
-static unsigned quads_4x4(quack::instance *i) {
-  static sitime::stopwatch t{};
+static unsigned quads_4x4(quack::instance * i) {
+  static sitime::stopwatch t {};
 
   auto angle = 360.f * t.millis() / 1000.f;
 
@@ -13,13 +13,13 @@ static unsigned quads_4x4(quack::instance *i) {
     for (auto x = 0; x < 4; x++, i++) {
       float xf = x + 0.05;
       float yf = y + 0.05;
-      i->colour = {1, 1, 1, 1};
-      i->multiplier = {1, 1, 1, 1};
-      i->position = {xf, yf};
-      i->size = {0.9f, 0.9f};
-      i->uv0 = {0, 0};
-      i->uv1 = {1, 1};
-      i->rotation = {angle, 0.5, 0.5};
+      i->colour = { 1, 1, 1, 1 };
+      i->multiplier = { 1, 1, 1, 1 };
+      i->position = { xf, yf };
+      i->size = { 0.9f, 0.9f };
+      i->uv0 = { 0, 0 };
+      i->uv1 = { 1, 1 };
+      i->rotation = { angle, 0.5, 0.5 };
     }
   }
   return 16;
@@ -34,10 +34,10 @@ struct init {
     app_name("quack-donald-poc");
     max_quads(16);
 
-    clear_colour({0.1f, 0.15f, 0.1f, 1.f});
+    clear_colour({ 0.1f, 0.15f, 0.1f, 1.f });
     push_constants({
-        .grid_pos = {2, 2},
-        .grid_size = {4, 4},
+        .grid_pos = { 2, 2 },
+        .grid_size = { 4, 4 },
     });
     atlas("nasa-jupiter.png");
     data(quads_4x4);
