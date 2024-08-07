@@ -42,6 +42,6 @@ struct init {
     atlas("nasa-jupiter.png");
     data(quads_4x4);
 
-    casein::handle(casein::REPAINT, repaint);
+    casein::handle(casein::REPAINT, &repaint);
   }
 } i;
