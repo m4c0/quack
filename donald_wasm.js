@@ -1,10 +1,6 @@
 (function() {
-  const canvas = document.createElement("canvas");
+  const canvas = document.getElementById("casein-canvas");
   const ctx = canvas.getContext("2d");
-  document.body.appendChild(canvas);
-
-  canvas.style.width = 800;
-  canvas.style.height = 600;
 
   leco_imports.quack = {
     clear_colour : (r, g, b, a) => {
