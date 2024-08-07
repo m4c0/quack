@@ -56,6 +56,10 @@ static quack::instance_batch_thread *g_batch;
 static void update(quack::instance *all) {
   if (g_data_fn) {
     g_quads = g_data_fn(all);
+    if (g_quads < 0) {
+      g_quads = 0;
+      silog::log(silog::warning, "No sprite data defined");
+    }
   } else {
     g_quads = 0;
     silog::log(silog::warning, "No sprite data defined");
