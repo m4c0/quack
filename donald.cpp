@@ -134,8 +134,9 @@ namespace quack::donald {
   dotz::vec2 mouse_pos() {
     auto aspect = casein::window_size.x / casein::window_size.y;
     auto upc = quack::adjust_aspect(g_upc, aspect);
-    auto rel = casein::mouse_pos / casein::window_size;
-    return rel * upc.grid_size;
+    auto wnd = casein::mouse_pos / casein::window_size;
+    auto rel = wnd * 2.0 - 1.0f;
+    return rel * upc.grid_size + upc.grid_pos;
   }
 
   void atlas(atlas_fn a) {
