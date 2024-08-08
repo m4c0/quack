@@ -2,6 +2,7 @@ module quack;
 import :ibatch;
 import :pipeline_stuff;
 import :upc;
+import casein;
 import dotz;
 import hai;
 import jute;
@@ -129,6 +130,14 @@ namespace quack::donald {
 
   void clear_colour(dotz::vec4 c) { g_clear_colour = c; }
   void push_constants(quack::upc u) { g_upc = u; }
+
+  dotz::vec2 mouse_pos() {
+    auto aspect = casein::window_size.x / casein::window_size.y;
+    auto upc = quack::adjust_aspect(g_upc, aspect);
+    auto rel = casein::mouse_pos / casein::window_size;
+    return rel * upc.grid_size;
+  }
+
   void atlas(atlas_fn a) {
     // TODO: the function is wrong. It creates the updater, but it should instead
     // create the image

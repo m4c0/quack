@@ -22,7 +22,11 @@ static unsigned quads_4x4(quack::instance * i) {
       i->rotation = { angle, 0.5, 0.5 };
     }
   }
-  return 16;
+
+  i->colour = { 1, 1, 1, 1 };
+  i->position = quack::donald::mouse_pos();
+  i->size = { 0.1f };
+  return 17;
 }
 
 static void repaint() { quack::donald::data(quads_4x4); }
@@ -32,7 +36,7 @@ struct init {
     using namespace quack::donald;
 
     app_name("quack-donald-poc");
-    max_quads(16);
+    max_quads(20);
 
     clear_colour({ 0.1f, 0.15f, 0.1f, 1.f });
     push_constants({
