@@ -7,10 +7,12 @@ import vaselin;
 #define IMPORT(R, N)                                                           \
   extern "C" [[clang::import_module("quack"), clang::import_name(#N)]] R N
 
+IMPORT(void, clear)();
 IMPORT(void, clear_colour)(int r, int g, int b, int a);
 IMPORT(void, fill_colour)(int r, int g, int b, int a);
 IMPORT(void, fill_rect)(float, float, float, float);
 IMPORT(void, restore)();
+IMPORT(void, rotate)(float);
 IMPORT(void, save)();
 IMPORT(void, scale)(float, float);
 IMPORT(void, translate)(float, float);
@@ -37,6 +39,7 @@ void data(data_fn d) {
   auto qty = d(i);
 
   save();
+  clear();
 
   auto s = dotz::vec2{800, 600} / (g_upc.grid_size * 4.0f);
   scale(s.x, s.y);
@@ -45,7 +48,15 @@ void data(data_fn d) {
   for (auto n = 0; n < qty; n++, i++) {
     fill_colour(i->colour.x, i->colour.y, i->colour.z, i->colour.w);
 
+    save();
+    auto pivot = i->position + dotz::vec2{i->rotation.rel_x, i->rotation.rel_y};
+    translate(pivot.x, pivot.y);
+    rotate(i->rotation.angle);
+    translate(-pivot.x, -pivot.y);
+
     fill_rect(i->position.x, i->position.y, i->size.x, i->size.y);
+
+    restore();
   }
 
   restore();
