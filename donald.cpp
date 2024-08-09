@@ -1,5 +1,4 @@
 module quack;
-import :ibatch;
 import :pipeline_stuff;
 import :upc;
 import casein;
@@ -52,7 +51,7 @@ static dotz::vec4 g_clear_colour { 0.1f, 0.2f, 0.3f, 1.0f };
 // TODO: sync count change with data change
 static unsigned g_quads = 0;
 static atlas_updater * g_atlas;
-static quack::instance_batch_thread * g_batch;
+static quack::buffer_updater * g_batch;
 
 static void update(quack::instance * all) {
   if (g_data_fn) {
@@ -88,7 +87,7 @@ void thread::run() {
   voo::device_and_queue dq { g_app_name };
   quack::pipeline_stuff ps { dq, 2 };
 
-  quack::instance_batch_thread ib { &dq, g_max_quads, update };
+  quack::buffer_updater ib { &dq, g_max_quads, update };
   ib.run_once();
   g_batch = &ib;
 

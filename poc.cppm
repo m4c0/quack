@@ -60,11 +60,11 @@ public:
     voo::device_and_queue dq { "quack" };
 
     quack::pipeline_stuff ps { dq, max_batches };
-    quack::instance_batch_thread u { &dq, 2, &update_data };
+    quack::buffer_updater u { &dq, 2, &update_data };
+    u.run_once();
 
     while (!interrupted()) {
       voo::swapchain_and_stuff sw { dq };
-      sith::run_guard ru { &u };
 
       auto a = voo::updater { dq.queue(), &gen_atlas, dq.physical_device(), 16U, 32U };
       a.run_once();
