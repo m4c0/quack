@@ -35,6 +35,9 @@ namespace quack {
   public:
     image_updater(voo::device_and_queue * dq, pipeline_stuff * ps, decltype(m_fn) fn);
 
+    [[nodiscard]] constexpr const auto & smp() const { return m_smp; }
+    [[nodiscard]] constexpr auto & smp() { return m_smp; }
+
     [[nodiscard]] constexpr const auto dset() const { return m_dset; }
   };
 } // namespace quack

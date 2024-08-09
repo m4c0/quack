@@ -71,6 +71,8 @@ public:
       voo::swapchain_and_stuff sw { dq };
 
       quack::image_updater a { &dq, &ps, &gen_atlas };
+      a.smp() = vee::create_sampler(vee::linear_sampler);
+      a.run_once();
 
       quack::upc rpc {
         .grid_pos = { 0.5f, 0.5f },
