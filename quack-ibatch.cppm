@@ -8,44 +8,24 @@ import vee;
 import voo;
 
 namespace quack {
-export class instance_batch {
-  voo::h2l_buffer m_buffer;
+  export class instance_batch_thread : public voo::updater<voo::h2l_buffer> {
+    static constexpr const unsigned instance_size = sizeof(instance);
 
-public:
-  instance_batch() = default;
-  instance_batch(vee::physical_device pd, vee::pipeline_layout::type pl,
-                 unsigned max_quads)
-      : m_buffer{pd, static_cast<unsigned>(max_quads * sizeof(instance))} {}
+    void (*m_fn)(instance *) {};
 
-  void map(auto &&fn) noexcept {
-    voo::mapmem m{m_buffer.host_memory()};
-    fn(static_cast<instance *>(*m));
-  }
+  protected:
+    virtual void update_data(instance * a) { m_fn(a); }
+    virtual void update_data(voo::h2l_buffer * buf) override {
+      voo::mapmem m { buf->host_memory() };
+      update_data(static_cast<instance *>(*m));
+    }
 
-  void setup_copy(vee::command_buffer cb) const { m_buffer.setup_copy(cb); }
+  public:
+    instance_batch_thread(voo::device_and_queue * dq, unsigned max_quads) : instance_batch_thread(dq, max_quads, {}) {}
+    instance_batch_thread(voo::device_and_queue * dq, unsigned max_quads, void (*fn)(instance *))
+        : updater { dq->queue(), voo::h2l_buffer { dq->physical_device(), max_quads * instance_size } }
+        , m_fn { fn } {}
 
-  void build_commands(vee::command_buffer cb) const {
-    vee::cmd_bind_vertex_buffers(cb, 1, m_buffer.local_buffer());
-  }
-};
-
-export class instance_batch_thread : public voo::updater<instance_batch> {
-  void (*m_fn)(instance *){};
-
-protected:
-  virtual void update_data(instance *a) { m_fn(a); }
-  virtual void update_data(instance_batch *ib) override {
-    ib->map([this](auto a) { update_data(a); });
-  }
-
-public:
-  instance_batch_thread(voo::queue *q, instance_batch ib)
-      : updater{q, traits::move(ib)} {}
-  instance_batch_thread(voo::queue *q, instance_batch ib,
-                        void (*fn)(instance *))
-      : updater{q, traits::move(ib)}
-      , m_fn{fn} {}
-
-  using update_thread::run_once;
-};
+    using update_thread::run_once;
+  };
 } // namespace quack

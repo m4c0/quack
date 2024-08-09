@@ -88,7 +88,7 @@ void thread::run() {
   voo::device_and_queue dq { g_app_name };
   quack::pipeline_stuff ps { dq, 2 };
 
-  quack::instance_batch_thread ib { dq.queue(), ps.create_batch(g_max_quads), update };
+  quack::instance_batch_thread ib { &dq, g_max_quads, update };
   ib.run_once();
   g_batch = &ib;
 
@@ -110,7 +110,7 @@ void thread::run() {
         });
         vee::cmd_set_viewport(*scb, sw.extent());
         vee::cmd_set_scissor(*scb, sw.extent());
-        ib.data().build_commands(*pcb);
+        vee::cmd_bind_vertex_buffers(*scb, 1, ib.data().local_buffer());
         ps.cmd_bind_descriptor_set(*scb, atlas.dset());
         ps.cmd_push_vert_frag_constants(*scb, upc);
         ps.run(*scb, g_quads);
