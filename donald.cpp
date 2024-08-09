@@ -138,8 +138,6 @@ namespace quack::donald {
   }
 
   void atlas(atlas_fn a) {
-    // TODO: the function is wrong. It creates the updater, but it should instead
-    // create the image
     g_atlas_fn = a;
     if (g_atlas) {
       g_atlas->run_once();
