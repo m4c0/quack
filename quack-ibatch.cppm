@@ -21,7 +21,6 @@ namespace quack {
     }
 
   public:
-    instance_batch_thread(voo::device_and_queue * dq, unsigned max_quads) : instance_batch_thread(dq, max_quads, {}) {}
     instance_batch_thread(voo::device_and_queue * dq, unsigned max_quads, void (*fn)(instance *))
         : updater { dq->queue(), voo::h2l_buffer { dq->physical_device(), max_quads * instance_size } }
         , m_fn { fn } {}

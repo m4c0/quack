@@ -12,6 +12,8 @@ import sitime;
 import vee;
 import voo;
 
+extern "C" float sinf(float);
+
 struct u8_rgba {
   unsigned char r;
   unsigned char g;
@@ -30,33 +32,26 @@ static void gen_atlas(voo::h2l_image * i) {
     img[i + 256] = { b, b, b, 128 };
   }
 }
+static void update_data(quack::instance * i) {
+  static sitime::stopwatch time {};
 
-extern "C" float sinf(float);
-class updater : public quack::instance_batch_thread {
-  sitime::stopwatch time {};
-
-  void update_data(quack::instance * i) override {
-    float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
-    i[0] = (quack::instance) {
-      .position { 0, 0 },
-      .size { 1, 1 },
-      .colour { 0.0f, 0.0f, 0.1f, 1.0f },
-      .multiplier { 1, 1, 1, 1 },
-    };
-    i[1] = (quack::instance) {
-      .position { 0.25f, 0.25f },
-      .size { 0.5f, 0.5f },
-      .uv0 { 0, 0 },
-      .uv1 { 1, 1 },
-      .colour { 0.25f, 0.0f, 0.1f, a },
-      .multiplier { 1, 1, 1, 1 },
-      .rotation { 5, 0.5, 0.5 },
-    };
-  }
-
-public:
-  updater(voo::device_and_queue * dq, quack::pipeline_stuff & ps) : instance_batch_thread { dq, 2 } {}
-};
+  float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
+  i[0] = (quack::instance) {
+    .position { 0, 0 },
+    .size { 1, 1 },
+    .colour { 0.0f, 0.0f, 0.1f, 1.0f },
+    .multiplier { 1, 1, 1, 1 },
+  };
+  i[1] = (quack::instance) {
+    .position { 0.25f, 0.25f },
+    .size { 0.5f, 0.5f },
+    .uv0 { 0, 0 },
+    .uv1 { 1, 1 },
+    .colour { 0.25f, 0.0f, 0.1f, a },
+    .multiplier { 1, 1, 1, 1 },
+    .rotation { 5, 0.5, 0.5 },
+  };
+}
 
 constexpr const auto max_batches = 100;
 class renderer : public voo::casein_thread {
@@ -65,7 +60,7 @@ public:
     voo::device_and_queue dq { "quack" };
 
     quack::pipeline_stuff ps { dq, max_batches };
-    updater u { &dq, ps };
+    quack::instance_batch_thread u { &dq, 2, &update_data };
 
     while (!interrupted()) {
       voo::swapchain_and_stuff sw { dq };
