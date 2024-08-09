@@ -61,7 +61,6 @@ public:
 
     quack::pipeline_stuff ps { dq, max_batches };
     quack::buffer_updater u { &dq, 2, &update_data };
-    u.run_once();
 
     while (!interrupted()) {
       voo::swapchain_and_stuff sw { dq };

@@ -88,7 +88,6 @@ void thread::run() {
   quack::pipeline_stuff ps { dq, 2 };
 
   quack::buffer_updater ib { &dq, g_max_quads, update };
-  ib.run_once();
   g_batch = &ib;
 
   atlas_updater atlas { &dq, &ps };
