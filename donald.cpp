@@ -19,38 +19,21 @@ namespace {
   public:
     void run() override;
   };
-
-  class atlas_updater : public voo::updater<voo::h2l_image> {
-    vee::sampler m_smp = vee::create_sampler(vee::nearest_sampler);
-    vee::physical_device m_pd;
-    vee::descriptor_set m_dset;
-
-    voo::h2l_image m_old {};
-    vee::descriptor_set m_dset_old;
-
-    void update_data(voo::h2l_image * img) override;
-
-  public:
-    atlas_updater(voo::device_and_queue * dq, quack::pipeline_stuff * ps)
-        : updater { dq->queue(), {} }
-        , m_pd { dq->physical_device() }
-        , m_dset { ps->allocate_descriptor_set() }
-        , m_dset_old { ps->allocate_descriptor_set() } {}
-
-    [[nodiscard]] constexpr auto dset() const { return m_dset; }
-  };
 } // namespace
 
 static const char * g_app_name = "app";
 static unsigned g_max_quads = 0;
 static quack::upc g_upc {};
-static atlas_fn g_atlas_fn {};
+static atlas_fn g_atlas_fn = [](auto pd) {
+  silog::log(silog::warning, "No atlas defined");
+  return voo::h2l_image { pd, 16, 16 };
+};
 static quack::donald::data_fn g_data_fn {};
 static dotz::vec4 g_clear_colour { 0.1f, 0.2f, 0.3f, 1.0f };
 
 // TODO: sync count change with data change
 static unsigned g_quads = 0;
-static atlas_updater * g_atlas;
+static quack::image_updater * g_atlas;
 static quack::buffer_updater * g_batch;
 
 static void update(quack::instance * all) {
@@ -66,23 +49,6 @@ static void update(quack::instance * all) {
   }
 }
 
-void atlas_updater::update_data(voo::h2l_image * img) {
-  m_old = traits::move(*img);
-
-  if (g_atlas_fn) {
-    *img = g_atlas_fn(m_pd);
-  } else {
-    *img = voo::h2l_image { m_pd, 16, 16 };
-    silog::log(silog::warning, "No atlas defined");
-  }
-
-  auto tmp = m_dset_old;
-  m_dset_old = m_dset;
-  m_dset = tmp;
-
-  vee::update_descriptor_set(m_dset, 0, img->iv(), *m_smp);
-}
-
 void thread::run() {
   voo::device_and_queue dq { g_app_name };
   quack::pipeline_stuff ps { dq, 2 };
@@ -90,8 +56,7 @@ void thread::run() {
   quack::buffer_updater ib { &dq, g_max_quads, update };
   g_batch = &ib;
 
-  atlas_updater atlas { &dq, &ps };
-  atlas.run_once();
+  quack::image_updater atlas { &dq, &ps, [](auto pd) { return g_atlas_fn(pd); } };
   g_atlas = &atlas;
 
   release_init_lock();

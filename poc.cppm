@@ -20,8 +20,10 @@ struct u8_rgba {
   unsigned char b;
   unsigned char a;
 };
-static void gen_atlas(voo::h2l_image * i) {
-  voo::mapmem m { i->host_memory() };
+static voo::h2l_image gen_atlas(vee::physical_device pd) {
+  voo::h2l_image res { pd, 16, 32 };
+
+  voo::mapmem m { res.host_memory() };
   auto * img = static_cast<u8_rgba *>(*m);
   for (auto i = 0; i < 16 * 16; i++) {
     auto x = (i / 16) % 2;
@@ -31,6 +33,8 @@ static void gen_atlas(voo::h2l_image * i) {
     img[i] = { 255, 255, 255, 0 };
     img[i + 256] = { b, b, b, 128 };
   }
+
+  return res;
 }
 static void update_data(quack::instance * i) {
   static sitime::stopwatch time {};
@@ -61,15 +65,12 @@ public:
 
     quack::pipeline_stuff ps { dq, max_batches };
     quack::buffer_updater u { &dq, 2, &update_data };
+    sith::run_guard rg { &u };
 
     while (!interrupted()) {
       voo::swapchain_and_stuff sw { dq };
 
-      auto a = voo::updater { dq.queue(), &gen_atlas, dq.physical_device(), 16U, 32U };
-      a.run_once();
-
-      auto smp = vee::create_sampler(vee::nearest_sampler);
-      auto dset = ps.allocate_descriptor_set(a.data().iv(), *smp);
+      quack::image_updater a { &dq, &ps, &gen_atlas };
 
       quack::upc rpc {
         .grid_pos = { 0.5f, 0.5f },
@@ -83,7 +84,7 @@ public:
           vee::cmd_set_viewport(*scb, sw.extent());
           vee::cmd_set_scissor(*scb, sw.extent());
           vee::cmd_bind_vertex_buffers(*scb, 1, u.data().local_buffer());
-          ps.cmd_bind_descriptor_set(*scb, dset);
+          ps.cmd_bind_descriptor_set(*scb, a.dset());
           ps.cmd_push_vert_frag_constants(*scb, upc);
           ps.run(*scb, 2);
         });
