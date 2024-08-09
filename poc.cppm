@@ -65,12 +65,15 @@ public:
 
     quack::pipeline_stuff ps { dq, max_batches };
     quack::buffer_updater u { &dq, 2, &update_data };
-    sith::run_guard rg { &u };
+
+    sith::run_guard rg { &u }; // For animation
 
     while (!interrupted()) {
       voo::swapchain_and_stuff sw { dq };
 
       quack::image_updater a { &dq, &ps, &gen_atlas };
+
+      // For a custom sampler
       a.smp() = vee::create_sampler(vee::linear_sampler);
       a.run_once();
 
@@ -80,15 +83,26 @@ public:
       };
 
       extent_loop(dq.queue(), sw, [&] {
-        auto upc = quack::adjust_aspect(rpc, sw.aspect());
         sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
           auto scb = sw.cmd_render_pass(pcb);
-          vee::cmd_set_viewport(*scb, sw.extent());
-          vee::cmd_set_scissor(*scb, sw.extent());
-          vee::cmd_bind_vertex_buffers(*scb, 1, u.data().local_buffer());
-          ps.cmd_bind_descriptor_set(*scb, a.dset());
-          ps.cmd_push_vert_frag_constants(*scb, upc);
-          ps.run(*scb, 2);
+          ps.run({
+              .sw = &sw,
+              .scb = *scb,
+              .pc = &rpc,
+              .inst_buffer = u.data().local_buffer(),
+              .atlas_dset = a.dset(),
+              .count = 1,
+          });
+          // Could be a single call, but shows how we can do multiple passes
+          ps.run({
+              .sw = &sw,
+              .scb = *scb,
+              .pc = &rpc,
+              .inst_buffer = u.data().local_buffer(),
+              .atlas_dset = a.dset(),
+              .count = 1,
+              .first = 1,
+          });
         });
       });
     }
