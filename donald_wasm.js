@@ -38,7 +38,7 @@
       p += i_rot.yz;
 
       vec2 f_pos = (p + i_pos.xy - pc.grid_pos) / pc.grid_size; 
-      gl_Position = vec4(f_pos + f_adj, 0, 1);
+      gl_Position = vec4(f_pos + f_adj, 0, 1) * vec4(1, -1, 1, 1);
     }
   `;
   const frag_shader = `
