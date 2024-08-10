@@ -99,10 +99,10 @@
   gl.vertexAttribPointer(1, 4, gl.FLOAT, false, i_stride, 0);
   ext.vertexAttribDivisorANGLE(1, 1);
   gl.enableVertexAttribArray(2);
-  gl.vertexAttribPointer(2, 4, gl.FLOAT, false, i_stride, 16);
+  gl.vertexAttribPointer(2, 4, gl.FLOAT, false, i_stride, 32);
   ext.vertexAttribDivisorANGLE(2, 1);
   gl.enableVertexAttribArray(3);
-  gl.vertexAttribPointer(3, 4, gl.FLOAT, false, i_stride, 32);
+  gl.vertexAttribPointer(3, 4, gl.FLOAT, false, i_stride, 16);
   ext.vertexAttribDivisorANGLE(3, 1);
   gl.enableVertexAttribArray(4);
   gl.vertexAttribPointer(4, 4, gl.FLOAT, false, i_stride, 48);
