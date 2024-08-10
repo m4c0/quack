@@ -52,8 +52,6 @@
     console.error(gl.getProgramInfoLog(prog));
   }
 
-  const u_pc = gl.getUniformLocation(prog, "u_pc");
-
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.useProgram(prog);
 
@@ -64,15 +62,19 @@
   gl.enableVertexAttribArray(0);
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-  i_array = new Float32Array([ -1, -1, 2, 3 ]);
+  i_array = new Float32Array([ -1, -1, 1, 1, 2, 3, 1, 1 ]);
   i_buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, i_buf);
   gl.bufferData(gl.ARRAY_BUFFER, i_array, gl.STATIC_DRAW);
   gl.enableVertexAttribArray(1);
-  gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 0, 0);
   ext.vertexAttribDivisorANGLE(1, 1);
 
-  gl.uniform4fv(u_pc, [ 0, 0, 8, 8 ]);
+  const u_pos = gl.getUniformLocation(prog, "pc.grid_pos");
+  const u_size = gl.getUniformLocation(prog, "pc.grid_size");
+
+  gl.uniform2f(u_pos, 0, 0);
+  gl.uniform2f(u_size, 8, 8);
 
   function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT);
