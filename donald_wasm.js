@@ -1,19 +1,89 @@
 !function() {
+  const vert_shader = `
+    struct upc {
+      vec2 grid_pos;
+      vec2 grid_size;
+    };
+
+    uniform upc pc;
+
+    attribute vec2 pos;
+    attribute vec4 i_pos;
+
+    void main() {
+      vec2 f_adj = pos * 0.0001; // avoid one-pixel gaps
+
+      vec2 p = pos * i_pos.zw;
+
+      vec2 f_pos = (p + i_pos.xy - pc.grid_pos) / pc.grid_size; 
+      gl_Position = vec4(f_pos + f_adj, 0, 1);
+    }
+  `;
+  const frag_shader = `
+    void main() {
+      gl_FragColor = vec4(1, 0, 0, 1);
+    }
+  `;
+
   const canvas = document.getElementById("casein-canvas");
-  const ctx = canvas.getContext("2d");
+  const gl = canvas.getContext("webgl");
+  const ext = gl.getExtension("ANGLE_instanced_arrays");
+
+  const prog = gl.createProgram();
+
+  const vert = gl.createShader(gl.VERTEX_SHADER);
+  gl.shaderSource(vert, vert_shader);
+  gl.compileShader(vert);
+  if (!gl.getShaderParameter(vert, gl.COMPILE_STATUS)) {
+    console.error(gl.getShaderInfoLog(vert));
+  }
+  gl.attachShader(prog, vert);
+
+  const frag = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(frag, frag_shader);
+  gl.compileShader(frag);
+  if (!gl.getShaderParameter(frag, gl.COMPILE_STATUS)) {
+    console.error(gl.getShaderInfoLog(frag));
+  }
+  gl.attachShader(prog, frag);
+
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    console.error(gl.getProgramInfoLog(prog));
+  }
+
+  const u_pc = gl.getUniformLocation(prog, "u_pc");
+
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.useProgram(prog);
+
+  v_array = new Float32Array([ 1, 1, -1, 1, 1, -1, 1, -1, -1, 1, -1, -1 ]);
+  v_buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, v_buf);
+  gl.bufferData(gl.ARRAY_BUFFER, v_array, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  i_array = new Float32Array([ -1, -1, 2, 3 ]);
+  i_buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, i_buf);
+  gl.bufferData(gl.ARRAY_BUFFER, i_array, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(1);
+  gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
+  ext.vertexAttribDivisorANGLE(1, 1);
+
+  gl.uniform4fv(u_pc, [ 0, 0, 8, 8 ]);
+
+  function draw() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, 6, 2);
+
+    requestAnimationFrame(draw);
+  }
 
   leco_imports.quack = {
-    clear : () => ctx.clearRect(0, 0, canvas.style.width, canvas.style.height),
-    clear_colour : (r, g, b, a) => {
-      const colour = `rgba(${r}, ${g}, ${b}, ${a})`;
-      canvas.style.backgroundColor = colour;
-    },
-    fill_colour : (r, g, b, a) => ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`,
-    fill_rect : (x, y, w, h) => ctx.fillRect(x, y, w, h),
-    restore : () => ctx.restore(),
-    rotate : (a) => ctx.rotate(a),
-    save : () => ctx.save(),
-    scale : (x, y) => ctx.scale(x, y),
-    translate : (x, y) => ctx.translate(x, y),
+    clear_colour : (r, g, b, a) => gl.clearColor(r, g, b, a),
+    start : () => requestAnimationFrame(draw),
   };
 }();
