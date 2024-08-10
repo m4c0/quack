@@ -8,19 +8,50 @@
 
     attribute vec2 pos;
     attribute vec4 i_pos;
+    attribute vec4 i_color;
+    attribute vec4 i_uv;
+    attribute vec4 i_mult;
+    attribute vec4 i_rot;
+
+    varying vec4 q_color;
+    varying vec2 q_uv;
+    varying vec4 q_mult;
+
+    const float pi = 3.14159265358979323;
 
     void main() {
+      q_color = i_color;
+      q_uv = mix(i_uv.xy, i_uv.zw, pos);
+      q_mult = i_mult;
+
       vec2 f_adj = pos * 0.0001; // avoid one-pixel gaps
 
+      float theta = i_rot.x * pi / 180.0;
+      mat2 rot = mat2(
+        cos(theta), -sin(theta),
+        sin(theta), cos(theta)
+      );
+
       vec2 p = pos * i_pos.zw;
+      p -= i_rot.yz;
+      p = rot * p;
+      p += i_rot.yz;
 
       vec2 f_pos = (p + i_pos.xy - pc.grid_pos) / pc.grid_size; 
       gl_Position = vec4(f_pos + f_adj, 0, 1);
     }
   `;
   const frag_shader = `
+    precision highp float;
+
+    varying vec4 q_color;
+    varying vec2 q_uv;
+    varying vec4 q_mult;
+
     void main() {
-      gl_FragColor = vec4(1, 0, 0, 1);
+      vec4 tex_color = vec4(0, 0, 0, 0) * q_mult;
+      vec4 mix_color = mix(q_color, tex_color, tex_color.a);
+      gl_FragColor = mix_color;
     }
   `;
 
