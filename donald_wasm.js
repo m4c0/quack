@@ -3,7 +3,7 @@
   const ctx = canvas.getContext("2d");
 
   leco_imports.quack = {
-    clear : () => canvas.clearRect(0, 0, canvas.style.width, canvas.style.height),
+    clear : () => ctx.clearRect(0, 0, canvas.style.width, canvas.style.height),
     clear_colour : (r, g, b, a) => {
       const colour = `rgba(${r}, ${g}, ${b}, ${a})`;
       canvas.style.backgroundColor = colour;
