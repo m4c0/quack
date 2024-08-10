@@ -98,6 +98,18 @@
   gl.enableVertexAttribArray(1);
   gl.vertexAttribPointer(1, 4, gl.FLOAT, false, i_stride, 0);
   ext.vertexAttribDivisorANGLE(1, 1);
+  gl.enableVertexAttribArray(2);
+  gl.vertexAttribPointer(2, 4, gl.FLOAT, false, i_stride, 16);
+  ext.vertexAttribDivisorANGLE(2, 1);
+  gl.enableVertexAttribArray(3);
+  gl.vertexAttribPointer(3, 4, gl.FLOAT, false, i_stride, 32);
+  ext.vertexAttribDivisorANGLE(3, 1);
+  gl.enableVertexAttribArray(4);
+  gl.vertexAttribPointer(4, 4, gl.FLOAT, false, i_stride, 48);
+  ext.vertexAttribDivisorANGLE(4, 1);
+  gl.enableVertexAttribArray(5);
+  gl.vertexAttribPointer(5, 4, gl.FLOAT, false, i_stride, 64);
+  ext.vertexAttribDivisorANGLE(5, 1);
 
   const u_pos = gl.getUniformLocation(prog, "pc.grid_pos");
   const u_size = gl.getUniformLocation(prog, "pc.grid_size");
