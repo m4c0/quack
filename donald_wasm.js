@@ -4,7 +4,6 @@
       vec2 grid_pos;
       vec2 grid_size;
     };
-
     uniform upc pc;
 
     attribute vec2 pos;
@@ -54,7 +53,7 @@
 
   gl.useProgram(prog);
 
-  v_array = new Float32Array([ 1, 1, -1, 1, 1, -1, 1, -1, -1, 1, -1, -1 ]);
+  v_array = new Float32Array([ 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0 ]);
   v_buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, v_buf);
   gl.bufferData(gl.ARRAY_BUFFER, v_array, gl.STATIC_DRAW);
@@ -73,7 +72,7 @@
   const u_size = gl.getUniformLocation(prog, "pc.grid_size");
 
   gl.uniform2f(u_pos, 0, 0);
-  gl.uniform2f(u_size, 8, 8);
+  gl.uniform2f(u_size, 1, 1);
 
   var i_count = 0;
   function draw() {
@@ -94,6 +93,10 @@
       gl.bindBuffer(gl.ARRAY_BUFFER, i_buf);
       gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
       i_count = count;
+    },
+    set_grid : (px, py, sx, sy) => {
+      gl.uniform2f(u_pos, px, py);
+      gl.uniform2f(u_size, sx, sy);
     },
     start : () => requestAnimationFrame(draw),
   };
