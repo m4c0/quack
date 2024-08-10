@@ -8,6 +8,7 @@ import vaselin;
 #define IMPORT(R, N) extern "C" [[clang::import_module("quack"), clang::import_name(#N)]] R N
 
 IMPORT(void, clear_colour)(float, float, float, float);
+IMPORT(void, bind_instances)(unsigned, const void *, unsigned);
 IMPORT(void, start)();
 
 static const char * g_app_name = "app";
@@ -39,6 +40,8 @@ namespace quack::donald {
   void data(data_fn d) {
     auto i = g_quads.begin();
     auto qty = d(i);
+
+    bind_instances(qty, g_quads.begin(), g_quads.size());
 
     if (!g_started) {
       start();

@@ -52,7 +52,6 @@
     console.error(gl.getProgramInfoLog(prog));
   }
 
-  gl.viewport(0, 0, canvas.width, canvas.height);
   gl.useProgram(prog);
 
   v_array = new Float32Array([ 1, 1, -1, 1, 1, -1, 1, -1, -1, 1, -1, -1 ]);
@@ -62,12 +61,12 @@
   gl.enableVertexAttribArray(0);
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-  i_array = new Float32Array([ -1, -1, 1, 1, 2, 3, 1, 1 ]);
+  const i_stride = 80;
+
   i_buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, i_buf);
-  gl.bufferData(gl.ARRAY_BUFFER, i_array, gl.STATIC_DRAW);
   gl.enableVertexAttribArray(1);
-  gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(1, 4, gl.FLOAT, false, i_stride, 0);
   ext.vertexAttribDivisorANGLE(1, 1);
 
   const u_pos = gl.getUniformLocation(prog, "pc.grid_pos");
@@ -76,16 +75,26 @@
   gl.uniform2f(u_pos, 0, 0);
   gl.uniform2f(u_size, 8, 8);
 
+  var i_count = 0;
   function draw() {
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    if (i_count > 0) {
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.viewport(0, 0, canvas.width, canvas.height);
 
-    ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, 6, 2);
+      ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, 6, i_count);
+    }
 
     requestAnimationFrame(draw);
   }
 
   leco_imports.quack = {
     clear_colour : (r, g, b, a) => gl.clearColor(r, g, b, a),
+    bind_instances : (count, ptr, sz) => {
+      const data = new DataView(leco_exports.memory.buffer, ptr, sz * i_stride);
+      gl.bindBuffer(gl.ARRAY_BUFFER, i_buf);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+      i_count = count;
+    },
     start : () => requestAnimationFrame(draw),
   };
 }();
