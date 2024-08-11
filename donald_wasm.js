@@ -44,12 +44,14 @@
   const frag_shader = `
     precision highp float;
 
+    uniform sampler2D tex;
+
     varying vec4 q_color;
     varying vec2 q_uv;
     varying vec4 q_mult;
 
     void main() {
-      vec4 tex_color = vec4(0, 0, 0, 0) * q_mult;
+      vec4 tex_color = texture2D(tex, q_uv) * q_mult;
       vec4 mix_color = mix(q_color, tex_color, tex_color.a);
       gl_FragColor = mix_color;
     }
@@ -111,11 +113,18 @@
   gl.vertexAttribPointer(5, 4, gl.FLOAT, false, i_stride, 64);
   ext.vertexAttribDivisorANGLE(5, 1);
 
+  const txt = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, txt);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+
   const u_pos = gl.getUniformLocation(prog, "pc.grid_pos");
   const u_size = gl.getUniformLocation(prog, "pc.grid_size");
+  const u_tex = gl.getUniformLocation(prog, "tex");
 
   gl.uniform2f(u_pos, 0, 0);
   gl.uniform2f(u_size, 1, 1);
+  gl.uniform1i(u_tex, 0);
 
   var i_count = 0;
   function draw() {
@@ -136,6 +145,17 @@
       gl.bindBuffer(gl.ARRAY_BUFFER, i_buf);
       gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
       i_count = count;
+    },
+    load_texture : (ptr, sz) => {
+      const img = new Image();
+      img.onload = () => {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+      };
+      img.src = vaselin_tostr(ptr, sz);
     },
     set_grid : (px, py, sx, sy) => {
       gl.uniform2f(u_pos, px, py);

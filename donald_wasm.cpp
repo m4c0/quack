@@ -3,12 +3,14 @@ import casein;
 import dotz;
 import hai;
 import jute;
+import sires;
 import vaselin;
 
 #define IMPORT(R, N) extern "C" [[clang::import_module("quack"), clang::import_name(#N)]] R N
 
 IMPORT(void, clear_colour)(float, float, float, float);
 IMPORT(void, bind_instances)(unsigned, const void *, unsigned);
+IMPORT(void, load_texture)(const char *, unsigned);
 IMPORT(void, set_grid)(float, float, float, float);
 IMPORT(void, start)();
 
@@ -39,7 +41,7 @@ namespace quack::donald {
     return rel * g_upc.grid_size + g_upc.grid_pos;
   }
 
-  void atlas(jute::view res_name) {}
+  void atlas(jute::view res_name) { load_texture(res_name.begin(), res_name.size()); }
   void atlas(const void * ptr, unsigned width, unsigned height) {}
 
   void data(data_fn d) {
