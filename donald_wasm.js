@@ -126,6 +126,9 @@
   gl.uniform2f(u_size, 1, 1);
   gl.uniform1i(u_tex, 0);
 
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
   var i_count = 0;
   function draw() {
     if (i_count > 0) {
@@ -153,7 +156,6 @@
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-
       };
       img.src = vaselin_tostr(ptr, sz);
     },
