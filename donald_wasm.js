@@ -127,7 +127,7 @@
   gl.uniform1i(u_tex, 0);
 
   gl.enable(gl.BLEND);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
   var i_count = 0;
   function draw() {
