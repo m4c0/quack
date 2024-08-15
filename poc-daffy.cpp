@@ -10,10 +10,10 @@ import voo;
 
 extern "C" float sinf(float);
 
-static void update_data(quack::instance *& i) {
-  static sitime::stopwatch time {};
-
-  float a = sinf(time.millis() / 1000.0f) * 30.0f;
+static void update_data(quack::instance *& i, unsigned ms) {
+  static int acc {};
+  acc += ms;
+  float a = sinf(acc / 1000.0f) * 30.0f;
   *i++ = (quack::instance) {
     .position { 0, 0 },
     .size { 1, 1 },
@@ -28,7 +28,7 @@ struct init {
   init() {
     using namespace quack::daffy;
 
-    app_name("poc-daffy"); 
+    app_name("poc-daffy");
 
     add_batch(1, update_data);
   }

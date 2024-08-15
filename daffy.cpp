@@ -1,10 +1,13 @@
 module quack;
 import hai;
 import jute;
+import sith;
+import sitime;
 import voo;
 
 struct batch_pair {
   unsigned max {};
+  bool animated {};
   quack::buffer_fn_t fn {};
 };
 static hai::varray<batch_pair> g_batches { 100 };
@@ -13,7 +16,17 @@ static hai::cstr g_app_name = jute::view { "app" }.cstr();
 
 void quack::daffy::app_name(jute::view n) { g_app_name = n.cstr(); }
 void quack::daffy::add_batch(unsigned max, void (*fn)(quack::instance *&)) {
-  g_batches.push_back(batch_pair { max, fn });
+  g_batches.push_back(batch_pair { max, false, fn });
+}
+void quack::daffy::add_batch(unsigned max, void (*fn)(quack::instance *&, unsigned)) {
+  using tm = sitime::stopwatch;
+  auto wrap = [=, t = tm()](auto *& i) mutable {
+    auto dt = t.millis();
+    t = {};
+    fn(i, dt);
+  };
+
+  g_batches.push_back(batch_pair { max, true, wrap });
 }
 
 namespace {
@@ -25,9 +38,11 @@ namespace {
       quack::pipeline_stuff ps { dq, 100 };
 
       hai::array<quack::buffer_updater> bus { g_batches.size() };
+      hai::array<sith::run_guard> rgs { g_batches.size() };
       for (auto i = 0; i < g_batches.size(); i++) {
         auto b = g_batches[i];
         bus[i] = quack::buffer_updater { &dq, b.max, b.fn };
+        if (b.animated) rgs[i] = sith::run_guard { &bus[i] };
       }
 
       // sith::run_guard rg { &u }; // For animation
