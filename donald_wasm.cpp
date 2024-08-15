@@ -46,9 +46,10 @@ namespace quack::donald {
 
   void data(data_fn d) {
     auto i = g_quads.begin();
-    auto qty = d(i);
+    d(i);
+    auto qty = i - g_quads.begin();
 
-    bind_instances(qty, g_quads.begin(), g_quads.size());
+    if (qty > 0) bind_instances(qty, g_quads.begin(), g_quads.size());
 
     if (!g_started) {
       start();

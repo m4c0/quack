@@ -4,7 +4,7 @@ import casein;
 import quack;
 import sitime;
 
-static unsigned quads_4x4(quack::instance * i) {
+static void quads_4x4(quack::instance *& i) {
   static sitime::stopwatch t {};
 
   auto angle = 360.f * t.millis() / 1000.f;
@@ -26,7 +26,7 @@ static unsigned quads_4x4(quack::instance * i) {
   i->colour = { 1, 1, 1, 1 };
   i->position = quack::donald::mouse_pos();
   i->size = { 0.1f };
-  return 17;
+  i++;
 }
 
 static void repaint() { quack::donald::data(quads_4x4); }

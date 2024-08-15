@@ -6,7 +6,7 @@ import jute;
 
 /// Single-batch single-atlas render thread
 export namespace quack::donald {
-  using data_fn = unsigned (*)(instance *);
+  using data_fn = void (*)(instance *&);
 
   void app_name(const char *);
   void max_quads(unsigned);

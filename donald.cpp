@@ -38,10 +38,12 @@ static quack::buffer_updater * g_batch;
 
 static void update(quack::instance * all) {
   if (g_data_fn) {
-    g_quads = g_data_fn(all);
+    auto orig = all;
+    g_data_fn(all);
+    g_quads = all - orig;
     if (g_quads < 0) {
       g_quads = 0;
-      silog::log(silog::warning, "No sprite data defined");
+      silog::log(silog::warning, "Invalid sprite data defined");
     }
   } else {
     g_quads = 0;
