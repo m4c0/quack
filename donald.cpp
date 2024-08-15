@@ -36,7 +36,7 @@ static unsigned g_quads = 0;
 static quack::image_updater * g_atlas;
 static quack::buffer_updater * g_batch;
 
-static void update(quack::instance * all) {
+static void update(quack::instance *& all) {
   if (g_data_fn) {
     auto orig = all;
     g_data_fn(all);

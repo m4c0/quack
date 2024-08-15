@@ -36,17 +36,17 @@ static voo::h2l_image gen_atlas(vee::physical_device pd) {
 
   return res;
 }
-static void update_data(quack::instance * i) {
+static void update_data(quack::instance *& i) {
   static sitime::stopwatch time {};
 
   float a = sinf(time.millis() / 1000.0f) * 0.5f + 0.5f;
-  i[0] = (quack::instance) {
+  *i++ = (quack::instance) {
     .position { 0, 0 },
     .size { 1, 1 },
     .colour { 0.0f, 0.0f, 0.1f, 1.0f },
     .multiplier { 1, 1, 1, 1 },
   };
-  i[1] = (quack::instance) {
+  *i++ = (quack::instance) {
     .position { 0.25f, 0.25f },
     .size { 0.5f, 0.5f },
     .uv0 { 0, 0 },

@@ -3,7 +3,7 @@ import traits;
 
 static constexpr const unsigned instance_size = sizeof(quack::instance);
 
-quack::buffer_updater::buffer_updater(voo::device_and_queue * dq, unsigned max_quads, void (*fn)(instance *))
+quack::buffer_updater::buffer_updater(voo::device_and_queue * dq, unsigned max_quads, void (*fn)(instance *&))
     : updater { dq->queue(), voo::h2l_buffer { dq->physical_device(), max_quads * instance_size } }
     , m_fn { fn } {
   run_once();
@@ -11,7 +11,10 @@ quack::buffer_updater::buffer_updater(voo::device_and_queue * dq, unsigned max_q
 
 void quack::buffer_updater::update_data(voo::h2l_buffer * buf) {
   voo::mapmem m { buf->host_memory() };
-  m_fn(static_cast<instance *>(*m));
+  auto mb = static_cast<instance *>(*m);
+  auto me = mb;
+  m_fn(me);
+  if (me >= mb) m_inst_count = me - mb;
 }
 
 quack::image_updater::image_updater(voo::device_and_queue * dq, pipeline_stuff * ps, decltype(m_fn) fn)

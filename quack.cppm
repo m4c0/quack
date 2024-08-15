@@ -12,12 +12,15 @@ import voo;
 
 namespace quack {
   export class buffer_updater : public voo::updater<voo::h2l_buffer> {
-    void (*m_fn)(instance *) {};
+    void (*m_fn)(instance *&) {};
+    unsigned m_inst_count {};
 
     void update_data(voo::h2l_buffer * buf) override;
 
   public:
-    buffer_updater(voo::device_and_queue * dq, unsigned max_quads, void (*fn)(instance *));
+    buffer_updater(voo::device_and_queue * dq, unsigned max_quads, void (*fn)(instance *&));
+
+    [[nodiscard]] constexpr auto count() const { return m_inst_count; }
   };
 
   export class image_updater : public voo::updater<voo::h2l_image> {
