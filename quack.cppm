@@ -8,12 +8,13 @@ export import :upc;
 #else
 export import :daffy;
 export import :pipeline_stuff;
+import hai;
 import vee;
 import voo;
 
 namespace quack {
   export class buffer_updater : public voo::updater<voo::h2l_buffer> {
-    void (*m_fn)(instance *&) {};
+    hai::fn<void, instance *&> m_fn {};
     unsigned m_inst_count {};
 
     void update_data(voo::h2l_buffer * buf) override;
