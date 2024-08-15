@@ -32,6 +32,6 @@ struct init {
 
     add_image("nasa-jupiter.png");
 
-    add_batch(1, update_data);
+    add_batch(1, 0, update_data);
   }
 } i;

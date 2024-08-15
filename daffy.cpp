@@ -8,6 +8,7 @@ import voo;
 struct batch_pair {
   unsigned max {};
   bool animated {};
+  unsigned img {};
   quack::buffer_fn_t fn {};
 };
 static hai::varray<batch_pair> g_batches { 100 };
@@ -17,10 +18,10 @@ static hai::cstr g_app_name = jute::view { "app" }.cstr();
 
 void quack::daffy::app_name(jute::view n) { g_app_name = n.cstr(); }
 
-void quack::daffy::add_batch(unsigned max, void (*fn)(quack::instance *&)) {
-  g_batches.push_back(batch_pair { max, false, fn });
+void quack::daffy::add_batch(unsigned max, unsigned img, void (*fn)(quack::instance *&)) {
+  g_batches.push_back(batch_pair { max, false, img, fn });
 }
-void quack::daffy::add_batch(unsigned max, void (*fn)(quack::instance *&, unsigned)) {
+void quack::daffy::add_batch(unsigned max, unsigned img, void (*fn)(quack::instance *&, unsigned)) {
   using tm = sitime::stopwatch;
   auto wrap = [=, t = tm()](auto *& i) mutable {
     auto dt = t.millis();
@@ -28,12 +29,18 @@ void quack::daffy::add_batch(unsigned max, void (*fn)(quack::instance *&, unsign
     fn(i, dt);
   };
 
-  g_batches.push_back(batch_pair { max, true, wrap });
+  g_batches.push_back(batch_pair { max, true, img, wrap });
 }
 
 void quack::daffy::add_image(jute::view name) { g_textures.push_back(name.cstr()); }
 
 namespace {
+  struct batch {
+    quack::buffer_updater buffer;
+    sith::run_guard rg;
+    vee::descriptor_set dset;
+  };
+
   class renderer : public voo::casein_thread {
   public:
     void run() override {
@@ -48,12 +55,13 @@ namespace {
         }};
       }
 
-      hai::array<quack::buffer_updater> bus { g_batches.size() };
-      hai::array<sith::run_guard> rgs { g_batches.size() };
+      hai::array<batch> bus { g_batches.size() };
       for (auto i = 0; i < g_batches.size(); i++) {
         auto b = g_batches[i];
-        bus[i] = quack::buffer_updater { &dq, b.max, b.fn };
-        if (b.animated) rgs[i] = sith::run_guard { &bus[i] };
+        auto & bb = bus[i];
+        bb.buffer = quack::buffer_updater { &dq, b.max, b.fn };
+        bb.dset = ius[b.img].dset();
+        if (b.animated) bb.rg = sith::run_guard { &bb.buffer };
       }
 
       while (!interrupted()) {
@@ -70,13 +78,13 @@ namespace {
                 .command_buffer = *pcb,
                 .clear_color = { { 0, 0, 0, 1 } },
             });
-            for (auto & u : bus) {
+            for (auto & [u, _, dset] : bus) {
               ps.run({
                   .sw = &sw,
                   .scb = *scb,
                   .pc = &rpc,
                   .inst_buffer = u.data().local_buffer(),
-                  .atlas_dset = ius[0].dset(),
+                  .atlas_dset = dset,
                   .count = u.count(),
               });
             }
