@@ -1,4 +1,5 @@
 module quack;
+import dotz;
 import hai;
 import jute;
 import sith;
@@ -15,8 +16,10 @@ static hai::varray<batch_pair> g_batches { 100 };
 static hai::varray<hai::cstr> g_textures { 10 };
 
 static hai::cstr g_app_name = jute::view { "app" }.cstr();
+static dotz::vec4 g_colour{};
 
 void quack::daffy::app_name(jute::view n) { g_app_name = n.cstr(); }
+void quack::daffy::clear_colour(dotz::vec4 c) { g_colour = c; }
 
 void quack::daffy::add_batch(unsigned max, unsigned img, void (*fn)(quack::instance *&)) {
   g_batches.push_back(batch_pair { max, false, img, fn });
@@ -76,7 +79,7 @@ namespace {
           sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
             auto scb = sw.cmd_render_pass(vee::render_pass_begin {
                 .command_buffer = *pcb,
-                .clear_color = { { 0, 0, 0, 1 } },
+                .clear_color = { { g_colour.x, g_colour.y, g_colour.z, g_colour.w } },
             });
             for (auto & [u, _, dset] : bus) {
               ps.run({

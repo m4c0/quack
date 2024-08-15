@@ -29,6 +29,7 @@ struct init {
     using namespace quack::daffy;
 
     app_name("poc-daffy");
+    clear_colour({ 0.1f, 0.2f, 0.3f, 1.0f });
 
     add_image("nasa-jupiter.png");
 
