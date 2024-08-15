@@ -24,43 +24,12 @@ static void update_data(quack::instance *& i) {
   };
 }
 
-constexpr const auto max_batches = 100;
-class renderer : public voo::casein_thread {
-public:
-  void run() override {
-    voo::device_and_queue dq { "quack" };
+struct init {
+  init() {
+    using namespace quack::daffy;
 
-    quack::pipeline_stuff ps { dq, max_batches };
-    quack::buffer_updater u { &dq, 2, update_data };
+    app_name("poc-daffy"); 
 
-    sith::run_guard rg { &u }; // For animation
-
-    while (!interrupted()) {
-      voo::swapchain_and_stuff sw { dq };
-
-      quack::image_updater a { &dq, &ps, [](auto pd) { return voo::load_sires_image("nasa-jupiter.png", pd); } };
-
-      quack::upc rpc {
-        .grid_pos = { 0.5f, 0.5f },
-        .grid_size = { 4.0f, 4.0f },
-      };
-
-      extent_loop(dq.queue(), sw, [&] {
-        sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
-        auto scb = sw.cmd_render_pass(vee::render_pass_begin {
-            .command_buffer = *pcb,
-            .clear_color = { { 0, 0, 0, 1 } },
-        });
-          ps.run({
-              .sw = &sw,
-              .scb = *scb,
-              .pc = &rpc,
-              .inst_buffer = u.data().local_buffer(),
-              .atlas_dset = a.dset(),
-              .count = u.count(),
-          });
-        });
-      });
-    }
+    add_batch(1, update_data);
   }
-} r;
+} i;

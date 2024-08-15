@@ -6,6 +6,7 @@ export import :upc;
 #ifdef LECO_TARGET_WASM
 #pragma leco add_impl donald_wasm
 #else
+export import :daffy;
 export import :pipeline_stuff;
 import vee;
 import voo;
@@ -18,6 +19,7 @@ namespace quack {
     void update_data(voo::h2l_buffer * buf) override;
 
   public:
+    constexpr buffer_updater() = default;
     buffer_updater(voo::device_and_queue * dq, unsigned max_quads, void (*fn)(instance *&));
 
     [[nodiscard]] constexpr auto count() const { return m_inst_count; }
@@ -47,5 +49,5 @@ namespace quack {
 
 #pragma leco add_shader "quack.frag"
 #pragma leco add_shader "quack.vert"
-#pragma leco add_impl donald updater
+#pragma leco add_impl daffy donald updater
 #endif
