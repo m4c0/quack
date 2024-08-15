@@ -30,6 +30,8 @@ struct init {
 
     app_name("poc-daffy");
 
+    add_image("nasa-jupiter.png");
+
     add_batch(1, update_data);
   }
 } i;

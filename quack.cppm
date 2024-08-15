@@ -27,7 +27,7 @@ namespace quack {
   };
 
   export class image_updater : public voo::updater<voo::h2l_image> {
-    voo::h2l_image (*m_fn)(vee::physical_device) {};
+    hai::fn<voo::h2l_image, vee::physical_device> m_fn {};
 
     vee::sampler m_smp = vee::create_sampler(vee::nearest_sampler);
     vee::physical_device m_pd;
@@ -39,6 +39,7 @@ namespace quack {
     void update_data(voo::h2l_image * buf) override;
 
   public:
+    constexpr image_updater() = default;
     image_updater(voo::device_and_queue * dq, pipeline_stuff * ps, decltype(m_fn) fn);
 
     [[nodiscard]] constexpr const auto & smp() const { return m_smp; }

@@ -11,10 +11,12 @@ struct batch_pair {
   quack::buffer_fn_t fn {};
 };
 static hai::varray<batch_pair> g_batches { 100 };
+static hai::varray<hai::cstr> g_textures { 10 };
 
 static hai::cstr g_app_name = jute::view { "app" }.cstr();
 
 void quack::daffy::app_name(jute::view n) { g_app_name = n.cstr(); }
+
 void quack::daffy::add_batch(unsigned max, void (*fn)(quack::instance *&)) {
   g_batches.push_back(batch_pair { max, false, fn });
 }
@@ -29,6 +31,8 @@ void quack::daffy::add_batch(unsigned max, void (*fn)(quack::instance *&, unsign
   g_batches.push_back(batch_pair { max, true, wrap });
 }
 
+void quack::daffy::add_image(jute::view name) { g_textures.push_back(name.cstr()); }
+
 namespace {
   class renderer : public voo::casein_thread {
   public:
@@ -36,6 +40,13 @@ namespace {
       voo::device_and_queue dq { g_app_name.begin() };
 
       quack::pipeline_stuff ps { dq, 100 };
+
+      hai::array<quack::image_updater> ius { g_textures.size() };
+      for (auto i = 0; i < g_textures.size(); i++) {
+        ius[i] = quack::image_updater { &dq, &ps, [=](auto pd) {
+          return voo::load_sires_image(g_textures[i], pd);
+        }};
+      }
 
       hai::array<quack::buffer_updater> bus { g_batches.size() };
       hai::array<sith::run_guard> rgs { g_batches.size() };
@@ -45,12 +56,8 @@ namespace {
         if (b.animated) rgs[i] = sith::run_guard { &bus[i] };
       }
 
-      // sith::run_guard rg { &u }; // For animation
-
       while (!interrupted()) {
         voo::swapchain_and_stuff sw { dq };
-
-        quack::image_updater a { &dq, &ps, [](auto pd) { return voo::load_sires_image("nasa-jupiter.png", pd); } };
 
         quack::upc rpc {
           .grid_pos = { 0.5f, 0.5f },
@@ -69,7 +76,7 @@ namespace {
                   .scb = *scb,
                   .pc = &rpc,
                   .inst_buffer = u.data().local_buffer(),
-                  .atlas_dset = a.dset(),
+                  .atlas_dset = ius[0].dset(),
                   .count = u.count(),
               });
             }
