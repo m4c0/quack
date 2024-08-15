@@ -5,7 +5,7 @@ import voo;
 
 struct batch_pair {
   unsigned max {};
-  void (*fn)(quack::instance *&) {};
+  quack::buffer_fn_t fn {};
 };
 static hai::varray<batch_pair> g_batches { 100 };
 

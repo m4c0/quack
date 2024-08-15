@@ -1,5 +1,6 @@
 export module quack:objects;
 import dotz;
+import hai;
 
 namespace quack {
 export struct rotation {
@@ -19,4 +20,6 @@ export struct instance {
   rotation rotation;
 };
 static_assert(sizeof(instance) == 20 * sizeof(float));
+
+using buffer_fn_t = hai::fn<void, instance *&>;
 } // namespace quack

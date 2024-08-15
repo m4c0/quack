@@ -28,7 +28,7 @@ static atlas_fn g_atlas_fn = [](auto pd) {
   silog::log(silog::warning, "No atlas defined");
   return voo::h2l_image { pd, 16, 16 };
 };
-static quack::donald::data_fn g_data_fn {};
+static quack::buffer_fn_t g_data_fn {};
 static dotz::vec4 g_clear_colour { 0.1f, 0.2f, 0.3f, 1.0f };
 
 // TODO: sync count change with data change
@@ -135,7 +135,7 @@ namespace quack::donald {
       return img;
     });
   }
-  void data(data_fn d) {
+  void data(buffer_fn_t d) {
     g_data_fn = d;
     if (g_batch) {
       g_batch->run_once();

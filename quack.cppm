@@ -14,14 +14,14 @@ import voo;
 
 namespace quack {
   export class buffer_updater : public voo::updater<voo::h2l_buffer> {
-    hai::fn<void, instance *&> m_fn {};
+    buffer_fn_t m_fn {};
     unsigned m_inst_count {};
 
     void update_data(voo::h2l_buffer * buf) override;
 
   public:
     constexpr buffer_updater() = default;
-    buffer_updater(voo::device_and_queue * dq, unsigned max_quads, void (*fn)(instance *&));
+    buffer_updater(voo::device_and_queue * dq, unsigned max_quads, buffer_fn_t fn);
 
     [[nodiscard]] constexpr auto count() const { return m_inst_count; }
   };

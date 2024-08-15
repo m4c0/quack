@@ -3,7 +3,7 @@ import traits;
 
 static constexpr const unsigned instance_size = sizeof(quack::instance);
 
-quack::buffer_updater::buffer_updater(voo::device_and_queue * dq, unsigned max_quads, void (*fn)(instance *&))
+quack::buffer_updater::buffer_updater(voo::device_and_queue * dq, unsigned max_quads, buffer_fn_t fn)
     : updater { dq->queue(), voo::h2l_buffer { dq->physical_device(), max_quads * instance_size } }
     , m_fn { fn } {
   run_once();
