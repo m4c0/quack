@@ -23,9 +23,12 @@ export namespace quack::yakki {
     [[nodiscard]] constexpr auto & pc() { return m_pc; }
 
     [[nodiscard]] constexpr auto local_buffer() const { return m_buffer.data().local_buffer(); }
+    [[nodiscard]] constexpr auto count() const { return m_buffer.count(); }
 
     void start() { m_guard = sith::run_guard { &m_buffer }; }
+    void run_once() { m_buffer.run_once(); }
   };
+  using image = image_updater;
 
   class resources {
     voo::device_and_queue * m_dq;
@@ -69,6 +72,7 @@ export namespace quack::yakki {
           .first = first,
       });
     }
+    void run(buffer * b, image_updater * i) { run(b, i, b->count()); }
   };
 
   void (*on_start)(resources *);
