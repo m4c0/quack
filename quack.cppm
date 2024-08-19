@@ -6,7 +6,6 @@ export import :upc;
 #ifdef LECO_TARGET_WASM
 #pragma leco add_impl donald_wasm
 #else
-export import :daffy;
 export import :pipeline_stuff;
 import hai;
 import vee;
@@ -51,5 +50,5 @@ namespace quack {
 
 #pragma leco add_shader "quack.frag"
 #pragma leco add_shader "quack.vert"
-#pragma leco add_impl daffy donald updater
+#pragma leco add_impl donald updater
 #endif
