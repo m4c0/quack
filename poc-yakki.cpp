@@ -14,7 +14,14 @@ import voo;
 extern "C" float cosf(float);
 extern "C" float sinf(float);
 
-static void update_data(quack::instance *& i) {
+static void back(quack::instance *& i) {
+  *i++ = {
+    .position = { -6 },
+    .size = { 12 },
+    .colour = { 0, 0, 0, 1 },
+  };
+}
+static void spiral(quack::instance *& i) {
   static sitime::stopwatch time {};
 
   auto t = time.millis() / 1000.f;
@@ -40,7 +47,8 @@ public:
     voo::device_and_queue dq { "quack" };
 
     quack::pipeline_stuff ps { dq, max_batches };
-    quack::buffer_updater u { &dq, 100, &update_data };
+    quack::buffer_updater bg { &dq, 100, &back };
+    quack::buffer_updater u { &dq, 100, &spiral };
 
     sith::run_guard rg { &u }; // For animation
 
@@ -57,6 +65,14 @@ public:
       extent_loop(dq.queue(), sw, [&] {
         sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
           auto scb = sw.cmd_render_pass(pcb);
+          ps.run({
+              .sw = &sw,
+              .scb = *scb,
+              .pc = &rpc,
+              .inst_buffer = bg.data().local_buffer(),
+              .atlas_dset = a.dset(),
+              .count = 1,
+          });
           ps.run({
               .sw = &sw,
               .scb = *scb,
