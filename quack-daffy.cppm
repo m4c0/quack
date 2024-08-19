@@ -3,6 +3,7 @@ import :objects;
 import dotz;
 import jute;
 
+/// Attempt at a multi-batch donald
 namespace quack::daffy {
   export void app_name(jute::view n);
   export void clear_colour(dotz::vec4 c);
