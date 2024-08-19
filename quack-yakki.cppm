@@ -99,5 +99,5 @@ export namespace quack::yakki {
         });
       }
     }
-  };
+  } t;
 } // namespace quack::yakki

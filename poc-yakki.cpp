@@ -59,9 +59,9 @@ static void on_frame(quack::yakki::renderer * r) {
   r->run(g_u, g_a, 100);
 }
 
-struct init : quack::yakki::thread {
-  init() : thread() {
+struct init {
+  init() {
     quack::yakki::on_start = on_start;
     quack::yakki::on_frame = on_frame;
   }
-} r;
+} i;
