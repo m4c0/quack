@@ -71,8 +71,8 @@ export namespace quack::yakki {
     }
   };
 
-  hai::fn<void, resources *> on_start {};
-  hai::fn<void, renderer *> on_frame {};
+  void (*on_start)(resources *);
+  void (*on_frame)(renderer *);
 
   class thread : public voo::casein_thread {
     static constexpr const auto max_dsets = 16;
