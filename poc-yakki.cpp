@@ -4,7 +4,8 @@
 #endif
 
 import casein;
-import silog;
+import hai;
+import jute;
 import quack;
 import sith;
 import sitime;
@@ -40,7 +41,91 @@ static void spiral(quack::instance *& i) {
   }
 }
 
-class renderer : public voo::casein_thread {
+class buffer {
+  quack::buffer_updater m_buffer {};
+  quack::upc m_pc {};
+  sith::run_guard m_guard {};
+
+public:
+  constexpr buffer() = default;
+  buffer(quack::buffer_updater b) : m_buffer { traits::move(b) } {}
+
+  [[nodiscard]] constexpr auto & pc() { return m_pc; }
+
+  [[nodiscard]] constexpr auto local_buffer() const { return m_buffer.data().local_buffer(); }
+
+  void start() { m_guard = sith::run_guard { &m_buffer }; }
+};
+
+class resources {
+  voo::device_and_queue * m_dq;
+  quack::pipeline_stuff * m_ps;
+
+  hai::varray<quack::image_updater> m_imgs { 16 };
+  hai::varray<buffer> m_bufs { 128 };
+
+public:
+  constexpr resources(voo::device_and_queue * dq, quack::pipeline_stuff * ps) : m_dq { dq }, m_ps { ps } {}
+
+  [[nodiscard]] auto * image(jute::view name) {
+    m_imgs.push_back(quack::image_updater { m_dq, m_ps, voo::load_sires_image(name) });
+    return &m_imgs.back();
+  }
+  [[nodiscard]] auto buffer(unsigned size, auto && fn) {
+    m_bufs.push_back(::buffer { quack::buffer_updater { m_dq, size, fn } });
+    return &m_bufs.back();
+  }
+};
+
+class renderer {
+  voo::swapchain_and_stuff * m_sw;
+  quack::pipeline_stuff * m_ps;
+  vee::command_buffer m_cb;
+
+public:
+  constexpr renderer(voo::swapchain_and_stuff * sw, quack::pipeline_stuff * ps, vee::command_buffer cb)
+      : m_sw { sw }
+      , m_ps { ps }
+      , m_cb { cb } {}
+
+  void run(buffer * b, quack::image_updater * i, unsigned count, unsigned first = 0) {
+    m_ps->run({
+        .sw = m_sw,
+        .scb = m_cb,
+        .pc = &b->pc(),
+        .inst_buffer = b->local_buffer(),
+        .atlas_dset = i->dset(),
+        .count = count,
+        .first = first,
+    });
+  }
+};
+
+static buffer * g_bg;
+static buffer * g_u;
+static quack::image_updater * g_a;
+static void on_start(resources * r) {
+  g_bg = r->buffer(100, back);
+  g_bg->pc() = {
+    .grid_pos = { 0 },
+    .grid_size = { 1 },
+  };
+
+  g_u = r->buffer(100, spiral);
+  g_u->pc() = {
+    .grid_pos = { 0 },
+    .grid_size = { 12 },
+  };
+  g_u->start();
+
+  g_a = r->image("nasa-jupiter.png");
+}
+static void on_frame(renderer * r) {
+  r->run(g_bg, g_a, 1);
+  r->run(g_u, g_a, 100);
+}
+
+class thread : public voo::casein_thread {
   static constexpr const auto max_dsets = 16;
 
 public:
@@ -48,21 +133,9 @@ public:
     voo::device_and_queue dq {};
 
     quack::pipeline_stuff ps { dq, max_dsets };
+    resources r { &dq, &ps };
 
-    quack::image_updater a { &dq, &ps, voo::load_sires_image("nasa-jupiter.png") };
-
-    quack::buffer_updater bg { &dq, 100, &back };
-    quack::upc rpc_back {
-      .grid_pos = { 0 },
-      .grid_size = { 1 },
-    };
-
-    quack::buffer_updater u { &dq, 100, &spiral };
-    sith::run_guard rg { &u }; // For animation
-    quack::upc rpc {
-      .grid_pos = { 0 },
-      .grid_size = { 12 },
-    };
+    on_start(&r);
 
     while (!interrupted()) {
       voo::swapchain_and_stuff sw { dq };
@@ -70,22 +143,9 @@ public:
       extent_loop(dq.queue(), sw, [&] {
         sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
           auto scb = sw.cmd_render_pass(pcb);
-          ps.run({
-              .sw = &sw,
-              .scb = *scb,
-              .pc = &rpc_back,
-              .inst_buffer = bg.data().local_buffer(),
-              .atlas_dset = a.dset(),
-              .count = 1,
-          });
-          ps.run({
-              .sw = &sw,
-              .scb = *scb,
-              .pc = &rpc,
-              .inst_buffer = u.data().local_buffer(),
-              .atlas_dset = a.dset(),
-              .count = 100,
-          });
+
+          renderer r { &sw, &ps, *scb };
+          on_frame(&r);
         });
       });
     }
