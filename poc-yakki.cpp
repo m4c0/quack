@@ -16,8 +16,8 @@ extern "C" float sinf(float);
 
 static void back(quack::instance *& i) {
   *i++ = {
-    .position = { -6 },
-    .size = { 12 },
+    .position = { -1 },
+    .size = { 2 },
     .colour = { 0, 0, 0, 1 },
   };
 }
@@ -57,6 +57,10 @@ public:
 
       quack::image_updater a { &dq, &ps, voo::load_sires_image("nasa-jupiter.png") };
 
+      quack::upc rpc_back {
+        .grid_pos = { 0 },
+        .grid_size = { 1 },
+      };
       quack::upc rpc {
         .grid_pos = { 0 },
         .grid_size = { 12 },
@@ -68,7 +72,7 @@ public:
           ps.run({
               .sw = &sw,
               .scb = *scb,
-              .pc = &rpc,
+              .pc = &rpc_back,
               .inst_buffer = bg.data().local_buffer(),
               .atlas_dset = a.dset(),
               .count = 1,
