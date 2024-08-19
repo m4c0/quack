@@ -1,5 +1,7 @@
 module quack;
 import traits;
+import vee;
+import voo;
 
 static constexpr const unsigned instance_size = sizeof(quack::instance);
 
