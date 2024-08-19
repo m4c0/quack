@@ -40,13 +40,14 @@ static void spiral(quack::instance *& i) {
   }
 }
 
-constexpr const auto max_batches = 100;
 class renderer : public voo::casein_thread {
+  static constexpr const auto max_dsets = 16;
+
 public:
   void run() override {
-    voo::device_and_queue dq { "quack" };
+    voo::device_and_queue dq {};
 
-    quack::pipeline_stuff ps { dq, max_batches };
+    quack::pipeline_stuff ps { dq, max_dsets };
 
     quack::image_updater a { &dq, &ps, voo::load_sires_image("nasa-jupiter.png") };
 
