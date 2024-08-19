@@ -3,6 +3,7 @@ import :pipeline_stuff;
 import :objects;
 import :upc;
 import :updater;
+import casein;
 import hai;
 import jute;
 import sith;
@@ -24,6 +25,14 @@ export namespace quack::yakki {
 
     [[nodiscard]] constexpr auto local_buffer() const { return m_buffer.data().local_buffer(); }
     [[nodiscard]] constexpr auto count() const { return m_buffer.count(); }
+
+    [[nodiscard]] auto mouse_pos() {
+      auto aspect = casein::window_size.x / casein::window_size.y;
+      auto upc = quack::adjust_aspect(m_pc, aspect);
+      auto wnd = casein::mouse_pos / casein::window_size;
+      auto rel = wnd * 2.0 - 1.0f;
+      return rel * upc.grid_size + upc.grid_pos;
+    }
 
     void start() { m_guard = sith::run_guard { &m_buffer }; }
     void run_once() { m_buffer.run_once(); }
