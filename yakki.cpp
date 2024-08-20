@@ -3,6 +3,8 @@ import casein;
 import dotz;
 import hai;
 import jute;
+import sith;
+import traits;
 import vee;
 import voo;
 
@@ -14,32 +16,59 @@ namespace quack::yakki {
   void (*on_frame)(renderer *) {};
   dotz::vec4 clear_colour { 0, 0, 0, 1 };
 
-  dotz::vec2 buffer::mouse_pos() const {
-    auto aspect = casein::window_size.x / casein::window_size.y;
-    auto upc = quack::adjust_aspect(m_pc, aspect);
-    auto wnd = casein::mouse_pos / casein::window_size;
-    auto rel = wnd * 2.0 - 1.0f;
-    return rel * upc.grid_size + upc.grid_pos;
-  }
 } // namespace quack::yakki
 
 namespace {
+  class buf : public quack::yakki::buffer {
+    buffer_updater m_buffer {};
+    upc m_pc {};
+    sith::run_guard m_guard {};
+
+  public:
+    constexpr buf() = default;
+    explicit buf(buffer_updater b) : m_buffer { traits::move(b) } {}
+
+    [[nodiscard]] upc & pc() override { return m_pc; }
+
+    [[nodiscard]] constexpr auto local_buffer() const { return m_buffer.data().local_buffer(); }
+    [[nodiscard]] unsigned count() const override { return m_buffer.count(); }
+
+    [[nodiscard]] dotz::vec2 mouse_pos() const override {
+      auto aspect = casein::window_size.x / casein::window_size.y;
+      auto upc = quack::adjust_aspect(m_pc, aspect);
+      auto wnd = casein::mouse_pos / casein::window_size;
+      auto rel = wnd * 2.0 - 1.0f;
+      return rel * upc.grid_size + upc.grid_pos;
+    }
+
+    void start() override { m_guard = sith::run_guard { &m_buffer }; }
+    void run_once() override { m_buffer.run_once(); }
+  };
+  class img : public quack::yakki::image {
+    image_updater m_image {};
+  public:
+    constexpr img() = default;
+    explicit img(image_updater b) : m_image { traits::move(b) } {}
+
+    [[nodiscard]] constexpr auto dset() const { return m_image.dset(); }
+  };
+
   class resources : public quack::yakki::resources {
     voo::device_and_queue * m_dq;
     pipeline_stuff * m_ps;
 
-    hai::varray<yakki::image> m_imgs { 16 };
-    hai::varray<yakki::buffer> m_bufs { 128 };
+    hai::varray<img> m_imgs { 16 };
+    hai::varray<buf> m_bufs { 128 };
 
   public:
     constexpr resources(voo::device_and_queue * dq, pipeline_stuff * ps) : m_dq { dq }, m_ps { ps } {}
 
     [[nodiscard]] yakki::image * image(jute::view name) override {
-      m_imgs.push_back(yakki::image { m_dq, m_ps, voo::load_sires_image(name) });
+      m_imgs.push_back(img { image_updater { m_dq, m_ps, voo::load_sires_image(name) }});
       return &m_imgs.back();
     }
     [[nodiscard]] yakki::buffer * buffer(unsigned size, buffer_fn_t && fn) override {
-      m_bufs.push_back(yakki::buffer { buffer_updater { m_dq, size, fn } });
+      m_bufs.push_back(buf { buffer_updater { m_dq, size, fn } });
       return &m_bufs.back();
     }
   };
@@ -55,7 +84,9 @@ namespace {
         , m_ps { ps }
         , m_cb { cb } {}
 
-    void run(buffer * b, image * i, unsigned count, unsigned first = 0) override {
+    void run(buffer * yb, image * yi, unsigned count, unsigned first = 0) override {
+      auto b = static_cast<buf *>(yb);
+      auto i = static_cast<img *>(yi);
       m_ps->run({
           .sw = m_sw,
           .scb = m_cb,
@@ -66,7 +97,10 @@ namespace {
           .first = first,
       });
     }
-    void run(buffer * b, image * i) override { run(b, i, b->count()); }
+    void run(buffer * yb, image * i) override {
+      auto b = static_cast<buf *>(yb);
+      run(b, i, b->count());
+    }
   };
 
   class thread : public voo::casein_thread {

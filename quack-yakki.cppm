@@ -4,30 +4,16 @@ import :upc;
 import :updater;
 import dotz;
 import jute;
-import sith;
-import traits;
 
 export namespace quack::yakki {
-  class buffer {
-    buffer_updater m_buffer {};
-    upc m_pc {};
-    sith::run_guard m_guard {};
-
-  public:
-    constexpr buffer() = default;
-    buffer(buffer_updater b) : m_buffer { traits::move(b) } {}
-
-    [[nodiscard]] constexpr auto & pc() { return m_pc; }
-
-    [[nodiscard]] constexpr auto local_buffer() const { return m_buffer.data().local_buffer(); }
-    [[nodiscard]] constexpr auto count() const { return m_buffer.count(); }
-
-    [[nodiscard]] dotz::vec2 mouse_pos() const;
-
-    void start() { m_guard = sith::run_guard { &m_buffer }; }
-    void run_once() { m_buffer.run_once(); }
+  struct buffer {
+    [[nodiscard]] virtual upc & pc() = 0;
+    [[nodiscard]] virtual unsigned count() const = 0;
+    [[nodiscard]] virtual dotz::vec2 mouse_pos() const = 0;
+    virtual void start() = 0;
+    virtual void run_once() = 0;
   };
-  using image = image_updater;
+  struct image {};
 
   struct resources {
     [[nodiscard]] virtual image * image(jute::view name) = 0;

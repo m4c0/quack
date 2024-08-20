@@ -37,7 +37,7 @@ static void spiral(quack::instance *& i) {
 
 static quack::yakki::buffer * g_bg;
 static quack::yakki::buffer * g_u;
-static quack::image_updater * g_a;
+static quack::yakki::image * g_a;
 static void on_start(quack::yakki::resources * r) {
   g_bg = r->buffer(100, back);
   g_bg->pc() = {
