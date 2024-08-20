@@ -12,5 +12,5 @@ export import :yakki;
 
 #pragma leco add_shader "quack.frag"
 #pragma leco add_shader "quack.vert"
-#pragma leco add_impl donald updater
+#pragma leco add_impl donald updater yakki
 #endif

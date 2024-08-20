@@ -44,14 +44,14 @@ export namespace quack::yakki {
     voo::device_and_queue * m_dq;
     pipeline_stuff * m_ps;
 
-    hai::varray<image_updater> m_imgs { 16 };
+    hai::varray<image> m_imgs { 16 };
     hai::varray<buffer> m_bufs { 128 };
 
   public:
     constexpr resources(voo::device_and_queue * dq, pipeline_stuff * ps) : m_dq { dq }, m_ps { ps } {}
 
     [[nodiscard]] auto * image(jute::view name) {
-      m_imgs.push_back(image_updater { m_dq, m_ps, voo::load_sires_image(name) });
+      m_imgs.push_back(yakki::image { m_dq, m_ps, voo::load_sires_image(name) });
       return &m_imgs.back();
     }
     [[nodiscard]] auto buffer(unsigned size, auto && fn) {
@@ -71,7 +71,7 @@ export namespace quack::yakki {
         , m_ps { ps }
         , m_cb { cb } {}
 
-    void run(buffer * b, image_updater * i, unsigned count, unsigned first = 0) {
+    void run(buffer * b, image * i, unsigned count, unsigned first = 0) {
       m_ps->run({
           .sw = m_sw,
           .scb = m_cb,
@@ -82,41 +82,10 @@ export namespace quack::yakki {
           .first = first,
       });
     }
-    void run(buffer * b, image_updater * i) { run(b, i, b->count()); }
+    void run(buffer * b, image * i) { run(b, i, b->count()); }
   };
 
-  void (*on_start)(resources *);
-  void (*on_frame)(renderer *);
-  dotz::vec4 clear_colour { 0, 0, 0, 1 };
-
-  class thread : public voo::casein_thread {
-    static constexpr const auto max_dsets = 16;
-
-  public:
-    void run() override {
-      voo::device_and_queue dq {};
-
-      pipeline_stuff ps { dq, max_dsets };
-      resources r { &dq, &ps };
-
-      on_start(&r);
-
-      while (!interrupted()) {
-        voo::swapchain_and_stuff sw { dq };
-
-        extent_loop(dq.queue(), sw, [&] {
-          sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
-            const auto cc = clear_colour;
-            auto scb = sw.cmd_render_pass({
-                .command_buffer = *pcb,
-                .clear_color = { { cc.x, cc.y, cc.z, cc.w } },
-            });
-
-            renderer r { &sw, &ps, *scb };
-            on_frame(&r);
-          });
-        });
-      }
-    }
-  } t;
+  extern void (*on_start)(resources *);
+  extern void (*on_frame)(renderer *);
+  extern dotz::vec4 clear_colour;
 } // namespace quack::yakki
