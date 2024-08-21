@@ -46,6 +46,7 @@ namespace {
   };
   class img : public quack::yakki::image {
     image_updater m_image {};
+
   public:
     constexpr img() = default;
     explicit img(image_updater b) : m_image { traits::move(b) } {}
@@ -64,7 +65,7 @@ namespace {
     constexpr resources(voo::device_and_queue * dq, pipeline_stuff * ps) : m_dq { dq }, m_ps { ps } {}
 
     [[nodiscard]] yakki::image * image(jute::view name) override {
-      m_imgs.push_back(img { image_updater { m_dq, m_ps, voo::load_sires_image(name) }});
+      m_imgs.push_back(img { image_updater { m_dq, m_ps, voo::load_sires_image(name) } });
       return &m_imgs.back();
     }
     [[nodiscard]] yakki::buffer * buffer(unsigned size, buffer_fn_t && fn) override {
@@ -87,7 +88,7 @@ namespace {
     void run(buffer * yb, image * yi, unsigned count, unsigned first = 0) override {
       auto b = static_cast<buf *>(yb);
       auto i = static_cast<img *>(yi);
-      m_ps->run({
+      quack::run(m_ps, {
           .sw = m_sw,
           .scb = m_cb,
           .pc = &b->pc(),

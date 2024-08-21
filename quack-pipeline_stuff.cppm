@@ -67,24 +67,5 @@ namespace quack {
       vee::cmd_bind_gr_pipeline(cb, *m_gp);
       m_quad.run(cb, 0, count, first);
     }
-
-    struct params {
-      voo::swapchain_and_stuff * sw;
-      vee::command_buffer scb;
-      quack::upc * pc;
-      vee::buffer::type inst_buffer;
-      vee::descriptor_set atlas_dset;
-      unsigned count;
-      unsigned first {};
-    };
-    void run(const params & p) const {
-      auto upc = quack::adjust_aspect(*p.pc, p.sw->aspect());
-      vee::cmd_set_viewport(p.scb, p.sw->extent());
-      vee::cmd_set_scissor(p.scb, p.sw->extent());
-      vee::cmd_bind_vertex_buffers(p.scb, 1, p.inst_buffer);
-      cmd_bind_descriptor_set(p.scb, p.atlas_dset);
-      cmd_push_vert_frag_constants(p.scb, upc);
-      run(p.scb, p.count, p.first);
-    }
   };
 } // namespace quack

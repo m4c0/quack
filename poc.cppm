@@ -85,7 +85,7 @@ public:
       extent_loop(dq.queue(), sw, [&] {
         sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
           auto scb = sw.cmd_render_pass(pcb);
-          ps.run({
+          quack::run(&ps, {
               .sw = &sw,
               .scb = *scb,
               .pc = &rpc,
@@ -94,7 +94,7 @@ public:
               .count = 1,
           });
           // Could be a single call, but shows how we can do multiple passes
-          ps.run({
+          quack::run(&ps, {
               .sw = &sw,
               .scb = *scb,
               .pc = &rpc,
