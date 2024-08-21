@@ -25,7 +25,5 @@ export namespace quack {
   void run(pipeline_stuff * ps, const params & p);
 } // namespace quack
 
-#pragma leco add_shader "quack.frag"
-#pragma leco add_shader "quack.vert"
 #pragma leco add_impl donald pipeline_stuff updater yakki
 #endif
