@@ -43,7 +43,7 @@ static void update_data(quack::instance *& i) {
   *i++ = (quack::instance) {
     .position { 0, 0 },
     .size { 1, 1 },
-    .colour { 0.0f, 0.0f, 0.1f, 1.0f },
+    .colour { 0.0f, 0.6f, 0.9f, 0.5f },
     .multiplier { 1, 1, 1, 1 },
   };
   *i++ = (quack::instance) {
@@ -92,6 +92,15 @@ public:
               .inst_buffer = u.data().local_buffer(),
               .atlas_dset = a.dset(),
               .count = 1,
+          });
+          quack::run(&ps, {
+              .sw = &sw,
+              .scb = *scb,
+              .pc = &rpc,
+              .inst_buffer = u.data().local_buffer(),
+              .atlas_dset = a.dset(),
+              .count = 1,
+              .scissor = { { 0.25f }, { 0.5f } },
           });
           quack::run(&ps, {
               .sw = &sw,
