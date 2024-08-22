@@ -93,7 +93,6 @@ public:
               .atlas_dset = a.dset(),
               .count = 1,
           });
-          // Could be a single call, but shows how we can do multiple passes
           quack::run(&ps, {
               .sw = &sw,
               .scb = *scb,
@@ -102,6 +101,7 @@ public:
               .atlas_dset = a.dset(),
               .count = 1,
               .first = 1,
+              .scissor = { { 0.25f }, { 0.5f } },
           });
         });
       });

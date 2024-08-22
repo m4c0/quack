@@ -9,10 +9,15 @@ export import :upc;
 export import :pipeline_stuff;
 export import :updater;
 export import :yakki;
+import dotz;
 import vee;
 import voo;
 
 export namespace quack {
+  struct rect {
+    dotz::vec2 offset;
+    dotz::vec2 extent;
+  };
   struct params {
     voo::swapchain_and_stuff * sw;
     vee::command_buffer scb;
@@ -21,6 +26,7 @@ export namespace quack {
     vee::descriptor_set atlas_dset;
     unsigned count;
     unsigned first {};
+    rect scissor {};
   };
   void run(pipeline_stuff * ps, const params & p);
 } // namespace quack

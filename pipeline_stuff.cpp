@@ -31,9 +31,18 @@ quack::pipeline_stuff::pipeline_stuff(vee::physical_device pd, vee::render_pass:
 }
 
 void quack::run(quack::pipeline_stuff * ps, const quack::params & p) {
+  auto se = p.sw->extent();
+  auto pe = p.scissor.extent;
+
+  vee::rect sc { .offset = {}, .extent = se };
+  if (dotz::length(pe) > 0) {
+    auto e = dotz::vec2 { se.width, se.height } * pe / p.pc->grid_size;
+    sc.extent = { static_cast<unsigned>(e.x), static_cast<unsigned>(e.y) };
+  }
+
   auto upc = quack::adjust_aspect(*p.pc, p.sw->aspect());
   vee::cmd_set_viewport(p.scb, p.sw->extent());
-  vee::cmd_set_scissor(p.scb, p.sw->extent());
+  vee::cmd_set_scissor(p.scb, sc);
   vee::cmd_bind_vertex_buffers(p.scb, 1, p.inst_buffer);
   ps->cmd_bind_descriptor_set(p.scb, p.atlas_dset);
   ps->cmd_push_vert_frag_constants(p.scb, upc);
