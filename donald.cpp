@@ -1,6 +1,5 @@
 module quack;
 import :pipeline_stuff;
-import :upc;
 import casein;
 import dotz;
 import hai;

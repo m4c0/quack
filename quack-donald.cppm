@@ -1,6 +1,5 @@
 export module quack:donald;
 import :objects;
-import :upc;
 import dotz;
 import jute;
 

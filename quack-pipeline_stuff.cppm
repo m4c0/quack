@@ -1,6 +1,5 @@
 export module quack:pipeline_stuff;
 import :objects;
-import :upc;
 import missingno;
 import traits;
 import vee;

@@ -1,6 +1,5 @@
 export module quack:yakki;
 import :objects;
-import :upc;
 import :updater;
 import dotz;
 import jute;
@@ -8,7 +7,7 @@ import jute;
 export namespace quack::yakki {
   struct buffer {
     [[nodiscard]] virtual upc & pc() = 0;
-    [[nodiscard]] virtual quack::rect & scissor() = 0;
+    [[nodiscard]] virtual quack::scissor & scissor() = 0;
     [[nodiscard]] virtual unsigned count() const = 0;
     [[nodiscard]] virtual dotz::vec2 mouse_pos() const = 0;
     virtual void start() = 0;

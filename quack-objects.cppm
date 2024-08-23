@@ -21,7 +21,12 @@ export struct instance {
 };
 static_assert(sizeof(instance) == 20 * sizeof(float));
 
-export struct rect {
+export struct upc {
+  dotz::vec2 grid_pos{};
+  dotz::vec2 grid_size{1, 1};
+};
+
+export struct scissor {
   dotz::vec2 offset;
   dotz::vec2 extent;
 };
