@@ -29,6 +29,7 @@ export struct upc {
 export struct scissor {
   dotz::vec2 offset;
   dotz::vec2 extent;
+  upc * ref;
 };
 
 using buffer_fn_t = hai::fn<void, instance *&>;

@@ -40,12 +40,14 @@ void quack::run(quack::pipeline_stuff * ps, const quack::params & p) {
     auto dwh = (sev2.x - sev2.y) / 2.0f;
     auto asp_d = dotz::max({ 0 }, dotz::vec2 { dwh, -dwh });
 
-    auto e = sev2 * pe / p.pc->grid_size - asp_d;
+    auto [gp, gs] = p.scissor.ref ? *p.scissor.ref : *p.pc;
+
+    auto e = sev2 * pe / gs - asp_d;
     sc.extent = { static_cast<unsigned>(e.x), static_cast<unsigned>(e.y) };
 
     auto po = p.scissor.offset;
-    auto tl = p.pc->grid_pos - p.pc->grid_size / 2.0f;
-    auto o = sev2 * (po - tl) / p.pc->grid_size + asp_d / 2.0f;
+    auto tl = gp - gs / 2.0f;
+    auto o = sev2 * (po - tl) / gs + asp_d / 2.0f;
     sc.offset = { static_cast<int>(o.x), static_cast<int>(o.y) };
   }
 

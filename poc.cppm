@@ -110,7 +110,7 @@ public:
               .atlas_dset = a.dset(),
               .count = 1,
               .first = 1,
-              .scissor = { { 0.25f }, { 0.5f } },
+              .scissor = { { 0.25f }, { 0.5f }, &rpc },
           });
         });
       });
