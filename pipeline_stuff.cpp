@@ -37,17 +37,18 @@ void quack::run(quack::pipeline_stuff * ps, const quack::params & p) {
   auto pe = p.scissor.extent;
   if (dotz::length(pe) > 0) {
     dotz::vec2 sev2 { se.width, se.height };
-    auto dwh = (sev2.x - sev2.y) / 2.0f;
+    auto dwh = sev2.x - sev2.y;
     auto asp_d = dotz::max({ 0 }, dotz::vec2 { dwh, -dwh });
+    auto scr_sq = sev2 - asp_d;
 
     auto [gp, gs] = p.scissor.ref ? *p.scissor.ref : *p.pc;
 
-    auto e = sev2 * pe / gs - asp_d;
+    auto e = scr_sq * pe / gs;
     sc.extent = { static_cast<unsigned>(e.x), static_cast<unsigned>(e.y) };
 
     auto po = p.scissor.offset;
     auto tl = gp - gs / 2.0f;
-    auto o = sev2 * (po - tl) / gs + asp_d / 2.0f;
+    auto o = scr_sq * (po - tl) / gs + asp_d / 2.0f;
     sc.offset = { static_cast<int>(o.x), static_cast<int>(o.y) };
   }
 
