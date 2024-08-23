@@ -21,7 +21,7 @@ export struct instance {
 };
 static_assert(sizeof(instance) == 20 * sizeof(float));
 
-struct rect {
+export struct rect {
   dotz::vec2 offset;
   dotz::vec2 extent;
 };
