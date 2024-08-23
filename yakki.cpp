@@ -22,6 +22,7 @@ namespace {
   class buf : public quack::yakki::buffer {
     buffer_updater m_buffer {};
     upc m_pc {};
+    rect m_scissor {};
     sith::run_guard m_guard {};
 
   public:
@@ -29,6 +30,7 @@ namespace {
     explicit buf(buffer_updater b) : m_buffer { traits::move(b) } {}
 
     [[nodiscard]] upc & pc() override { return m_pc; }
+    [[nodiscard]] rect & scissor() override { return m_scissor; }
 
     [[nodiscard]] constexpr auto local_buffer() const { return m_buffer.data().local_buffer(); }
     [[nodiscard]] unsigned count() const override { return m_buffer.count(); }
@@ -96,6 +98,7 @@ namespace {
           .atlas_dset = i->dset(),
           .count = count,
           .first = first,
+          .scissor = b->scissor(),
       });
     }
     void run(buffer * yb, image * i) override {

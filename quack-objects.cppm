@@ -21,5 +21,10 @@ export struct instance {
 };
 static_assert(sizeof(instance) == 20 * sizeof(float));
 
+struct rect {
+  dotz::vec2 offset;
+  dotz::vec2 extent;
+};
+
 using buffer_fn_t = hai::fn<void, instance *&>;
 } // namespace quack

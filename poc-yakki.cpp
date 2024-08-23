@@ -50,6 +50,10 @@ static void on_start(quack::yakki::resources * r) {
     .grid_pos = { 0 },
     .grid_size = { 12 },
   };
+  g_u->scissor() = {
+    .offset = { -3, -6 },
+    .extent = { 6, 12 },
+  };
   g_u->start();
 
   g_a = r->image("nasa-jupiter.png");

@@ -14,10 +14,6 @@ import vee;
 import voo;
 
 export namespace quack {
-  struct rect {
-    dotz::vec2 offset;
-    dotz::vec2 extent;
-  };
   struct params {
     voo::swapchain_and_stuff * sw;
     vee::command_buffer scb;
