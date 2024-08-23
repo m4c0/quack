@@ -36,7 +36,11 @@ void quack::run(quack::pipeline_stuff * ps, const quack::params & p) {
 
   vee::rect sc { .offset = {}, .extent = se };
   if (dotz::length(pe) > 0) {
-    auto e = dotz::vec2 { se.width, se.height } * pe / p.pc->grid_size;
+    dotz::vec2 sev2 { se.width, se.height };
+    auto dwh = (sev2.x - sev2.y) / 2.0f;
+    auto asp_d = dotz::max({ 0 }, dotz::vec2 { dwh, -dwh });
+
+    auto e = sev2 * pe / p.pc->grid_size - asp_d;
     sc.extent = { static_cast<unsigned>(e.x), static_cast<unsigned>(e.y) };
   }
 
