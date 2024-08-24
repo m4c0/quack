@@ -1,11 +1,15 @@
 module quack;
-import casein;
 import jute;
+import vaselin;
+
+#define IMPORT(R, N) [[clang::import_module("quack_yakki"), clang::import_name(#N)]] extern R N
 
 using namespace quack;
 using namespace quack::yakki;
 
 namespace quack::yakki {
+  IMPORT(void, start)();
+
   void (*on_start)(resources *) {};
   void (*on_frame)(renderer *) {};
   dotz::vec4 clear_colour { 0, 0, 0, 1 };
@@ -35,9 +39,13 @@ namespace {
 }
 
 
-static void start() {
+static void start_all(void *) {
+  if (!on_start || !on_frame) return;
+
+  start();
+
   res r {};
   on_start(&r);
 }
 
-init::init() { casein::handle(casein::CREATE_WINDOW, start); }
+init::init() { vaselin::set_timeout(start_all, nullptr, 0); }
