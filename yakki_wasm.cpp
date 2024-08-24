@@ -1,4 +1,5 @@
 module quack;
+import hai;
 import jute;
 import vaselin;
 
@@ -18,15 +19,34 @@ namespace quack::yakki {
 namespace {
   struct init { init(); } i;
 
-  class buf : public buffer {};
-  class img : public image {};
+  class buf : public buffer {
+    upc m_pc {};
+    quack::scissor m_scissor {};
+
+    upc & pc() override { return m_pc; }
+    quack::scissor & scissor() override { return m_scissor; }
+
+    void start() override {}
+    void run_once() override {}
+
+    unsigned count() const override { return 0; }
+
+    dotz::vec2 mouse_pos() const override { return {}; }
+  };
+  class img : public image {
+  };
+
+  hai::varray<img> g_imgs { 16 };
+  hai::varray<buf> g_bufs { 128 };
 
   class res : public resources {
     [[nodiscard]] yakki::image * image(jute::view name) override {
-      return nullptr;
+      g_imgs.push_back(img {});
+      return &g_imgs.back();
     }
     [[nodiscard]] yakki::buffer * buffer(unsigned size, buffer_fn_t && fn) override {
-      return nullptr;
+      g_bufs.push_back(buf {});
+      return &g_bufs.back();
     }
   };
 
