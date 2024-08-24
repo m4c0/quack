@@ -1,6 +1,7 @@
 export module quack;
 export import :donald;
 export import :objects;
+import dotz;
 
 #ifdef LECO_TARGET_WASM
 #pragma leco add_impl donald_wasm
@@ -8,7 +9,6 @@ export import :objects;
 export import :pipeline_stuff;
 export import :updater;
 export import :yakki;
-import dotz;
 import vee;
 import voo;
 
