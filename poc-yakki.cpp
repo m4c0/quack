@@ -1,7 +1,5 @@
-#ifndef LECO_TARGET_WASM
 #pragma leco app
 #pragma leco add_resource "nasa-jupiter.png"
-#endif
 
 import quack;
 import sitime;

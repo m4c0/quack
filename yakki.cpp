@@ -15,7 +15,6 @@ namespace quack::yakki {
   void (*on_start)(resources *) {};
   void (*on_frame)(renderer *) {};
   dotz::vec4 clear_colour { 0, 0, 0, 1 };
-
 } // namespace quack::yakki
 
 namespace {

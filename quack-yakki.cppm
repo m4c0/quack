@@ -1,6 +1,5 @@
 export module quack:yakki;
 import :objects;
-import :updater;
 import dotz;
 import jute;
 
