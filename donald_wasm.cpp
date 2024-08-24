@@ -44,7 +44,7 @@ namespace quack::donald {
   void atlas(jute::view res_name) { load_texture(res_name.begin(), res_name.size()); }
   void atlas(const void * ptr, unsigned width, unsigned height) {}
 
-  void data(data_fn d) {
+  void data(buffer_fn_t d) {
     auto i = g_quads.begin();
     d(i);
     auto qty = i - g_quads.begin();
