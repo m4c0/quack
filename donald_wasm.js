@@ -141,7 +141,7 @@
     requestAnimationFrame(draw);
   }
 
-  leco_imports.quack = {
+  leco_imports.quack_donald = {
     clear_colour : (r, g, b, a) => gl.clearColor(r, g, b, a),
     bind_instances : (count, ptr, sz) => {
       const data = new DataView(leco_exports.memory.buffer, ptr, sz * i_stride);

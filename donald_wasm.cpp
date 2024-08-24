@@ -6,7 +6,7 @@ import jute;
 import sires;
 import vaselin;
 
-#define IMPORT(R, N) extern "C" [[clang::import_module("quack"), clang::import_name(#N)]] R N
+#define IMPORT(R, N) extern "C" [[clang::import_module("quack_donald"), clang::import_name(#N)]] R N
 
 IMPORT(void, clear_colour)(float, float, float, float);
 IMPORT(void, bind_instances)(unsigned, const void *, unsigned);
