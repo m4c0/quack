@@ -22,10 +22,7 @@
   gl.vertexAttribPointer(5, 4, gl.FLOAT, false, i_stride, 64);
   ext.vertexAttribDivisorANGLE(5, 1);
 
-  const txt = gl.createTexture();
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, txt);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+  const txt = quack_texture(objs);
 
   var i_count = 0;
   function draw() {

@@ -108,3 +108,10 @@ function quack_gl() {
 
   return { gl, ext, canvas, v_array, v_buf, u };
 }
+function quack_texture({ gl }) {
+  const txt = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, txt);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 255, 255]));
+  return txt;
+}
