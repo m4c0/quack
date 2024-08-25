@@ -12,6 +12,7 @@ namespace quack::yakki {
   IMPORT(void, start)();
   IMPORT(unsigned, alloc_buf)();
   IMPORT(unsigned, alloc_text)(const char * name, unsigned sz);
+  IMPORT(void, update_buf)(unsigned, const void *, unsigned);
 
   void (*on_start)(resources *) {};
   void (*on_frame)(renderer *) {};
@@ -23,6 +24,9 @@ namespace {
 
   class buf : public buffer {
     unsigned m_idx;
+    buffer_fn_t m_fn;
+    unsigned m_count {};
+    hai::array<instance> m_buffer;
 
     upc m_pc {};
     quack::scissor m_scissor {};
@@ -30,15 +34,32 @@ namespace {
     upc & pc() override { return m_pc; }
     quack::scissor & scissor() override { return m_scissor; }
 
-    void start() override {}
-    void run_once() override {}
+    void start() override {
+      vaselin::request_animation_frame([](void * p) {
+        static_cast<buf *>(p)->update_once();
+        static_cast<buf *>(p)->start();
+      }, this);
+    }
+    void run_once() override {
+      vaselin::request_animation_frame([](void * p) {
+        static_cast<buf *>(p)->update_once();
+      }, this);
+    }
 
-    unsigned count() const override { return 0; }
+    unsigned count() const override { return m_count; }
 
     dotz::vec2 mouse_pos() const override { return {}; }
+
+    void update_once() {
+      auto p = m_buffer.begin();
+      m_fn(p);
+      auto qty = p - m_buffer.begin();
+      update_buf(m_idx, m_buffer.begin(), qty);
+    }
+
   public:
     constexpr buf() = default;
-    explicit buf(unsigned i) : m_idx { i } {}
+    explicit buf(unsigned i, unsigned sz, buffer_fn_t && fn) : m_idx { i }, m_fn { fn }, m_buffer { sz } {}
   };
   struct img : public image {
     unsigned idx;
@@ -55,7 +76,7 @@ namespace {
       return &g_imgs.back();
     }
     [[nodiscard]] yakki::buffer * buffer(unsigned size, buffer_fn_t && fn) override {
-      g_bufs.push_back(buf { alloc_buf() });
+      g_bufs.push_back(buf { alloc_buf(), size, traits::move(fn) });
       return &g_bufs.back();
     }
   };

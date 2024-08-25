@@ -11,5 +11,13 @@
       return txts.push(t);
     },
     alloc_buf : () => bufs.push(quack_buffer(objs)),
+    update_buf : (i, ptr, sz) => {
+      const { gl } = objs;
+      var { buf, stride } = bufs[i - 1];
+      var data = vaselin_toarr(ptr, sz * stride);
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+      bufs[i - 1].count = sz;
+    },
   };
 }();
