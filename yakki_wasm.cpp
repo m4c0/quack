@@ -95,6 +95,15 @@ namespace {
   };
 }
 
+static void render_loop(void *) {
+  auto [ r, g, b, a ] = clear_colour;
+  clear_canvas(r, g, b, a);
+
+  rnd rr {};
+  on_frame(&rr);
+
+  vaselin::request_animation_frame(render_loop, nullptr);
+}
 
 static void start_all(void *) {
   if (!on_start || !on_frame) return;
@@ -104,13 +113,7 @@ static void start_all(void *) {
   res r {};
   on_start(&r);
 
-  vaselin::request_animation_frame([](void *) {
-    auto [ r, g, b, a ] = clear_colour;
-    clear_canvas(r, g, b, a);
-
-    rnd rr {};
-    on_frame(&rr);
-  }, nullptr);
+  vaselin::request_animation_frame(render_loop, nullptr);
 }
 
 init::init() { vaselin::request_animation_frame(start_all, nullptr); }
