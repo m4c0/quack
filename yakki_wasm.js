@@ -17,12 +17,17 @@
       var data = vaselin_toarr(ptr, sz * stride);
       gl.bindBuffer(gl.ARRAY_BUFFER, buf);
       gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-      bufs[i - 1].count = sz;
     },
     clear_canvas : (r, g, b, a) => {
       const { gl } = objs;
       gl.clearColor(r, g, b, a);
       quack_clear(objs);
+    },
+    run_batch : (b, i, qty, first) => {
+      const { gl, ext } = objs;
+      gl.bindBuffer(gl.ARRAY_BUFFER, bufs[b - 1].buf);
+      gl.bindTexture(gl.TEXTURE_2D, txts[i - 1]);
+      ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, 6, qty);
     },
   };
 }();

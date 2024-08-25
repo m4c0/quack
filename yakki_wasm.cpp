@@ -14,6 +14,7 @@ namespace quack::yakki {
   IMPORT(unsigned, alloc_text)(const char * name, unsigned sz);
   IMPORT(void, update_buf)(unsigned, const void *, unsigned);
   IMPORT(void, clear_canvas)(float, float, float, float);
+  IMPORT(void, run_batch)(unsigned, unsigned, unsigned, unsigned);
 
   void (*on_start)(resources *) {};
   void (*on_frame)(renderer *) {};
@@ -61,6 +62,8 @@ namespace {
   public:
     constexpr buf() = default;
     explicit buf(unsigned i, unsigned sz, buffer_fn_t && fn) : m_idx { i }, m_fn { fn }, m_buffer { sz } {}
+
+    constexpr const auto idx() const { return m_idx; }
   };
   struct img : public image {
     unsigned idx;
@@ -84,9 +87,11 @@ namespace {
 
   class rnd : public renderer {
     void run(buffer * yb, image * yi, unsigned count, unsigned first = 0) override {
+      auto b = static_cast<buf *>(yb);
+      auto i = static_cast<img *>(yi);
+      run_batch(b->idx(), i->idx, count, first);
     }
-    void run(buffer * yb, image * i) override {
-    }
+    void run(buffer * yb, image * i) override { run(yb, i, yb->count()); }
   };
 }
 
@@ -102,6 +107,9 @@ static void start_all(void *) {
   vaselin::request_animation_frame([](void *) {
     auto [ r, g, b, a ] = clear_colour;
     clear_canvas(r, g, b, a);
+
+    rnd rr {};
+    on_frame(&rr);
   }, nullptr);
 }
 
