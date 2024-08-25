@@ -126,4 +126,5 @@ function quack_load_texture({ gl }, txt, ptr, size) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   };
   img.src = vaselin_tostr(ptr, size);
+  console.log("Loading", img.src);
 }

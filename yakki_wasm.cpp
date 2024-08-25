@@ -10,6 +10,7 @@ using namespace quack::yakki;
 
 namespace quack::yakki {
   IMPORT(void, start)();
+  IMPORT(unsigned, alloc_text)(const char * name, unsigned sz);
 
   void (*on_start)(resources *) {};
   void (*on_frame)(renderer *) {};
@@ -33,7 +34,8 @@ namespace {
 
     dotz::vec2 mouse_pos() const override { return {}; }
   };
-  class img : public image {
+  struct img : public image {
+    unsigned idx;
   };
 
   hai::varray<img> g_imgs { 16 };
@@ -41,7 +43,9 @@ namespace {
 
   class res : public resources {
     [[nodiscard]] yakki::image * image(jute::view name) override {
-      g_imgs.push_back(img {});
+      auto idx = alloc_text(name.begin(), name.size());
+
+      g_imgs.push_back(img { {}, idx });
       return &g_imgs.back();
     }
     [[nodiscard]] yakki::buffer * buffer(unsigned size, buffer_fn_t && fn) override {
