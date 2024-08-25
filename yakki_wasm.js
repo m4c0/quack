@@ -23,6 +23,11 @@
       gl.clearColor(r, g, b, a);
       quack_clear(objs);
     },
+    set_grid : (px, py, sx, sy) => {
+      const { gl, u } = objs;
+      gl.uniform2f(u.pos, px, py);
+      gl.uniform2f(u.size, sx, sy);
+    },
     run_batch : (b, i, qty, first) => {
       const { gl, ext } = objs;
       gl.bindBuffer(gl.ARRAY_BUFFER, bufs[b - 1].buf);

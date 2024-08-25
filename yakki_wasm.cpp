@@ -1,4 +1,5 @@
 module quack;
+import casein;
 import hai;
 import jute;
 import vaselin;
@@ -14,6 +15,7 @@ namespace quack::yakki {
   IMPORT(unsigned, alloc_text)(const char * name, unsigned sz);
   IMPORT(void, update_buf)(unsigned, const void *, unsigned);
   IMPORT(void, clear_canvas)(float, float, float, float);
+  IMPORT(void, set_grid)(float, float, float, float);
   IMPORT(void, run_batch)(unsigned, unsigned, unsigned, unsigned);
 
   void (*on_start)(resources *) {};
@@ -87,6 +89,10 @@ namespace {
 
   class rnd : public renderer {
     void run(buffer * yb, image * yi, unsigned count, unsigned first = 0) override {
+      auto aspect = casein::window_size.x / casein::window_size.y;
+      auto [ gp, gs ] = quack::adjust_aspect(yb->pc(), aspect);
+      set_grid(gp.x, gp.y, gs.x, gs.y);
+
       auto b = static_cast<buf *>(yb);
       auto i = static_cast<img *>(yi);
       run_batch(b->idx(), i->idx, count, first);
