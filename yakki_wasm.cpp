@@ -13,6 +13,7 @@ namespace quack::yakki {
   IMPORT(unsigned, alloc_buf)();
   IMPORT(unsigned, alloc_text)(const char * name, unsigned sz);
   IMPORT(void, update_buf)(unsigned, const void *, unsigned);
+  IMPORT(void, clear_canvas)(float, float, float, float);
 
   void (*on_start)(resources *) {};
   void (*on_frame)(renderer *) {};
@@ -97,6 +98,11 @@ static void start_all(void *) {
 
   res r {};
   on_start(&r);
+
+  vaselin::request_animation_frame([](void *) {
+    auto [ r, g, b, a ] = clear_colour;
+    clear_canvas(r, g, b, a);
+  }, nullptr);
 }
 
-init::init() { vaselin::set_timeout(start_all, nullptr, 0); }
+init::init() { vaselin::request_animation_frame(start_all, nullptr); }

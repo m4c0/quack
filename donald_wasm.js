@@ -8,8 +8,7 @@
   var i_count = 0;
   function draw() {
     if (i_count > 0) {
-      gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.viewport(0, 0, canvas.width, canvas.height);
+      quack_clear(objs);
 
       ext.drawArraysInstancedANGLE(gl.TRIANGLES, 0, 6, i_count);
     }

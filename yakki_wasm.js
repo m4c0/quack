@@ -19,5 +19,10 @@
       gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
       bufs[i - 1].count = sz;
     },
+    clear_canvas : (r, g, b, a) => {
+      const { gl } = objs;
+      gl.clearColor(r, g, b, a);
+      quack_clear(objs);
+    },
   };
 }();

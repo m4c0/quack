@@ -149,3 +149,7 @@ function quack_buffer({ gl, ext }) {
   ext.vertexAttribDivisorANGLE(5, 1);
   return { buf, stride };
 }
+function quack_clear({ gl, canvas }) {
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
