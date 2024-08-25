@@ -5,7 +5,7 @@ export import :yakki;
 import dotz;
 
 #ifdef LECO_TARGET_WASM
-#pragma leco add_impl donald_wasm yakki_wasm
+#pragma leco add_impl donald_wasm
 #else
 export import :pipeline_stuff;
 export import :updater;
@@ -26,7 +26,7 @@ export namespace quack {
   void run(pipeline_stuff * ps, const params & p);
 } // namespace quack
 
-#pragma leco add_impl donald pipeline_stuff updater yakki
+#pragma leco add_impl donald pipeline_stuff updater
 #endif
 
 export namespace quack {

@@ -28,3 +28,9 @@ export namespace quack::yakki {
   extern void (*on_frame)(renderer *);
   extern dotz::vec4 clear_colour;
 } // namespace quack::yakki
+
+#ifdef LECO_TARGET_WASM
+#pragma leco add_impl yakki_wasm
+#else
+#pragma leco add_impl yakki
+#endif
