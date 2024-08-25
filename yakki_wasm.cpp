@@ -57,8 +57,8 @@ namespace {
     void update_once() {
       auto p = m_buffer.begin();
       m_fn(p);
-      auto qty = p - m_buffer.begin();
-      update_buf(m_idx, m_buffer.begin(), qty);
+      m_count = p - m_buffer.begin();
+      update_buf(m_idx, m_buffer.begin(), m_count);
     }
 
   public:
