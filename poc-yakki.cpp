@@ -11,7 +11,7 @@ static void back(quack::instance *& i) {
   *i++ = {
     .position = { -1 },
     .size = { 2 },
-    .colour = { 0, 0, 0, 1 },
+    .colour = { 0.0f, 0.0f, 0.1f, 1.0f },
   };
 }
 static void spiral(quack::instance *& i) {
