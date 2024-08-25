@@ -38,18 +38,6 @@ namespace {
     upc & pc() override { return m_pc; }
     quack::scissor & scissor() override { return m_scissor; }
 
-    void start() override {
-      vaselin::request_animation_frame([](void * p) {
-        static_cast<buf *>(p)->update_once();
-        static_cast<buf *>(p)->start();
-      }, this);
-    }
-    void run_once() override {
-      vaselin::request_animation_frame([](void * p) {
-        static_cast<buf *>(p)->update_once();
-      }, this);
-    }
-
     unsigned count() const override { return m_count; }
 
     dotz::vec2 mouse_pos() const override { return {}; }
@@ -66,6 +54,18 @@ namespace {
     explicit buf(unsigned i, unsigned sz, buffer_fn_t && fn) : m_idx { i }, m_fn { fn }, m_buffer { sz } {}
 
     constexpr const auto idx() const { return m_idx; }
+
+    void start() override {
+      vaselin::request_animation_frame([](void * p) {
+        static_cast<buf *>(p)->update_once();
+        static_cast<buf *>(p)->start();
+      }, this);
+    }
+    void run_once() override {
+      vaselin::request_animation_frame([](void * p) {
+        static_cast<buf *>(p)->update_once();
+      }, this);
+    }
   };
   struct img : public image {
     unsigned idx;
@@ -83,6 +83,7 @@ namespace {
     }
     [[nodiscard]] yakki::buffer * buffer(unsigned size, buffer_fn_t && fn) override {
       g_bufs.push_back(buf { alloc_buf(), size, traits::move(fn) });
+      g_bufs.back().run_once();
       return &g_bufs.back();
     }
   };
