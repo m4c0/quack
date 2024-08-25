@@ -128,3 +128,24 @@ function quack_load_texture({ gl }, txt, ptr, size) {
   img.src = vaselin_tostr(ptr, size);
   console.log("Loading", img.src);
 }
+function quack_buffer({ gl, ext }) {
+  const stride = 80;
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.enableVertexAttribArray(1);
+  gl.vertexAttribPointer(1, 4, gl.FLOAT, false, stride, 0);
+  ext.vertexAttribDivisorANGLE(1, 1);
+  gl.enableVertexAttribArray(2);
+  gl.vertexAttribPointer(2, 4, gl.FLOAT, false, stride, 32);
+  ext.vertexAttribDivisorANGLE(2, 1);
+  gl.enableVertexAttribArray(3);
+  gl.vertexAttribPointer(3, 4, gl.FLOAT, false, stride, 16);
+  ext.vertexAttribDivisorANGLE(3, 1);
+  gl.enableVertexAttribArray(4);
+  gl.vertexAttribPointer(4, 4, gl.FLOAT, false, stride, 48);
+  ext.vertexAttribDivisorANGLE(4, 1);
+  gl.enableVertexAttribArray(5);
+  gl.vertexAttribPointer(5, 4, gl.FLOAT, false, stride, 64);
+  ext.vertexAttribDivisorANGLE(5, 1);
+  return { buf, stride };
+}
