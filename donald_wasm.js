@@ -44,17 +44,7 @@
       gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
       i_count = count;
     },
-    load_texture : (ptr, sz) => {
-      const img = new Image();
-      img.onload = () => {
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      };
-      img.src = vaselin_tostr(ptr, sz);
-    },
+    load_texture : (ptr, sz) => quack_load_texture(objs, txt, ptr, sz),
     set_grid : (px, py, sx, sy) => {
       gl.uniform2f(u.pos, px, py);
       gl.uniform2f(u.size, sx, sy);
