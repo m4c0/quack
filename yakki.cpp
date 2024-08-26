@@ -135,5 +135,7 @@ namespace {
         });
       }
     }
-  } t;
+  };
 } // namespace
+
+void quack::yakki::start() { static thread t {}; }

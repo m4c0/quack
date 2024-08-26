@@ -65,5 +65,6 @@ struct init {
   init() {
     quack::yakki::on_start = on_start;
     quack::yakki::on_frame = on_frame;
+    quack::yakki::start();
   }
 } i;

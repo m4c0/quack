@@ -27,6 +27,9 @@ export namespace quack::yakki {
   extern void (*on_start)(resources *);
   extern void (*on_frame)(renderer *);
   extern dotz::vec4 clear_colour;
+
+  // Exists with the sole purpose of avoid stealing events from other ducks
+  void start();
 } // namespace quack::yakki
 
 #ifdef LECO_TARGET_WASM
