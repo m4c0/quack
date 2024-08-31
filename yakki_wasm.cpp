@@ -24,8 +24,6 @@ namespace quack::yakki {
 } // namespace quack::yakki
 
 namespace {
-  struct init { init(); } i;
-
   class buf : public buffer {
     unsigned m_idx;
     buffer_fn_t m_fn;
@@ -123,4 +121,4 @@ static void start_all(void *) {
   vaselin::request_animation_frame(render_loop, nullptr);
 }
 
-init::init() { vaselin::request_animation_frame(start_all, nullptr); }
+void quack::yakki::start() { vaselin::request_animation_frame(start_all, nullptr); }
