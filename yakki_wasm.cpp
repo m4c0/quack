@@ -1,5 +1,7 @@
 module quack;
+import :wasm;
 import casein;
+import gelo;
 import hai;
 import jute;
 import vaselin;
@@ -10,13 +12,8 @@ using namespace quack;
 using namespace quack::yakki;
 
 namespace quack::yakki {
-  IMPORT(void, start)();
   IMPORT(unsigned, alloc_buf)();
   IMPORT(unsigned, alloc_text)(const char * name, unsigned sz);
-  IMPORT(void, update_buf)(unsigned, const void *, unsigned);
-  IMPORT(void, clear_canvas)(float, float, float, float);
-  IMPORT(void, set_grid)(float, float, float, float);
-  IMPORT(void, run_batch)(unsigned, unsigned, unsigned, unsigned);
 
   void (*on_start)(resources *) {};
   void (*on_frame)(renderer *) {};
@@ -24,6 +21,9 @@ namespace quack::yakki {
 } // namespace quack::yakki
 
 namespace {
+  static int u_pos;
+  static int u_size;
+
   class buf : public buffer {
     unsigned m_idx;
     buffer_fn_t m_fn;
@@ -44,7 +44,8 @@ namespace {
       auto p = m_buffer.begin();
       m_fn(p);
       m_count = p - m_buffer.begin();
-      update_buf(m_idx, m_buffer.begin(), m_count);
+      gelo::bind_buffer(gelo::ARRAY_BUFFER, m_idx);
+      gelo::buffer_data(gelo::ARRAY_BUFFER, m_buffer.begin(), m_count * sizeof(instance), gelo::STATIC_DRAW);
     }
 
   public:
@@ -69,20 +70,14 @@ namespace {
     unsigned idx;
   };
 
-  hai::varray<img> g_imgs { 16 };
-  hai::varray<buf> g_bufs { 128 };
-
   class res : public resources {
     [[nodiscard]] yakki::image * image(jute::view name) override {
-      auto idx = alloc_text(name.begin(), name.size());
-
-      g_imgs.push_back(img { {}, idx });
-      return &g_imgs.back();
+      // yes, we are leaking. no, we don't care - they should be finite
+      return new img { {}, alloc_text(name.begin(), name.size()) };
     }
     [[nodiscard]] yakki::buffer * buffer(unsigned size, buffer_fn_t && fn) override {
-      g_bufs.push_back(buf { alloc_buf(), size, traits::move(fn) });
-      g_bufs.back().run_once();
-      return &g_bufs.back();
+      // yes, we are leaking. no, we don't care - they should be finite
+      return new buf { alloc_buf(), size, traits::move(fn) };
     }
   };
 
@@ -90,11 +85,16 @@ namespace {
     void run(buffer * yb, image * yi, unsigned count, unsigned first = 0) override {
       auto aspect = casein::window_size.x / casein::window_size.y;
       auto [ gp, gs ] = quack::adjust_aspect(yb->pc(), aspect);
-      set_grid(gp.x, gp.y, gs.x, gs.y);
+      gelo::uniform2f(u_pos, gp.x, gp.y);
+      gelo::uniform2f(u_size, gs.x, gs.y);
 
       auto b = static_cast<buf *>(yb);
       auto i = static_cast<img *>(yi);
-      run_batch(b->idx(), i->idx, count, first);
+
+      gelo::bind_buffer(gelo::ARRAY_BUFFER, b->idx());
+      gelo::bind_texture(gelo::TEXTURE_2D, i->idx);
+      // TODO: how to deal with "first"?
+      gelo::draw_arrays_instanced(gelo::TRIANGLES, 0, 6, count);
     }
     void run(buffer * yb, image * i) override { run(yb, i, yb->count()); }
   };
@@ -102,7 +102,8 @@ namespace {
 
 static void render_loop(void *) {
   auto [ r, g, b, a ] = clear_colour;
-  clear_canvas(r, g, b, a);
+  gelo::clear_color(r, g, b, a);
+  wasm::clear();
 
   rnd rr {};
   on_frame(&rr);
@@ -113,7 +114,9 @@ static void render_loop(void *) {
 static void start_all(void *) {
   if (!on_start || !on_frame) return;
 
-  start();
+  auto [ prog, b ] = wasm::setup();
+  u_pos = gelo::get_uniform_location(prog, "pc.grid_pos");
+  u_size = gelo::get_uniform_location(prog, "pc.grid_size");
 
   res r {};
   on_start(&r);
