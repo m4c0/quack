@@ -167,9 +167,11 @@ namespace quack::wasm {
     stbi::load_from_resource(name, [=](auto & img) {
       using namespace gelo;
 
+      silog::log(silog::info, "[%*s] loaded", static_cast<int>(name.size()), name.begin());
+
       auto & [ w, h, ch, data ] = img;
       bind_texture(TEXTURE_2D, t);
-      tex_image_2d(t, 0, RGBA, w, h, 0, RGBA, UNSIGNED_BYTE, *data, w * h * 4);
+      tex_image_2d(TEXTURE_2D, 0, RGBA, w, h, 0, RGBA, UNSIGNED_BYTE, *data, w * h * 4);
       tex_parameter_i(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
       tex_parameter_i(TEXTURE_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
       tex_parameter_i(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
