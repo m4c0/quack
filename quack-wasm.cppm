@@ -105,7 +105,7 @@ namespace quack::wasm {
     bind_buffer(ARRAY_BUFFER, b);
     buffer_data(ARRAY_BUFFER, quad, sizeof(quad), STATIC_DRAW);
     enable_vertex_attrib_array(0);
-    vertex_attrib_array_pointer(0, 2, FLOAT, false, 0, 0);
+    vertex_attrib_pointer(0, 2, FLOAT, false, 0, 0);
 
     enable(BLEND);
     blend_func(ONE, ONE_MINUS_SRC_ALPHA);
@@ -117,5 +117,36 @@ namespace quack::wasm {
     using namespace gelo;
     gelo::clear(COLOR_BUFFER_BIT);
     viewport(0, 0, casein::window_size.x, casein::window_size.y);
+  }
+
+  auto create_buffer() {
+    static constexpr const auto stride = 80;
+
+    using namespace gelo;
+
+    auto b = gelo::create_buffer();
+    bind_buffer(ARRAY_BUFFER, b);
+
+    enable_vertex_attrib_array(1);
+    vertex_attrib_pointer(1, 4, FLOAT, false, stride, 0);
+    vertex_attrib_divisor(1, 1);
+
+    enable_vertex_attrib_array(2);
+    vertex_attrib_pointer(2, 4, FLOAT, false, stride, 32);
+    vertex_attrib_divisor(2, 1);
+
+    enable_vertex_attrib_array(3);
+    vertex_attrib_pointer(3, 4, FLOAT, false, stride, 16);
+    vertex_attrib_divisor(3, 1);
+
+    enable_vertex_attrib_array(4);
+    vertex_attrib_pointer(4, 4, FLOAT, false, stride, 48);
+    vertex_attrib_divisor(4, 1);
+
+    enable_vertex_attrib_array(5);
+    vertex_attrib_pointer(5, 4, FLOAT, false, stride, 64);
+    vertex_attrib_divisor(5, 1);
+
+    return b;
   }
 }

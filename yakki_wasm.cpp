@@ -12,7 +12,6 @@ using namespace quack;
 using namespace quack::yakki;
 
 namespace quack::yakki {
-  IMPORT(unsigned, alloc_buf)();
   IMPORT(unsigned, alloc_text)(const char * name, unsigned sz);
 
   void (*on_start)(resources *) {};
@@ -25,7 +24,7 @@ namespace {
   static int u_size;
 
   class buf : public buffer {
-    unsigned m_idx;
+    int m_idx;
     buffer_fn_t m_fn;
     unsigned m_count {};
     hai::array<instance> m_buffer;
@@ -50,7 +49,7 @@ namespace {
 
   public:
     constexpr buf() = default;
-    explicit buf(unsigned i, unsigned sz, buffer_fn_t && fn) : m_idx { i }, m_fn { fn }, m_buffer { sz } {}
+    explicit buf(int i, unsigned sz, buffer_fn_t && fn) : m_idx { i }, m_fn { fn }, m_buffer { sz } {}
 
     constexpr const auto idx() const { return m_idx; }
 
@@ -77,7 +76,7 @@ namespace {
     }
     [[nodiscard]] yakki::buffer * buffer(unsigned size, buffer_fn_t && fn) override {
       // yes, we are leaking. no, we don't care - they should be finite
-      return new buf { alloc_buf(), size, traits::move(fn) };
+      return new buf { wasm::create_buffer(), size, traits::move(fn) };
     }
   };
 
