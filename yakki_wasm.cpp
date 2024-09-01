@@ -66,13 +66,16 @@ namespace {
     }
   };
   struct img : public image {
-    unsigned idx;
+    int idx;
   };
 
   class res : public resources {
     [[nodiscard]] yakki::image * image(jute::view name) override {
+      auto t = wasm::create_texture();
+      wasm::load_texture(t, name);
+
       // yes, we are leaking. no, we don't care - they should be finite
-      return new img { {}, alloc_text(name.begin(), name.size()) };
+      return new img { {}, t };
     }
     [[nodiscard]] yakki::buffer * buffer(unsigned size, buffer_fn_t && fn) override {
       // yes, we are leaking. no, we don't care - they should be finite

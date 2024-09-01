@@ -3,6 +3,7 @@ import casein;
 import gelo;
 import jute;
 import silog;
+import stubby;
 
 using namespace jute::literals;
 
@@ -148,5 +149,31 @@ namespace quack::wasm {
     vertex_attrib_divisor(5, 1);
 
     return b;
+  }
+
+  auto create_texture() {
+    using namespace gelo;
+
+    unsigned pix {};
+
+    auto t = gelo::create_texture();
+    active_texture(TEXTURE0);
+    bind_texture(TEXTURE_2D, t);
+    tex_image_2d(TEXTURE_2D, 0, RGBA, 1, 1, 0, RGBA, UNSIGNED_BYTE, &pix, sizeof(pix));
+    return t;
+  }
+
+  void load_texture(int t, jute::view name) {
+    stbi::load_from_resource(name, [=](auto & img) {
+      using namespace gelo;
+
+      auto & [ w, h, ch, data ] = img;
+      bind_texture(TEXTURE_2D, t);
+      tex_image_2d(t, 0, RGBA, w, h, 0, RGBA, UNSIGNED_BYTE, *data, w * h * 4);
+      tex_parameter_i(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);
+      tex_parameter_i(TEXTURE_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
+      tex_parameter_i(TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
+      tex_parameter_i(TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
+    });
   }
 }
