@@ -87,6 +87,8 @@ namespace quack::wasm {
     struct {
       int program;
       int quad_buffer;
+      int u_grid_pos;
+      int u_grid_size;
     } res;
 
     auto p = res.program = create_program();
@@ -101,6 +103,11 @@ namespace quack::wasm {
     }
 
     use_program(p);
+
+    res.u_grid_pos = get_uniform_location(p, "pc.grid_pos");
+    res.u_grid_size = get_uniform_location(p, "pc.grid_size");
+    auto u_tex = get_uniform_location(p, "tex");
+    uniform1i(u_tex, 0); 
 
     auto b = res.quad_buffer = create_buffer();
     bind_buffer(ARRAY_BUFFER, b);
@@ -154,7 +161,7 @@ namespace quack::wasm {
   auto create_texture() {
     using namespace gelo;
 
-    unsigned pix {};
+    unsigned pix = 0xFF00FFFF;
 
     auto t = gelo::create_texture();
     active_texture(TEXTURE0);

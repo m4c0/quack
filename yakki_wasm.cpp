@@ -116,9 +116,9 @@ static void render_loop(void *) {
 static void start_all(void *) {
   if (!on_start || !on_frame) return;
 
-  auto [ prog, b ] = wasm::setup();
-  u_pos = gelo::get_uniform_location(prog, "pc.grid_pos");
-  u_size = gelo::get_uniform_location(prog, "pc.grid_size");
+  auto x = wasm::setup();
+  u_pos = x.u_grid_pos;
+  u_size = x.u_grid_size;
 
   res r {};
   on_start(&r);

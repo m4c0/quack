@@ -62,9 +62,9 @@ namespace quack::donald {
 
   void data(buffer_fn_t d) {
     if (!g_started) {
-      auto [ prog, b ] = wasm::setup();
-      g_u_pos = gelo::get_uniform_location(prog, "pc.grid_pos");
-      g_u_size = gelo::get_uniform_location(prog, "pc.grid_size");
+      auto x = wasm::setup();
+      g_u_pos = x.u_grid_pos;
+      g_u_size = x.u_grid_size;
       g_buffer = wasm::create_buffer();
       g_texture = wasm::create_texture();
       g_started = true;
