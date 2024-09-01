@@ -25,6 +25,8 @@ static jute::view g_atlas {};
 
 static void draw(void *) {
   quack::wasm::clear();
+  gelo::uniform2f(g_u_pos, g_upc.grid_pos.x, g_upc.grid_pos.y);
+  gelo::uniform2f(g_u_size, g_upc.grid_size.x, g_upc.grid_size.y);
   gelo::draw_arrays_instanced(gelo::TRIANGLES, 0, 6, g_qty);
   vaselin::request_animation_frame(draw, nullptr);
 }
@@ -42,10 +44,7 @@ namespace quack::donald {
   }
   void push_constants(quack::upc u) {
     auto aspect = casein::window_size.x / casein::window_size.y;
-    u = quack::adjust_aspect(u, aspect);
-    gelo::uniform2f(g_u_pos, u.grid_pos.x, u.grid_pos.y);
-    gelo::uniform2f(g_u_size, u.grid_size.x, u.grid_size.y);
-    g_upc = u;
+    g_upc = quack::adjust_aspect(u, aspect);
   }
 
   dotz::vec2 mouse_pos() {
@@ -78,7 +77,7 @@ namespace quack::donald {
 
     if (qty > 0) {
       gelo::bind_buffer(gelo::ARRAY_BUFFER, g_buffer);
-      gelo::buffer_data(gelo::ARRAY_BUFFER, g_quads.begin(), g_quads.size(), gelo::STATIC_DRAW);
+      gelo::buffer_data(gelo::ARRAY_BUFFER, g_quads.begin(), g_quads.size() * sizeof(instance), gelo::STATIC_DRAW);
       g_qty = qty;
     }
   }
