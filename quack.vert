@@ -19,11 +19,13 @@ layout(location = 2) out vec4 q_mult;
 const float pi = 3.14159265358979323f;
 
 void main() {
+  const float gap = 0.00001f;
+
   q_color = i_color;
-  q_uv = mix(i_uv.xy, i_uv.zw, pos);
+  q_uv = mix(i_uv.xy + gap, i_uv.zw - gap, pos);
   q_mult = i_mult;
 
-  vec2 f_adj = pos * 0.0001f; // avoid one-pixel gaps
+  vec2 f_adj = pos * gap; // Avoids gaps in aligned grids
 
   float theta = i_rot.x * pi / 180.0f;
   const mat2 rot = mat2(
