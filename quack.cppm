@@ -2,6 +2,7 @@ export module quack;
 export import :donald;
 export import :objects;
 export import :yakki;
+import casein;
 import dotz;
 
 #ifdef LECO_TARGET_WASM
@@ -36,5 +37,12 @@ export namespace quack {
   u.grid_size = grid_aspect < aspect ? dotz::vec2{aspect * g.y, g.y}
                                      : dotz::vec2{g.x, g.x / aspect};
   return u;
+}
+[[nodiscard]] dotz::vec2 mouse_pos(const upc & pc) {
+  auto aspect = casein::window_size.x / casein::window_size.y;
+  auto upc = adjust_aspect(pc, aspect);
+  auto wnd = casein::mouse_pos / casein::window_size;
+  auto rel = wnd * 2.0 - 1.0f;
+  return rel * upc.grid_size + upc.grid_pos;
 }
 }

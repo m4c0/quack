@@ -95,13 +95,7 @@ namespace quack::donald {
   void clear_colour(dotz::vec4 c) { g_clear_colour = c; }
   void push_constants(quack::upc u) { g_upc = u; }
 
-  dotz::vec2 mouse_pos() {
-    auto aspect = casein::window_size.x / casein::window_size.y;
-    auto upc = quack::adjust_aspect(g_upc, aspect);
-    auto wnd = casein::mouse_pos / casein::window_size;
-    auto rel = wnd * 2.0 - 1.0f;
-    return rel * upc.grid_size + upc.grid_pos;
-  }
+  dotz::vec2 mouse_pos() { return quack::mouse_pos(g_upc); }
 
   void atlas(atlas_fn a) {
     g_atlas_fn = a;
