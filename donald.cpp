@@ -62,22 +62,28 @@ void thread::run() {
 
   release_init_lock();
 
+  auto render = [&](vee::render_pass_begin rpb) {
+    rpb.clear_color = { { g_clear_colour.x, g_clear_colour.y, g_clear_colour.z, g_clear_colour.w } };
+
+    auto [w, h] = rpb.extent;
+    auto aspect = static_cast<float>(w) / static_cast<float>(h);
+    auto upc = quack::adjust_aspect(g_upc, aspect);
+
+    voo::cmd_render_pass rp { rpb };
+    vee::cmd_set_viewport(rpb.command_buffer, rpb.extent);
+    vee::cmd_set_scissor(rpb.command_buffer, rpb.extent);
+    vee::cmd_bind_vertex_buffers(rpb.command_buffer, 1, ib.data().local_buffer());
+    ps.cmd_bind_descriptor_set(rpb.command_buffer, atlas.dset());
+    ps.cmd_push_vert_frag_constants(rpb.command_buffer, upc);
+    ps.run(rpb.command_buffer, g_quads);
+  };
+
   while (!interrupted()) {
     voo::swapchain_and_stuff sw { dq };
 
     extent_loop(dq.queue(), sw, [&] {
-      auto upc = quack::adjust_aspect(g_upc, sw.aspect());
       sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
-        auto scb = sw.cmd_render_pass(vee::render_pass_begin {
-            .command_buffer = *pcb,
-            .clear_color = { { g_clear_colour.x, g_clear_colour.y, g_clear_colour.z, g_clear_colour.w } },
-        });
-        vee::cmd_set_viewport(*scb, sw.extent());
-        vee::cmd_set_scissor(*scb, sw.extent());
-        vee::cmd_bind_vertex_buffers(*scb, 1, ib.data().local_buffer());
-        ps.cmd_bind_descriptor_set(*scb, atlas.dset());
-        ps.cmd_push_vert_frag_constants(*scb, upc);
-        ps.run(*scb, g_quads);
+        render(sw.render_pass_begin({ *pcb }));
       });
     });
   }
