@@ -2,7 +2,6 @@ export module quack:donald;
 import :objects;
 import dotz;
 import jute;
-import voo;
 
 /// Single-batch single-atlas render thread
 export namespace quack::donald {
@@ -17,5 +16,5 @@ export namespace quack::donald {
   void atlas(const void *, unsigned w, unsigned h);
   void data(buffer_fn_t);
 
-  void offscreen(voo::offscreen::buffers & ofs);
+  void offscreen(unsigned w, unsigned h);
 } // namespace quack::donald

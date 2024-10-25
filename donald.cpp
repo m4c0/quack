@@ -144,7 +144,10 @@ namespace quack::donald {
     }
   }
 
-  void offscreen(voo::offscreen::buffers & ofs) {
-    g_render_fn(ofs.render_pass_begin({}));
+  void offscreen(unsigned w, unsigned h) {
+    // alloc cp/cb
+    // voo::offscreen::buffers ofs { pd, { w, h } };
+    //g_render_fn(ofs.render_pass_begin({}));
+    //submit(cb);
   }
 } // namespace quack::donald
