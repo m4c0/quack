@@ -29,6 +29,7 @@ static atlas_fn g_atlas_fn = [](auto pd) {
 };
 static quack::buffer_fn_t g_data_fn {};
 static dotz::vec4 g_clear_colour { 0.1f, 0.2f, 0.3f, 1.0f };
+static hai::fn<void, vee::render_pass_begin> g_render_fn {};
 
 // TODO: sync count change with data change
 static unsigned g_quads = 0;
@@ -60,9 +61,7 @@ void thread::run() {
   quack::image_updater atlas { &dq, &ps, [](auto pd) { return g_atlas_fn(pd); } };
   g_atlas = &atlas;
 
-  release_init_lock();
-
-  auto render = [&](vee::render_pass_begin rpb) {
+  g_render_fn = [&](vee::render_pass_begin rpb) {
     rpb.clear_color = { { g_clear_colour.x, g_clear_colour.y, g_clear_colour.z, g_clear_colour.w } };
 
     auto [w, h] = rpb.extent;
@@ -78,12 +77,14 @@ void thread::run() {
     ps.run(rpb.command_buffer, g_quads);
   };
 
+  release_init_lock();
+
   while (!interrupted()) {
     voo::swapchain_and_stuff sw { dq };
 
     extent_loop(dq.queue(), sw, [&] {
       sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
-        render(sw.render_pass_begin({ *pcb }));
+        g_render_fn(sw.render_pass_begin({ *pcb }));
       });
     });
   }
@@ -141,5 +142,9 @@ namespace quack::donald {
     } else if (!g_atlas) {
       t();
     }
+  }
+
+  void offscreen(voo::offscreen::buffers & ofs) {
+    g_render_fn(ofs.render_pass_begin({}));
   }
 } // namespace quack::donald
