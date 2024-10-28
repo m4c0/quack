@@ -62,7 +62,7 @@ void thread::run() {
   g_atlas = &atlas;
 
   g_render_fn = [&](vee::render_pass_begin rpb) {
-    rpb.clear_color = { { g_clear_colour.x, g_clear_colour.y, g_clear_colour.z, g_clear_colour.w } };
+    rpb.clear_colours = { vee::clear_colour(g_clear_colour) };
 
     auto [w, h] = rpb.extent;
     auto aspect = static_cast<float>(w) / static_cast<float>(h);

@@ -126,7 +126,7 @@ namespace {
             const auto cc = clear_colour;
             auto scb = sw.cmd_render_pass({
                 .command_buffer = *pcb,
-                .clear_color = { { cc.x, cc.y, cc.z, cc.w } },
+                .clear_colours { vee::clear_colour(cc) },
             });
 
             renderer r { &sw, &ps, *scb };
