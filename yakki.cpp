@@ -5,6 +5,7 @@ import hai;
 import jute;
 import sith;
 import traits;
+import vapp;
 import vee;
 import voo;
 
@@ -106,12 +107,12 @@ namespace {
     }
   };
 
-  class thread : public voo::casein_thread {
+  class thread : public vapp {
     static constexpr const auto max_dsets = 16;
 
   public:
     void run() override {
-      voo::device_and_queue dq {};
+      voo::device_and_queue dq { casein::window_title.cstr().begin() };
 
       pipeline_stuff ps { dq, max_dsets };
       resources r { &dq, &ps };

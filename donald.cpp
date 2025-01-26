@@ -7,6 +7,7 @@ import jute;
 import silog;
 import sith;
 import traits;
+import vapp;
 import vee;
 import voo;
 
@@ -14,7 +15,7 @@ namespace {
   using atlas_t = voo::h2l_image;
   using atlas_fn = atlas_t (*)(vee::physical_device);
 
-  class thread : public voo::casein_thread {
+  class thread : public vapp {
   public:
     void run() override;
   };
