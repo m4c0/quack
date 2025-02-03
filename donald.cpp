@@ -26,7 +26,7 @@ static unsigned g_max_quads = 0;
 static quack::upc g_upc {};
 static atlas_fn g_atlas_fn = [](auto pd) {
   silog::log(silog::warning, "No atlas defined");
-  return voo::h2l_image { pd, 16, 16 };
+  return voo::h2l_image { pd, 16, 16, VK_FORMAT_R8G8B8A8_SRGB };
 };
 static quack::buffer_fn_t g_data_fn {};
 static dotz::vec4 g_clear_colour { 0.1f, 0.2f, 0.3f, 1.0f };
@@ -126,7 +126,7 @@ namespace quack::donald {
     w = width;
     h = height;
     atlas([](auto pd) {
-      voo::h2l_image img { pd, w, h };
+      voo::h2l_image img { pd, w, h, VK_FORMAT_R8G8B8A8_SRGB };
 
       voo::mapmem m { img.host_memory() };
       auto * c = static_cast<unsigned *>(*m);
