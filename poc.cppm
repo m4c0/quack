@@ -11,6 +11,7 @@ import sith;
 import sitime;
 import vee;
 import voo;
+import vapp;
 
 extern "C" float sinf(float);
 
@@ -21,7 +22,7 @@ struct u8_rgba {
   unsigned char a;
 };
 static voo::h2l_image gen_atlas(vee::physical_device pd) {
-  voo::h2l_image res { pd, 16, 32 };
+  voo::h2l_image res { pd, 16, 32, VK_FORMAT_R8G8B8A8_SRGB };
 
   voo::mapmem m { res.host_memory() };
   auto * img = static_cast<u8_rgba *>(*m);
@@ -58,10 +59,10 @@ static void update_data(quack::instance *& i) {
 }
 
 constexpr const auto max_batches = 100;
-class renderer : public voo::casein_thread {
+class renderer : public vapp {
 public:
   void run() override {
-    voo::device_and_queue dq { "quack" };
+    voo::device_and_queue dq { "quack", casein::native_ptr };
 
     quack::pipeline_stuff ps { dq, max_batches };
     quack::buffer_updater u { &dq, 2, &update_data };
