@@ -53,7 +53,7 @@ static void update(quack::instance *& all) {
 }
 
 void thread::run() {
-  voo::device_and_queue dq { g_app_name };
+  voo::device_and_queue dq { g_app_name, casein::native_ptr };
   quack::pipeline_stuff ps { dq, 2 };
 
   quack::buffer_updater ib { &dq, g_max_quads, update };
