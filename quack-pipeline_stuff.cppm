@@ -9,7 +9,7 @@ namespace quack {
   export class pipeline_stuff {
     vee::descriptor_set_layout dsl = vee::create_descriptor_set_layout({ vee::dsl_fragment_sampler() });
 
-    vee::pipeline_layout pl = vee::create_pipeline_layout({ *dsl }, { vee::vert_frag_push_constant_range<upc>() });
+    vee::pipeline_layout pl = vee::create_pipeline_layout(*dsl, vee::vert_frag_push_constant_range<upc>());
 
     vee::descriptor_pool desc_pool;
     voo::one_quad m_quad;
