@@ -78,7 +78,7 @@ void thread::run() {
     ps.run(rpb.command_buffer, g_quads);
   };
 
-  release_init_lock();
+  //release_init_lock();
 
   while (!interrupted()) {
     voo::swapchain_and_stuff sw { dq };
