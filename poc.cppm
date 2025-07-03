@@ -4,8 +4,6 @@
 
 export module poc;
 
-import casein;
-import silog;
 import quack;
 import sith;
 import sitime;
@@ -59,18 +57,13 @@ static void update_data(quack::instance *& i) {
 }
 
 constexpr const auto max_batches = 100;
-class renderer : public vapp {
-public:
+struct renderer : public vapp {
   void run() override {
-    voo::device_and_queue dq { "quack", casein::native_ptr };
+    main_loop("quack", [&](auto & dq, auto & sw) {
+      quack::pipeline_stuff ps { dq, max_batches };
+      quack::buffer_updater u { &dq, 2, &update_data };
 
-    quack::pipeline_stuff ps { dq, max_batches };
-    quack::buffer_updater u { &dq, 2, &update_data };
-
-    sith::run_guard rg { &u }; // For animation
-
-    while (!interrupted()) {
-      voo::swapchain_and_stuff sw { dq };
+      sith::run_guard rg { &u }; // For animation
 
       quack::image_updater a { &dq, &ps, &gen_atlas };
 
@@ -118,6 +111,7 @@ public:
           });
         });
       });
-    }
+    });
   }
 } r;
+
