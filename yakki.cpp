@@ -112,7 +112,10 @@ namespace {
 
   public:
     void run() override {
-      voo::device_and_queue dq { casein::window_title.cstr().begin() };
+      voo::device_and_queue dq {
+        casein::window_title.cstr().begin(),
+        casein::native_ptr
+      };
 
       pipeline_stuff ps { dq, max_dsets };
       resources r { &dq, &ps };
