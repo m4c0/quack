@@ -16,7 +16,6 @@ import voo;
 export namespace quack {
   struct params {
     voo::swapchain_and_stuff * sw;
-    vee::command_buffer scb;
     quack::upc * pc;
     vee::buffer::type inst_buffer;
     vee::descriptor_set atlas_dset;

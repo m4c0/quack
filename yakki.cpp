@@ -79,20 +79,17 @@ namespace {
   class renderer : public quack::yakki::renderer {
     voo::swapchain_and_stuff * m_sw;
     pipeline_stuff * m_ps;
-    vee::command_buffer m_cb;
 
   public:
-    constexpr renderer(voo::swapchain_and_stuff * sw, pipeline_stuff * ps, vee::command_buffer cb)
+    constexpr renderer(voo::swapchain_and_stuff * sw, pipeline_stuff * ps)
         : m_sw { sw }
-        , m_ps { ps }
-        , m_cb { cb } {}
+        , m_ps { ps } {}
 
     void run(buffer * yb, image * yi, unsigned count, unsigned first = 0) override {
       auto b = static_cast<buf *>(yb);
       auto i = static_cast<img *>(yi);
       quack::run(m_ps, {
           .sw = m_sw,
-          .scb = m_cb,
           .pc = &b->pc(),
           .inst_buffer = b->local_buffer(),
           .atlas_dset = i->dset(),
@@ -133,7 +130,7 @@ namespace {
                 .clear_colours { vee::clear_colour(cc) },
             });
 
-            renderer r { &sw, &ps, *scb };
+            renderer r { &sw, &ps };
             on_frame(&r);
           });
         });

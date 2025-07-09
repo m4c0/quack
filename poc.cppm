@@ -84,7 +84,6 @@ struct renderer : public vapp {
           });
           quack::run(&ps, {
               .sw = &sw,
-              .scb = *scb,
               .pc = &rpc,
               .inst_buffer = u.data().local_buffer(),
               .atlas_dset = a.dset(),
@@ -92,7 +91,6 @@ struct renderer : public vapp {
           });
           quack::run(&ps, {
               .sw = &sw,
-              .scb = *scb,
               .pc = &rpc,
               .inst_buffer = u.data().local_buffer(),
               .atlas_dset = a.dset(),
@@ -101,7 +99,6 @@ struct renderer : public vapp {
           });
           quack::run(&ps, {
               .sw = &sw,
-              .scb = *scb,
               .pc = &rpc,
               .inst_buffer = u.data().local_buffer(),
               .atlas_dset = a.dset(),
