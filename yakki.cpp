@@ -123,7 +123,7 @@ namespace {
         voo::swapchain_and_stuff sw { dq };
 
         extent_loop(dq.queue(), sw, [&] {
-          sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
+          sw.queue_one_time_submit(dq.queue(), [&] {
             const auto cc = clear_colour;
             auto scb = sw.cmd_render_pass({
                 .clear_colours { vee::clear_colour(cc) },

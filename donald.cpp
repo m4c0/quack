@@ -84,7 +84,7 @@ void thread::run() {
     voo::swapchain_and_stuff sw { dq };
 
     extent_loop(dq.queue(), sw, [&] {
-      sw.queue_one_time_submit(dq.queue(), [&](auto pcb) {
+      sw.queue_one_time_submit(dq.queue(), [&] {
         g_render_fn(sw.render_pass_begin());
       });
     });
