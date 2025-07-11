@@ -13,6 +13,7 @@ namespace quack {
 
     vee::descriptor_pool desc_pool;
     voo::one_quad m_quad;
+    vee::render_pass m_rp;
     vee::gr_pipeline m_gp;
 
     static auto create_dset_pool(unsigned max_desc_sets) {
@@ -20,9 +21,7 @@ namespace quack {
     }
 
   public:
-    pipeline_stuff(const voo::device_and_queue & dq, unsigned max_dsets)
-        : pipeline_stuff(dq.physical_device(), dq.render_pass(), max_dsets) {}
-    pipeline_stuff(vee::physical_device pd, vee::render_pass::type rp, unsigned max_dsets);
+    pipeline_stuff(const voo::device_and_queue & dq, unsigned max_dsets);
 
     [[nodiscard]] auto allocate_descriptor_set() { return vee::allocate_descriptor_set(*desc_pool, *dsl); }
     [[nodiscard]] auto allocate_descriptor_set(vee::image_view::type iv, vee::sampler::type smp) {

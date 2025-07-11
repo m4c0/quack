@@ -4,12 +4,13 @@
 module quack;
 import :pipeline_stuff;
 
-quack::pipeline_stuff::pipeline_stuff(vee::physical_device pd, vee::render_pass::type rp, unsigned max_dsets)
+quack::pipeline_stuff::pipeline_stuff(const voo::device_and_queue & dq, unsigned max_dsets)
     : desc_pool { create_dset_pool(max_dsets) }
-    , m_quad { pd } {
+    , m_rp { voo::single_att_render_pass(dq) }
+    , m_quad { dq.physical_device() } {
   m_gp = vee::create_graphics_pipeline({
       .pipeline_layout = *pl,
-      .render_pass = rp,
+      .render_pass = *m_rp,
       .depth_test = false,
       .shaders {
           voo::shader("quack.vert.spv").pipeline_vert_stage(),

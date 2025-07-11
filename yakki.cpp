@@ -120,7 +120,8 @@ namespace {
       on_start(&r);
 
       while (!interrupted()) {
-        voo::swapchain_and_stuff sw { dq };
+        auto rp = voo::single_att_render_pass(dq);
+        voo::swapchain_and_stuff sw { dq, *rp };
 
         extent_loop(dq.queue(), sw, [&] {
           sw.queue_one_time_submit(dq.queue(), [&] {
