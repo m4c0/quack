@@ -106,18 +106,23 @@ namespace quack::donald {
 
   dotz::vec2 mouse_pos() { return quack::mouse_pos(g_upc); }
 
-  void atlas(atlas_fn a) {
-    g_atlas_fn = a;
+  void post_atlas() {
     if (g_atlas) {
       g_atlas->run_once();
     } else if (!g_batch) {
       t();
     }
   }
+
+  void atlas(atlas_fn a) {
+    g_atlas_fn = a;
+    post_atlas();
+  }
   void atlas(jute::view res_name) {
     static jute::view name;
     name = res_name;
-    atlas([](auto pd) { return voo::load_sires_image(name, pd); });
+    g_atlas_fn = [](auto pd) { return voo::load_sires_image(name, pd); };
+    post_atlas();
   }
   void atlas(const void * ptr, unsigned width, unsigned height) {
     static const void * p;
@@ -126,7 +131,7 @@ namespace quack::donald {
     p = ptr;
     w = width;
     h = height;
-    atlas([](auto pd) {
+    g_atlas_fn = [](auto pd) {
       voo::h2l_image img { pd, w, h, VK_FORMAT_R8G8B8A8_SRGB };
 
       voo::mapmem m { img.host_memory() };
@@ -135,7 +140,8 @@ namespace quack::donald {
       for (auto i = 0; i < w * h; i++) *c++ = *o++;
 
       return img;
-    });
+    };
+    post_atlas();
   }
   void data(buffer_fn_t d) {
     g_data_fn = d;
