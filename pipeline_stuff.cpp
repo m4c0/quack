@@ -12,7 +12,6 @@ quack::pipeline_stuff::pipeline_stuff(const voo::device_and_queue & dq, unsigned
   m_gp = vee::create_graphics_pipeline({
       .pipeline_layout = *pl,
       .render_pass = *m_rp,
-      .depth_test = false,
       .shaders {
           voo::shader("quack.vert.spv").pipeline_vert_stage(),
           voo::shader("quack.frag.spv").pipeline_frag_stage(),
