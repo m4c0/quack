@@ -13,8 +13,8 @@ quack::pipeline_stuff::pipeline_stuff(const voo::device_and_queue & dq, unsigned
       .pipeline_layout = *pl,
       .render_pass = *m_rp,
       .shaders {
-          voo::shader("quack.vert.spv").pipeline_vert_stage(),
-          voo::shader("quack.frag.spv").pipeline_frag_stage(),
+          *voo::vert_shader("quack.vert.spv"),
+          *voo::frag_shader("quack.frag.spv"),
       },
       .bindings {
           m_quad.vertex_input_bind(),
